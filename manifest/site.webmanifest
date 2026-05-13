@@ -17,6 +17,6 @@
   "theme_color": "#3f2ab4",
   "background_color": "#ffffff",
   "display": "standalone",
-  "scope": "/",
-  "start_url": "/index.html"
+  "start_url": "/Timetable/index.html",
+  "scope": "/Timetable/"
 }
