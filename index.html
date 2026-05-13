@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#3f2ab4">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <title>Timetable</title>
     <style>
@@ -19,9 +20,9 @@
             --table-even: #f9f9f9;
             --table-hover: #f0f0f0;
             --accent-color: #3f2ab4;
-            --accent-light: #f9f9f9;
+            --accent-light: #f0eeff;
         }
-        
+
         body.dark-mode {
             --bg-primary: #1a1a1a;
             --bg-secondary: #2d2d2d;
@@ -31,529 +32,500 @@
             --table-even: #323232;
             --table-hover: #3a3a3a;
             --accent-color: #7c3aed;
-            --accent-light: #3a3a3a;
+            --accent-light: #2e2a3a;
         }
-        
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Poppins, sans-serif;
-            padding: 20px;
             background-color: var(--bg-primary);
             color: var(--text-primary);
             transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
         }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            gap: 12px;
+        }
+
+        .current-time {
+            font-size: clamp(16px, 4vw, 22px);
+            font-weight: 600;
+            color: var(--accent-color);
+            white-space: nowrap;
+        }
+
         h1 {
             text-align: center;
+            font-size: clamp(16px, 4vw, 22px);
             color: var(--text-primary);
+            margin: 0;
+            flex: 1;
         }
-        table {
-            width: 100%;
-            max-width: 900px;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: var(--bg-secondary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
-        th, td {
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            text-align: left;
-            vertical-align: middle;
-            color: var(--text-primary);
-        }
-        th {
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: bold;
-        }
-        tr:nth-child(even) {
-            background-color: var(--table-even);
-        }
-        tr:hover {
-            background-color: var(--table-hover);
-        }
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+
+        .theme-toggle,
+        .install-button {
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: clamp(14px, 3.5vw, 18px);
             transition: transform 0.2s;
-            z-index: 1000;
+            flex-shrink: 0;
         }
-        .theme-toggle:hover {
+
+        .theme-toggle:hover,
+        .install-button:hover {
             transform: scale(1.1);
         }
-        .container {
-            display: flex;
-            gap: 30px;
+
+        .install-button {
+            display: none;
+        }
+
+        .install-button.show {
+            display: block;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .page-content {
+            padding: 16px;
             max-width: 1400px;
             margin: 0 auto;
-            flex-wrap: wrap;
         }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ── TABLE ── */
         .schedule-section {
-            flex: 1;
-            min-width: 500px;
+            min-width: 0;
         }
-        .todo-section {
-            flex: 0 1 300px;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
             background-color: var(--bg-secondary);
-            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: fit-content;
+            overflow: hidden;
+            table-layout: fixed;
         }
+
+        col.col-time  { width: 38%; }
+        col.col-act   { width: 62%; }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: clamp(7px, 2vw, 12px);
+            text-align: left;
+            vertical-align: middle;
+            color: var(--text-primary);
+            font-size: clamp(12px, 2.5vw, 15px);
+            word-break: break-word;
+            hyphens: auto;
+        }
+
+        th {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) td {
+            background-color: var(--table-even);
+        }
+
+        tr:hover td {
+            background-color: var(--table-hover);
+        }
+
+        tr.active-time td {
+            background-color: var(--accent-color) !important;
+            color: white !important;
+            font-weight: 600;
+            opacity: 0.85;
+        }
+
+        /* ── TODO ── */
+        .todo-section {
+            background-color: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            min-width: 0;
+        }
+
         .user-input {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
+
         .user-input.hidden {
             display: none;
         }
+
         .user-input input {
             width: 100%;
             padding: 8px;
             border: 2px solid var(--accent-color);
             border-radius: 4px;
+            font-family: Poppins, sans-serif;
             font-size: 14px;
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            box-sizing: border-box;
         }
+
         .user-input input::placeholder {
             color: var(--text-secondary);
         }
+
         .greeting-message {
             text-align: center;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--accent-color);
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             padding: 10px;
             background-color: var(--accent-light);
-            border-radius: 4px;
+            border-radius: 6px;
             min-height: 20px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: opacity 0.2s, transform 0.2s;
         }
+
         .greeting-message:hover {
             opacity: 0.7;
             transform: scale(1.02);
         }
+
         .todo-section h2 {
             color: var(--accent-color);
-            margin-top: 0;
+            margin: 0 0 12px;
+            font-size: clamp(15px, 3vw, 18px);
             border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
+
         .todo-section ul {
             list-style: none;
             padding: 0;
             margin: 0;
         }
+
         .todo-section li {
-            padding: 10px;
+            padding: 9px 10px;
             margin: 5px 0;
             background-color: var(--accent-light);
             border-left: 4px solid var(--accent-color);
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, background-color 0.2s;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: clamp(12px, 2.5vw, 14px);
         }
+
         .todo-section li:hover {
             background-color: var(--table-hover);
-            transform: translateX(5px);
+            transform: translateX(4px);
         }
+
         .todo-section li.completed {
             opacity: 0.6;
         }
+
         .todo-section li.completed label {
             text-decoration: line-through;
         }
+
         .todo-section input[type="checkbox"] {
             cursor: pointer;
-            width: 18px;
-            height: 18px;
+            width: 17px;
+            height: 17px;
             flex-shrink: 0;
+            accent-color: var(--accent-color);
         }
+
         .todo-section label {
             flex: 1;
             cursor: pointer;
             color: var(--text-primary);
         }
-        tr.active-time {
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: bold;
-            opacity: 0.5;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        }
-        tr.active-time td {
-            color: white;
-        }
-        .current-time {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--accent-color);
-            background-color: var(--bg-secondary);
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            z-index: 999;
-        }
-        
-        @media (max-width: 1200px) {
+
+        /* ── RESPONSIVE ── */
+
+        /* Tablet: narrow sidebar */
+        @media (max-width: 900px) {
             .container {
-                gap: 20px;
+                grid-template-columns: 1fr 220px;
+                gap: 16px;
             }
         }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
+
+        /* Mobile: stack everything */
+        @media (max-width: 620px) {
+            .page-content {
+                padding: 12px 10px;
             }
-            
-            h1 {
-                font-size: 24px;
-                margin: 10px 0;
-            }
-            
-            .schedule-section {
-                min-width: 100%;
-            }
-            
+
             .container {
-                flex-direction: column;
-                gap: 20px;
-                max-width: 100%;
+                grid-template-columns: 1fr;
+                gap: 16px;
             }
-            
+
             .todo-section {
-                flex: 1;
-                width: 100%;
-                min-width: auto;
+                order: -1; /* Todo en haut sur mobile */
             }
-            
-            table {
-                margin: 10px 0;
-                max-width: 100%;
-            }
-            
-            th, td {
-                padding: 8px;
-                font-size: 14px;
-            }
-            
-            .current-time {
-                font-size: 18px;
-                padding: 8px 12px;
-                top: 10px;
-                left: 10px;
-            }
-            
-            .theme-toggle {
-                top: 10px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 16px;
-            }
-            
-            .todo-section {
-                padding: 15px;
-            }
-            
-            .todo-section li {
-                padding: 8px;
-                margin: 3px 0;
-            }
+
+            col.col-time { width: 42%; }
+            col.col-act  { width: 58%; }
         }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
+
+        @media (max-width: 380px) {
+            .topbar {
+                padding: 10px 10px;
             }
-            
-            h1 {
-                font-size: 18px;
-                margin: 5px 0;
-            }
-            
-            table {
-                font-size: 12px;
-                margin: 5px 0;
-            }
-            
-            th, td {
-                padding: 6px;
-                font-size: 12px;
-            }
-            
-            .current-time {
-                font-size: 16px;
+
+            .theme-toggle,
+            .install-button {
                 padding: 6px 10px;
-                top: 5px;
-                left: 5px;
             }
-            
-            .theme-toggle {
-                top: 5px;
-                right: 5px;
-                padding: 6px 10px;
-                font-size: 14px;
-            }
-            
-            .todo-section {
-                padding: 12px;
-            }
-            
-            .todo-section h2 {
-                font-size: 16px;
-            }
-            
-            .todo-section li {
-                padding: 6px;
-                margin: 2px 0;
-                font-size: 12px;
-            }
-            
-            .todo-section input[type="checkbox"] {
-                width: 16px;
-                height: 16px;
-            }
+
+            col.col-time { width: 45%; }
+            col.col-act  { width: 55%; }
         }
     </style>
 </head>
 <body>
-    <div class="current-time" id="currentTime">00:00</div>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
-    <h1>TIMETABLE</h1>
-    <div class="container">
-        <div class="schedule-section">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Heure</th>
-                        <th>Activité</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="height: 45px;">
-                        <td>06:30 - 08:00</td>
-                        <td>Déjeuner + se coiffer</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>08:00 - 09:00</td>
-                        <td>Partir en cours</td>
-                    </tr>
-                    <tr style="height: 210px;">
-                        <td>09:00 - 16:00</td>
-                        <td>Cours</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>16:00 - 17:00</td>
-                        <td>Rentrer des cours</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>17:00 - 18:00</td>
-                        <td>Devoirs du jour</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>18:00 - 19:00</td>
-                        <td>Avancer jeu ou monter vidéo</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>20:00 - 21:00</td>
-                        <td>Manger</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>21:00 - 22:00</td>
-                        <td>Douche froide + séance</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>22:00 - 23:00</td>
-                        <td>Préparer planning lendemain + réfléchir/brainstorming</td>
-                    </tr>
-                    <tr style="height: 30px;">
-                        <td>23:00 - 00:00</td>
-                        <td>Lire et m'endormir</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="todo-section">
-            <div class="user-input">
-                <input type="text" id="userNameInput" placeholder="Ton nom...">
-            </div>
-            <div class="greeting-message" id="greetingMessage"></div>
-            <h2>À faire</h2>
-            <ul id="todoList">
-                <li><input type="checkbox"><label>Faire les devoirs</label></li>
-                <li><input type="checkbox"><label>Douche froide</label></li>
-                <li><input type="checkbox"><label>Séance</label></li>
-            </ul>
+
+    <!-- TOP BAR : heure | titre | boutons -->
+    <div class="topbar">
+        <div class="current-time" id="currentTime">00:00</div>
+        <h1>TIMETABLE</h1>
+        <div class="topbar-actions">
+            <button class="install-button" id="installButton">📥</button>
+            <button class="theme-toggle" id="themeToggle">🌙</button>
         </div>
     </div>
+
+    <div class="page-content">
+        <div class="container">
+
+            <div class="schedule-section">
+                <table>
+                    <colgroup>
+                        <col class="col-time">
+                        <col class="col-act">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Heure</th>
+                            <th>Activité</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>06:30 – 08:00</td><td>Déjeuner + se coiffer</td></tr>
+                        <tr><td>08:00 – 09:00</td><td>Partir en cours</td></tr>
+                        <tr><td>09:00 – 16:00</td><td>Cours</td></tr>
+                        <tr><td>16:00 – 17:00</td><td>Rentrer des cours</td></tr>
+                        <tr><td>17:00 – 18:00</td><td>Devoirs du jour</td></tr>
+                        <tr><td>18:00 – 19:00</td><td>Avancer jeu ou monter vidéo</td></tr>
+                        <tr><td>20:00 – 21:00</td><td>Manger</td></tr>
+                        <tr><td>21:00 – 22:00</td><td>Douche froide + séance</td></tr>
+                        <tr><td>22:00 – 23:00</td><td>Préparer planning lendemain + brainstorming</td></tr>
+                        <tr><td>23:00 – 00:00</td><td>Lire et m'endormir</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="todo-section">
+                <div class="user-input">
+                    <input type="text" id="userNameInput" placeholder="Ton nom...">
+                </div>
+                <div class="greeting-message" id="greetingMessage"></div>
+                <h2>À faire</h2>
+                <ul id="todoList">
+                    <li><input type="checkbox"><label>Faire les devoirs</label></li>
+                    <li><input type="checkbox"><label>Douche froide</label></li>
+                    <li><input type="checkbox"><label>Séance</label></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
     <script>
+        /* ── PWA Install ── */
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.classList.add('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installButton.classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') deferredPrompt = null;
+            }
+        });
+
+        /* ── Clock ── */
         function updateCurrentTime() {
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+            const h = String(now.getHours()).padStart(2,'0');
+            const m = String(now.getMinutes()).padStart(2,'0');
+            document.getElementById('currentTime').textContent = `${h}:${m}`;
         }
         updateCurrentTime();
         setInterval(updateCurrentTime, 1000);
-        
+
+        /* ── Theme ── */
         const themeToggle = document.getElementById('themeToggle');
-        const htmlElement = document.documentElement;
-        const body = document.body;
-        
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            body.classList.add('dark-mode');
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
             themeToggle.textContent = '☀️';
         }
-        
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const isDarkMode = body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+            document.body.classList.toggle('dark-mode');
+            const dark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', dark ? 'dark' : 'light');
+            themeToggle.textContent = dark ? '☀️' : '🌙';
         });
-        
+
+        /* ── Active row ── */
         function updateActiveTime() {
             const now = new Date();
-            const currentHour = now.getHours();
-            const currentMinutes = now.getMinutes();
-            const currentTime = currentHour + currentMinutes / 60;
-            
-            const rows = document.querySelectorAll('tbody tr');
-            
-            rows.forEach(row => {
+            const cur = now.getHours() + now.getMinutes() / 60;
+            document.querySelectorAll('tbody tr').forEach(row => {
                 row.classList.remove('active-time');
-                const timeCell = row.querySelector('td:first-child');
-                if (timeCell) {
-                    const timeText = timeCell.textContent.trim();
-                    const times = timeText.split(' - ');
-                    if (times.length === 2) {
-                        const [startStr, endStr] = times;
-                        const [startHour, startMin] = startStr.split(':').map(Number);
-                        const [endHour, endMin] = endStr.split(':').map(Number);
-                        
-                        const startTime = startHour + startMin / 60;
-                        const endTime = endHour + endMin / 60;
-                        
-                        if (currentTime >= startTime && currentTime < endTime) {
-                            row.classList.add('active-time');
-                        }
-                    }
+                const txt = row.querySelector('td')?.textContent.trim() || '';
+                const parts = txt.split(/\s*[–-]\s*/);
+                if (parts.length === 2) {
+                    const parse = s => { const [h,m] = s.split(':').map(Number); return h + m/60; };
+                    const start = parse(parts[0]);
+                    const end   = parse(parts[1]);
+                    if (cur >= start && cur < end) row.classList.add('active-time');
                 }
             });
         }
-        
         updateActiveTime();
         setInterval(updateActiveTime, 60000);
-        
-        const todoList = document.getElementById('todoList');
+
+        /* ── Todo ── */
+        const todoList     = document.getElementById('todoList');
         const userNameInput = document.getElementById('userNameInput');
-        const greetingMessage = document.getElementById('greetingMessage');
-        const items = todoList.querySelectorAll('li');
-        
+        const greetingMsg  = document.getElementById('greetingMessage');
+        const items        = todoList.querySelectorAll('li');
+
         let currentUser = localStorage.getItem('currentUser') || '';
-        let currentDate = localStorage.getItem('lastSavedDate') || '';
-        
         userNameInput.value = currentUser;
         if (currentUser) {
-            greetingMessage.textContent = `Bonjour ${currentUser}`;
+            greetingMsg.textContent = `Bonjour ${currentUser} 👋`;
             userNameInput.parentElement.classList.add('hidden');
         }
-        
+
         function getTodayDate() {
-            const today = new Date();
-            return today.toISOString().split('T')[0];
+            return new Date().toISOString().split('T')[0];
         }
-        
+
+        function getStorageKey() {
+            return `todos_${currentUser || 'guest'}_${getTodayDate()}`;
+        }
+
+        function saveProgress() {
+            const progress = {};
+            items.forEach((item, i) => {
+                progress[i] = item.querySelector('input[type="checkbox"]').checked;
+            });
+            localStorage.setItem(getStorageKey(), JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem(getStorageKey());
+            if (!saved) return;
+            const progress = JSON.parse(saved);
+            items.forEach((item, i) => {
+                const cb = item.querySelector('input[type="checkbox"]');
+                if (progress[i]) { cb.checked = true; item.classList.add('completed'); }
+                else              { cb.checked = false; item.classList.remove('completed'); }
+            });
+        }
+
         function initializeDay() {
-            const todayDate = getTodayDate();
-            const savedDate = localStorage.getItem('lastSavedDate');
-            
-            if (savedDate !== todayDate) {
-                localStorage.setItem('lastSavedDate', todayDate);
-                items.forEach((item, index) => {
-                    const checkbox = item.querySelector('input[type="checkbox"]');
-                    checkbox.checked = false;
+            const today = getTodayDate();
+            if (localStorage.getItem('lastSavedDate') !== today) {
+                localStorage.setItem('lastSavedDate', today);
+                items.forEach(item => {
+                    item.querySelector('input[type="checkbox"]').checked = false;
                     item.classList.remove('completed');
                 });
             } else {
                 loadProgress();
             }
         }
-        
-        function getStorageKey() {
-            return `todos_${currentUser || 'guest'}_${getTodayDate()}`;
-        }
-        
-        function saveProgress() {
-            const progress = {};
-            items.forEach((item, index) => {
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                progress[index] = checkbox.checked;
-            });
-            localStorage.setItem(getStorageKey(), JSON.stringify(progress));
-        }
-        
-        function loadProgress() {
-            const saved = localStorage.getItem(getStorageKey());
-            if (saved) {
-                const progress = JSON.parse(saved);
-                items.forEach((item, index) => {
-                    const checkbox = item.querySelector('input[type="checkbox"]');
-                    if (progress[index]) {
-                        checkbox.checked = true;
-                        item.classList.add('completed');
-                    }
-                });
-            }
-        }
-        
+
         userNameInput.addEventListener('change', () => {
             currentUser = userNameInput.value.trim();
             localStorage.setItem('currentUser', currentUser);
             if (currentUser) {
-                greetingMessage.textContent = `Bonjour ${currentUser}`;
+                greetingMsg.textContent = `Bonjour ${currentUser} 👋`;
                 userNameInput.parentElement.classList.add('hidden');
             } else {
-                greetingMessage.textContent = '';
+                greetingMsg.textContent = '';
                 userNameInput.parentElement.classList.remove('hidden');
             }
             loadProgress();
         });
-        
-        greetingMessage.addEventListener('click', () => {
+
+        greetingMsg.addEventListener('click', () => {
             userNameInput.parentElement.classList.remove('hidden');
             userNameInput.focus();
         });
-        
+
         items.forEach(item => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    item.classList.add('completed');
-                } else {
-                    item.classList.remove('completed');
-                }
+            const cb = item.querySelector('input[type="checkbox"]');
+            cb.addEventListener('change', function() {
+                item.classList.toggle('completed', this.checked);
                 saveProgress();
             });
         });
-        
+
         initializeDay();
     </script>
 </body>
