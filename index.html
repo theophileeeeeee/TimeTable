@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Timetable</title>
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --table-even: #f9f9f9;
+            --table-hover: #f0f0f0;
+            --accent-color: #3f2ab4;
+            --accent-light: #f9f9f9;
+        }
+        
+        body.dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #444;
+            --table-even: #323232;
+            --table-hover: #3a3a3a;
+            --accent-color: #7c3aed;
+            --accent-light: #3a3a3a;
+        }
+        
+        body {
+            font-family: Poppins, sans-serif;
+            padding: 20px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        h1 {
+            text-align: center;
+            color: var(--text-primary);
+        }
+        table {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: var(--bg-secondary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+            color: var(--text-primary);
+        }
+        th {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: var(--table-even);
+        }
+        tr:hover {
+            background-color: var(--table-hover);
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        .schedule-section {
+            flex: 1;
+            min-width: 500px;
+        }
+        .todo-section {
+            flex: 0 1 300px;
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .user-input {
+            margin-bottom: 15px;
+        }
+        .user-input.hidden {
+            display: none;
+        }
+        .user-input input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid var(--accent-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+        .user-input input::placeholder {
+            color: var(--text-secondary);
+        }
+        .greeting-message {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--accent-light);
+            border-radius: 4px;
+            min-height: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .greeting-message:hover {
+            opacity: 0.7;
+            transform: scale(1.02);
+        }
+        .todo-section h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+        .todo-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .todo-section li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: var(--accent-light);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .todo-section li:hover {
+            background-color: var(--table-hover);
+            transform: translateX(5px);
+        }
+        .todo-section li.completed {
+            opacity: 0.6;
+        }
+        .todo-section li.completed label {
+            text-decoration: line-through;
+        }
+        .todo-section input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        .todo-section label {
+            flex: 1;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        tr.active-time {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            opacity: 0.5;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        tr.active-time td {
+            color: white;
+        }
+        .current-time {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-color);
+            background-color: var(--bg-secondary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 999;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin: 10px 0;
+            }
+            
+            .schedule-section {
+                min-width: 100%;
+            }
+            
+            .container {
+                flex-direction: column;
+                gap: 20px;
+                max-width: 100%;
+            }
+            
+            .todo-section {
+                flex: 1;
+                width: 100%;
+                min-width: auto;
+            }
+            
+            table {
+                margin: 10px 0;
+                max-width: 100%;
+            }
+            
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            
+            .current-time {
+                font-size: 18px;
+                padding: 8px 12px;
+                top: 10px;
+                left: 10px;
+            }
+            
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 16px;
+            }
+            
+            .todo-section {
+                padding: 15px;
+            }
+            
+            .todo-section li {
+                padding: 8px;
+                margin: 3px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            h1 {
+                font-size: 18px;
+                margin: 5px 0;
+            }
+            
+            table {
+                font-size: 12px;
+                margin: 5px 0;
+            }
+            
+            th, td {
+                padding: 6px;
+                font-size: 12px;
+            }
+            
+            .current-time {
+                font-size: 16px;
+                padding: 6px 10px;
+                top: 5px;
+                left: 5px;
+            }
+            
+            .theme-toggle {
+                top: 5px;
+                right: 5px;
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            .todo-section {
+                padding: 12px;
+            }
+            
+            .todo-section h2 {
+                font-size: 16px;
+            }
+            
+            .todo-section li {
+                padding: 6px;
+                margin: 2px 0;
+                font-size: 12px;
+            }
+            
+            .todo-section input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="current-time" id="currentTime">00:00</div>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+    <h1>TIMETABLE</h1>
+    <div class="container">
+        <div class="schedule-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Heure</th>
+                        <th>Activité</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="height: 45px;">
+                        <td>06:30 - 08:00</td>
+                        <td>Déjeuner + se coiffer</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>08:00 - 09:00</td>
+                        <td>Partir en cours</td>
+                    </tr>
+                    <tr style="height: 210px;">
+                        <td>09:00 - 16:00</td>
+                        <td>Cours</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>16:00 - 17:00</td>
+                        <td>Rentrer des cours</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>17:00 - 18:00</td>
+                        <td>Devoirs du jour</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>18:00 - 19:00</td>
+                        <td>Avancer jeu ou monter vidéo</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>20:00 - 21:00</td>
+                        <td>Manger</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>21:00 - 22:00</td>
+                        <td>Douche froide + séance</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>22:00 - 23:00</td>
+                        <td>Préparer planning lendemain + réfléchir/brainstorming</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td>23:00 - 00:00</td>
+                        <td>Lire et m'endormir</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="todo-section">
+            <div class="user-input">
+                <input type="text" id="userNameInput" placeholder="Ton nom...">
+            </div>
+            <div class="greeting-message" id="greetingMessage"></div>
+            <h2>À faire</h2>
+            <ul id="todoList">
+                <li><input type="checkbox"><label>Faire les devoirs</label></li>
+                <li><input type="checkbox"><label>Douche froide</label></li>
+                <li><input type="checkbox"><label>Séance</label></li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function updateCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+        }
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+        
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        const body = document.body;
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+        });
+        
+        function updateActiveTime() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTime = currentHour + currentMinutes / 60;
+            
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                row.classList.remove('active-time');
+                const timeCell = row.querySelector('td:first-child');
+                if (timeCell) {
+                    const timeText = timeCell.textContent.trim();
+                    const times = timeText.split(' - ');
+                    if (times.length === 2) {
+                        const [startStr, endStr] = times;
+                        const [startHour, startMin] = startStr.split(':').map(Number);
+                        const [endHour, endMin] = endStr.split(':').map(Number);
+                        
+                        const startTime = startHour + startMin / 60;
+                        const endTime = endHour + endMin / 60;
+                        
+                        if (currentTime >= startTime && currentTime < endTime) {
+                            row.classList.add('active-time');
+                        }
+                    }
+                }
+            });
+        }
+        
+        updateActiveTime();
+        setInterval(updateActiveTime, 60000);
+        
+        const todoList = document.getElementById('todoList');
+        const userNameInput = document.getElementById('userNameInput');
+        const greetingMessage = document.getElementById('greetingMessage');
+        const items = todoList.querySelectorAll('li');
+        
+        let currentUser = localStorage.getItem('currentUser') || '';
+        let currentDate = localStorage.getItem('lastSavedDate') || '';
+        
+        userNameInput.value = currentUser;
+        if (currentUser) {
+            greetingMessage.textContent = `Bonjour ${currentUser}`;
+            userNameInput.parentElement.classList.add('hidden');
+        }
+        
+        function getTodayDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+        
+        function initializeDay() {
+            const todayDate = getTodayDate();
+            const savedDate = localStorage.getItem('lastSavedDate');
+            
+            if (savedDate !== todayDate) {
+                localStorage.setItem('lastSavedDate', todayDate);
+                items.forEach((item, index) => {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    checkbox.checked = false;
+                    item.classList.remove('completed');
+                });
+            } else {
+                loadProgress();
+            }
+        }
+        
+        function getStorageKey() {
+            return `todos_${currentUser || 'guest'}_${getTodayDate()}`;
+        }
+        
+        function saveProgress() {
+            const progress = {};
+            items.forEach((item, index) => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                progress[index] = checkbox.checked;
+            });
+            localStorage.setItem(getStorageKey(), JSON.stringify(progress));
+        }
+        
+        function loadProgress() {
+            const saved = localStorage.getItem(getStorageKey());
+            if (saved) {
+                const progress = JSON.parse(saved);
+                items.forEach((item, index) => {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    if (progress[index]) {
+                        checkbox.checked = true;
+                        item.classList.add('completed');
+                    }
+                });
+            }
+        }
+        
+        userNameInput.addEventListener('change', () => {
+            currentUser = userNameInput.value.trim();
+            localStorage.setItem('currentUser', currentUser);
+            if (currentUser) {
+                greetingMessage.textContent = `Bonjour ${currentUser}`;
+                userNameInput.parentElement.classList.add('hidden');
+            } else {
+                greetingMessage.textContent = '';
+                userNameInput.parentElement.classList.remove('hidden');
+            }
+            loadProgress();
+        });
+        
+        greetingMessage.addEventListener('click', () => {
+            userNameInput.parentElement.classList.remove('hidden');
+            userNameInput.focus();
+        });
+        
+        items.forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    item.classList.add('completed');
+                } else {
+                    item.classList.remove('completed');
+                }
+                saveProgress();
+            });
+        });
+        
+        initializeDay();
+    </script>
+</body>
+</html>
