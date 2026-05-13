@@ -1,10 +1,10 @@
 const CACHE_NAME = 'timetable-v2';
 const ASSETS = [
-  '/Timetable/',
-  '/Timetable/index.html',
-  '/Timetable/manifest/site.webmanifest',
-  '/Timetable/android-chrome-192x192.png',
-  '/Timetable/android-chrome-512x512.png'
+  '/TimeTable/',
+  '/TimeTable/index.html',
+  '/TimeTable/manifest/site.webmanifest',
+  '/TimeTable/android-chrome-192x192.png',
+  '/TimeTable/android-chrome-512x512.png'
 ];
 
 self.addEventListener('install', e => {
