@@ -529,6 +529,9 @@
         });
 
         initializeDay();
+        if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/Timetable/sw.js');
+        }
     </script>
 </body>
 </html>
