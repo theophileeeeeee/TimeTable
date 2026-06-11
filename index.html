@@ -768,60 +768,92 @@
     </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <script>
+/* ================================================================
+   PLANNINGS — modifie uniquement cette section
+================================================================ */
 const ADMIN_PASSWORD = "admin"; 
 
 const SCOLAIRE = [
-    ["06:30 – 08:00", "Déjeuner + se coiffer"],
-    ["08:00 – 09:00", "Partir en cours"],
-    ["09:00 – 16:00", "Cours"],
-    ["16:00 – 17:00", "Rentrer des cours"],
-    ["17:00 – 18:00", "Devoirs du jour"],
-    ["18:00 – 19:00", "Avancer jeu ou monter vidéo"],
-    ["20:00 – 21:00", "Manger"],
-    ["21:00 – 22:00", "Douche froide + séance"],
-    ["22:00 – 23:00", "Préparer planning lendemain + brainstorming"],
-    ["23:00 – 00:00", "Lire et m'endormir"],
+    ["06:30 - 08:00", "Déjeuner + se coiffer"],
+    ["08:00 - 09:00", "Partir en cours"],
+    ["09:00 - 16:00", "Cours"],
+    ["16:00 - 17:00", "Rentrer des cours"],
+    ["17:00 - 18:00", "Devoirs du jour"],
+    ["18:00 - 20:00", "Avancer jeu ou monter vidéo"],
+    ["20:00 - 21:00", "Manger"],
+    ["21:00 - 22:00", "Douche froide + séance"],
+    ["22:00 - 23:00", "Préparer planning lendemain + brainstorming"],
+    ["23:00 - 00:00", "Lire et m'endormir"],
 ];
 
 const ETE_SEMAINE = [
-    ["07:30 – 08:00", "Lever + routine matinale"],
-    ["08:00 – 09:30", "Maths ou lecture tech/quant"],
-    ["09:30 – 11:00", "Dev Unity"],
-    ["11:00 – 11:15", "Pause active (marche)"],
-    ["11:15 – 12:15", "Code de la route"],
-    ["12:15 – 14:00", "Déjeuner + décompression"],
-    ["14:00 – 15:30", "Sport"],
-    ["15:30 – 17:00", "Dev Unity ou portfolio"],
-    ["17:00 – 19:00", "Sorties / potes"],
-    ["19:00 – 20:30", "Dîner + temps libre calme"],
-    ["22:30 – 23:00", "Coucher — lecture"],
+    ["07:30 - 08:00", "Lever + routine matinale"],
+    ["08:00 - 09:30", "Maths ou lecture tech/quant"],
+    ["09:30 - 11:00", "Dev Unity"],
+    ["11:00 - 11:15", "Pause active (marche)"],
+    ["11:15 - 12:15", "Code de la route"],
+    ["12:15 - 14:00", "Déjeuner + décompression"],
+    ["14:00 - 15:30", "Sport"],
+    ["15:30 - 17:00", "Dev Unity ou portfolio"],
+    ["17:00 - 19:00", "Sorties / potes"],
+    ["19:00 - 21:30", "Dîner + temps libre calme"],
+    ["21:30 - 22:30", "Détente / Brainstorming fin de journée"],
+    ["22:30 - 23:00", "Coucher — lecture"],
 ];
 
 const ETE_SAMEDI = [
-    ["08:00 – 09:30", "Dev Unity ou projet perso"],
-    ["09:30 – 11:00", "Sport intensif"],
-    ["11:00 – 13:00", "Sortie / potes"],
-    ["14:00 – 17:00", "Temps libre total — sans écran"],
-    ["17:00 – 18:30", "Revue semaine + planification S+1"],
+    ["08:00 - 09:30", "Dev Unity ou projet perso"],
+    ["09:30 - 11:00", "Sport intensif"],
+    ["11:00 - 13:00", "Sortie / potes"],
+    ["13:00 - 17:00", "Temps libre total — sans écran"],
+    ["17:00 - 18:30", "Revue semaine + planification S+1"],
 ];
 
 const ETE_DIMANCHE = [
-    ["10:00 – 11:30", "Maths ou lecture tech/quant"],
-    ["11:30 – 14:00", "Social / famille"],
-    ["14:00 – 16:00", "Escalade ou balade"],
-    ["20:30 – 22:00", "Dîner + repos — pas de dev ni maths"],
+    ["10:00 - 11:30", "Maths ou lecture tech/quant"],
+    ["11:30 - 14:00", "Social / famille"],
+    ["14:00 - 16:00", "Escalade ou balade"],
+    ["16:00 - 22:00", "Temps libre / Repos"],
+    ["22:00 - 23:30", "Dîner + repos — pas de dev ni maths"],
 ];
 /* ================================================================
    FIN SECTION PLANNINGS
 ================================================================ */
+
+// Configuration Firebase récupérée depuis tes clés
+const firebaseConfig = {
+    apiKey: "AIzaSyDI5mG7GYtCEcZ6grNrrlv0DJULOBZ9gUI",
+    authDomain: "timetableee.firebaseapp.com",
+    projectId: "timetableee",
+    storageBucket: "timetableee.firebasestorage.app",
+    messagingSenderId: "706990156498",
+    appId: "1:706990156498:web:5a69a65cad9ba564435b0b",
+    measurementId: "G-QH0NEF6DZ8"
+};
+
+// Initialisation de Firebase et de Firestore
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 const JOURS = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 let isAdmin = sessionStorage.getItem('adminMode') === '1';
 let viewOffset = 0;
 
 const today = () => new Date().toISOString().split('T');
-const parse  = s => { const [h,m=(0)] = s.split(':').map(Number); return h + m/60; };
+
+function parse(s) { 
+    if (s === null || s === undefined) return 0;
+    if (typeof s === 'number') return s;
+    if (typeof s !== 'string') s = String(s);
+    const cleaned = s.trim();
+    if (!cleaned) return 0;
+    const [h, m] = cleaned.split(':').map(Number); 
+    return (h || 0) + (m || 0) / 60; 
+}
 
 function getViewedDow() {
     const d = new Date(); d.setDate(d.getDate() + viewOffset); return d.getDay();
@@ -874,18 +906,26 @@ function updateActiveRow() {
     const now = new Date();
     const cur = now.getHours() + now.getMinutes()/60;
 
-    const dayStart = 6, dayEnd = 23;
+    const dayStart = 6, dayEnd = 23.99;
     const pct = Math.max(0, Math.min(100, (cur - dayStart) / (dayEnd - dayStart) * 100));
     fill.style.width = pct + '%';
 
     rows.forEach(row => {
-        const txt = row.querySelector('td')?.textContent.trim() || '';
-        const parts = txt.split(/\s*[–-]\s*/);
-        if (parts.length === 2 && cur >= parse(parts) && cur < parse(parts))
-            row.classList.add('active-row');
+        const cell = row.querySelector('.time-cell');
+        const txt = cell ? cell.textContent.trim() : '';
+        const parts = txt.split(/\s*[-–—]\s*/);
+        if (parts.length === 2) {
+            let start = parse(parts);
+            let end = parse(parts);
+            if (end === 0 && parts.includes('00')) end = 24;
+            
+            if (cur >= start && cur < end) {
+                row.classList.add('active-row');
+            }
+        }
     });
 }
-setInterval(updateActiveRow, 30000);
+setInterval(updateActiveRow, 10000);
 
 document.getElementById('prevDay').addEventListener('click', () => { viewOffset--; renderSchedule(); });
 document.getElementById('nextDay').addEventListener('click', () => { viewOffset++; renderSchedule(); });
@@ -975,6 +1015,7 @@ document.getElementById('adminBtn').addEventListener('click', () => {
         isAdmin = false;
         sessionStorage.removeItem('adminMode');
         renderSchedule();
+        clearAdminInterface();
     } else {
         pwdInput.value = '';
         loginError.classList.remove('show');
@@ -989,7 +1030,7 @@ function tryLogin() {
         sessionStorage.setItem('adminMode', '1');
         overlay.classList.remove('show');
         renderSchedule();
-        renderAdminTodos();
+        setupFirebaseListeners(); // Lance l'écoute en direct une fois connecté
     } else {
         loginError.classList.add('show');
         pwdInput.value = ''; pwdInput.focus();
@@ -1072,102 +1113,133 @@ tabBtns.forEach(btn => {
     });
 });
 
-/* ── LOGIQUE ADMINISTRATIVE CORRIGÉE (FILTRE DATE ASSOUPLI) ── */
-let adminTodos = JSON.parse(localStorage.getItem('adminTodos') || '[]');
-let adminGoals = JSON.parse(localStorage.getItem('adminGoals') || '[]');
+/* ── SYNCHRONISATION CLOUD FIREBASE (SOLUTION A-SÉCURISÉE) ── */
+let unsubscribeTodos = null;
+let unsubscribeGoals = null;
 
-function saveAdminData() {
-    localStorage.setItem('adminTodos', JSON.stringify(adminTodos));
-    localStorage.setItem('adminGoals', JSON.stringify(adminGoals));
+function clearAdminInterface() {
+    if(unsubscribeTodos) unsubscribeTodos();
+    if(unsubscribeGoals) unsubscribeGoals();
+    document.getElementById('todayList').innerHTML = '<div class="empty-state">Mode Admin déconnecté.</div>';
+    document.getElementById('goalsList').innerHTML = '<div class="empty-state">Mode Admin déconnecté.</div>';
 }
 
-function renderAdminTodos() {
+function setupFirebaseListeners() {
+    if (!isAdmin) return;
+
+    // 1. Écoute dynamique des tâches d'aujourd'hui
+    unsubscribeTodos = db.collection('todos').onSnapshot(snapshot => {
+        let localTodos = [];
+        snapshot.forEach(doc => {
+            localTodos.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Tri par priorité (A, B, C)
+        localTodos.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
+        renderCloudTodos(localTodos);
+    });
+
+    // 2. Écoute dynamique des objectifs globaux
+    unsubscribeGoals = db.collection('goals').onSnapshot(snapshot => {
+        let localGoals = [];
+        snapshot.forEach(doc => {
+            localGoals.push({ id: doc.id, ...doc.data() });
+        });
+        renderCloudGoals(localGoals);
+    });
+}
+
+function renderCloudTodos(todosList) {
     const todayList = document.getElementById('todayList');
-    
-    // Le tri se fait maintenant sur TOUTES les tâches de la liste "Aujourd'hui"
-    adminTodos.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
-    
-    if (adminTodos.length === 0) {
+    if (todosList.length === 0) {
         todayList.innerHTML = '<div class="empty-state">Aucune tâche pour aujourd\'hui.</div>';
-    } else {
-        todayList.innerHTML = adminTodos.map(t => {
-            const lblPrio = t.priority === 'A' ? 'Urgent' : t.priority === 'C' ? 'Bas' : 'Moyen';
-            const clsPrio = t.priority === 'A' ? 'prio-high' : t.priority === 'C' ? 'prio-low' : 'prio-med';
-            return `
-            <div class="atodo-item ${t.done ? 'done' : ''}" data-id="${t.id}">
-                <input type="checkbox" class="atodo-check" ${t.done ? 'checked' : ''}>
-                <span class="atodo-label"><span class="prio-tag ${clsPrio}">${lblPrio}</span>${t.text}</span>
-                <button class="atodo-del">🗑️</button>
-            </div>
-        `}).join('');
-
-        todayList.querySelectorAll('.atodo-item').forEach(item => {
-            const id = item.getAttribute('data-id');
-            item.querySelector('.atodo-check').addEventListener('change', () => {
-                const todo = adminTodos.find(t => t.id === id);
-                if (todo) todo.done = !todo.done;
-                saveAdminData(); renderAdminTodos();
-            });
-            item.querySelector('.atodo-del').addEventListener('click', () => {
-                adminTodos = adminTodos.filter(t => t.id !== id);
-                saveAdminData(); renderAdminTodos();
-            });
-        });
+        return;
     }
+    
+    todayList.innerHTML = todosList.map(t => {
+        const lblPrio = t.priority === 'A' ? 'Urgent' : t.priority === 'C' ? 'Bas' : 'Moyen';
+        const clsPrio = t.priority === 'A' ? 'prio-high' : t.priority === 'C' ? 'prio-low' : 'prio-med';
+        return `
+        <div class="atodo-item ${t.done ? 'done' : ''}" data-id="${t.id}">
+            <input type="checkbox" class="atodo-check" ${t.done ? 'checked' : ''}>
+            <span class="atodo-label"><span class="prio-tag ${clsPrio}">${lblPrio}</span>${t.text}</span>
+            <button class="atodo-del">🗑️</button>
+        </div>
+    `}).join('');
 
-    // 2. RENDER OBJECTIFS GLOBAUX
-    const goalsList = document.getElementById('goalsList');
-    if (adminGoals.length === 0) {
-        goalsList.innerHTML = '<div class="empty-state">Aucun objectif global configuré.</div>';
-    } else {
-        goalsList.innerHTML = adminGoals.map(g => `
-            <div class="goal-item ${g.done ? 'done' : ''}" data-id="${g.id}">
-                <input type="checkbox" class="goal-check" ${g.done ? 'checked' : ''}>
-                <span class="goal-label">${g.text}</span>
-                <button class="goal-del">🗑️</button>
-            </div>
-        `).join('');
-
-        goalsList.querySelectorAll('.goal-item').forEach(item => {
-            const id = item.getAttribute('data-id');
-            item.querySelector('.goal-check').addEventListener('change', () => {
-                const goal = adminGoals.find(g => g.id === id);
-                if (goal) goal.done = !goal.done;
-                saveAdminData(); renderAdminTodos();
-            });
-            item.querySelector('.goal-del').addEventListener('click', () => {
-                adminGoals = adminGoals.filter(g => g.id !== id);
-                saveAdminData(); renderAdminTodos();
-            });
+    todayList.querySelectorAll('.atodo-item').forEach(item => {
+        const id = item.getAttribute('data-id');
+        const isChecked = item.querySelector('.atodo-check').checked;
+        
+        item.querySelector('.atodo-check').addEventListener('change', () => {
+            db.collection('todos').doc(id).update({ done: !isChecked });
         });
-    }
+        item.querySelector('.atodo-del').addEventListener('click', () => {
+            db.collection('todos').doc(id).delete();
+        });
+    });
 }
 
-// Bouton Ajout Tâches Quotidiennes (Correction Date)
+function renderCloudGoals(goalsList) {
+    const goalsListEl = document.getElementById('goalsList');
+    if (goalsList.length === 0) {
+        goalsListEl.innerHTML = '<div class="empty-state">Aucun objectif global configuré.</div>';
+        return;
+    }
+
+    goalsListEl.innerHTML = goalsList.map(g => `
+        <div class="goal-item ${g.done ? 'done' : ''}" data-id="${g.id}">
+            <input type="checkbox" class="goal-check" ${g.done ? 'checked' : ''}>
+            <span class="goal-label">${g.text}</span>
+            <button class="goal-del">🗑️</button>
+        </div>
+    `).join('');
+
+    goalsListEl.querySelectorAll('.goal-item').forEach(item => {
+        const id = item.getAttribute('data-id');
+        const isChecked = item.querySelector('.goal-check').checked;
+        
+        item.querySelector('.goal-check').addEventListener('change', () => {
+            db.collection('goals').doc(id).update({ done: !isChecked });
+        });
+        item.querySelector('.goal-del').addEventListener('click', () => {
+            db.collection('goals').doc(id).delete();
+        });
+    });
+}
+
+// Ajouter une tâche du jour sur Firebase
 document.getElementById('addTodayBtn').addEventListener('click', () => {
+    if (!isAdmin) return;
     const input = document.getElementById('addTodayInput');
     const prio = document.getElementById('prioSelect').value;
     const text = input.value.trim();
     if (text) {
-        adminTodos.push({ id: Date.now().toString(), text: text, done: false, priority: prio });
-        input.value = ''; 
-        saveAdminData(); 
-        renderAdminTodos();
+        db.collection('todos').add({
+            text: text,
+            done: false,
+            priority: prio,
+            createdAt: Date.now()
+        });
+        input.value = '';
     }
 });
 document.getElementById('addTodayInput').addEventListener('keydown', (e) => { 
     if (e.key === 'Enter') document.getElementById('addTodayBtn').click(); 
 });
 
-// Bouton Ajout Objectifs Globaux
+// Ajouter un objectif global sur Firebase
 document.getElementById('addGoalBtn').addEventListener('click', () => {
+    if (!isAdmin) return;
     const input = document.getElementById('addGoalInput');
     const text = input.value.trim();
     if (text) {
-        adminGoals.push({ id: Date.now().toString(), text: text, done: false });
-        input.value = ''; 
-        saveAdminData(); 
-        renderAdminTodos();
+        db.collection('goals').add({
+            text: text,
+            done: false,
+            createdAt: Date.now()
+        });
+        input.value = '';
     }
 });
 document.getElementById('addGoalInput').addEventListener('keydown', (e) => { 
@@ -1176,5 +1248,9 @@ document.getElementById('addGoalInput').addEventListener('keydown', (e) => {
 
 /* ── INITIALISATION ── */
 renderSchedule();
-renderAdminTodos();
+if (isAdmin) {
+    setupFirebaseListeners();
+} else {
+    clearAdminInterface();
+}
 </script>
