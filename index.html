@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <title>Timetable</title>
     <style>
-        /* ── TOKENS ── */
         :root {
             --bg:        #f7f7fb;
             --surface:   #ffffff;
@@ -62,7 +61,6 @@
             min-height: 100vh;
         }
 
-        /* ── TOPBAR ── */
         .topbar {
             display: flex;
             align-items: center;
@@ -118,7 +116,7 @@
         .icon-btn.active { background: var(--accent); color: #fff; }
         .icon-btn.hidden { display: none; }
 
-        /* ── DAY PROGRESS BAR ── */
+        /* DAY PROGRESS BAR */
         .progress-wrap {
             height: 3px;
             background: var(--border);
@@ -142,7 +140,35 @@
             box-shadow: 0 0 6px var(--mint);
         }
 
-        /* ── LAYOUT ── */
+        /* SLOT PROGRESS BAR */
+        .slot-progress-wrap {
+            height: 2px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .slot-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--mint));
+            border-radius: 2px;
+            transition: width .5s ease;
+        }
+
+        /* TIME REMAINING BADGE */
+        .time-remaining {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 99px;
+            background: var(--accent);
+            color: #fff;
+            margin-left: 6px;
+            letter-spacing: .02em;
+            vertical-align: middle;
+        }
+
         .page { padding: 16px; max-width: 1320px; margin: 0 auto; transition: all 0.3s ease; }
 
         .grid {
@@ -153,12 +179,10 @@
             transition: grid-template-columns 0.3s ease;
         }
 
-        /* MODE FOCUS ACTIVÉ */
         body.focus-mode .sidebar { display: none !important; }
         body.focus-mode .grid { grid-template-columns: 1fr !important; }
         body.focus-mode .day-nav { display: none !important; }
 
-        /* ── CARD ── */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -185,7 +209,6 @@
             letter-spacing: .04em;
         }
 
-        /* ── SCHEDULE HEADER ── */
         .sched-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
         .badge {
@@ -231,7 +254,6 @@
         }
         .nav-today:hover { background: var(--accent-lo); color: var(--accent); border-color: var(--accent); }
 
-        /* ── TABLE ── */
         .table-container { width: 100%; overflow-x: auto; }
         table {
             width: 100%;
@@ -264,14 +286,21 @@
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: var(--surface2); }
 
+        /* ACTIVE ROW — highlight principal */
         tbody tr.active-row td {
             background: var(--accent-lo) !important;
-            color: var(--accent) !important;
-            font-weight: 600;
         }
         tbody tr.active-row td:first-child {
             border-left: 3px solid var(--accent);
             padding-left: 13px;
+        }
+        tbody tr.active-row .time-cell {
+            color: var(--accent) !important;
+            font-weight: 600;
+        }
+        tbody tr.active-row .act-cell {
+            color: var(--accent) !important;
+            font-weight: 600;
         }
 
         td.time-cell {
@@ -279,12 +308,9 @@
             color: var(--text2);
             font-size: 12px;
         }
-        tr.active-row td.time-cell { color: var(--accent) !important; }
 
-        /* ── SIDEBAR ── */
         .sidebar { display: flex; flex-direction: column; gap: 14px; }
 
-        /* ── GREETING ── */
         .greeting-card {
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
             border-radius: var(--radius);
@@ -328,7 +354,6 @@
             cursor: pointer;
         }
 
-        /* ── PUBLIC TODO ── */
         .section-label {
             font-size: 10px;
             font-weight: 700;
@@ -364,18 +389,16 @@
         }
         .todo-label { flex: 1; font-size: 13px; color: var(--text); cursor: pointer; }
 
-        /* ── POMODORO ── */
         .pomo-wrap { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 12px; gap: 10px;}
         .pomo-time { font-family: 'Inter', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
+        .pomo-mode { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
         .pomo-btn { padding: 6px 12px; border-radius: 6px; border: none; background: var(--accent); color: white; font-size: 12px; font-weight: 600; cursor: pointer; }
         .pomo-btn:hover { background: var(--accent-hi); }
         .pomo-btn.running { background: var(--red); }
 
-        /* ── BRAIN-NOTES ── */
         .brain-textarea { width: calc(100% - 20px); margin: 0 10px 10px; height: 70px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 12px; resize: none; outline: none; }
         .brain-textarea:focus { border-color: var(--accent); background: var(--surface); }
 
-        /* ── ADMIN PANEL ── */
         .admin-panel { display: none; }
         .admin-panel.show { display: flex; flex-direction: column; gap: 14px; }
 
@@ -404,7 +427,6 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
-        /* ── ADMIN TODO ITEMS ── */
         .atodo-item {
             display: flex;
             align-items: center;
@@ -448,7 +470,6 @@
         .atodo-item:hover .atodo-del { opacity: 1; }
         .atodo-del:hover { background: var(--red-lo); color: var(--red); }
 
-        /* ── ADD INPUT MODIFIÉ (CORRECT RESPONSIVE) ── */
         .add-row {
             padding: 10px;
             border-top: 1px solid var(--border);
@@ -508,7 +529,6 @@
             font-size: 12px;
         }
 
-        /* ── OBJECTIVE ITEM (goals) ── */
         .goal-item {
             display: flex;
             align-items: center;
@@ -546,7 +566,6 @@
         .goal-item:hover .goal-del { opacity: 1; }
         .goal-del:hover { background: var(--red-lo); color: var(--red); }
 
-        /* ── LOGIN OVERLAY ── */
         .overlay {
             display: none;
             position: fixed;
@@ -597,7 +616,6 @@
 
         .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
-        /* ── RESPONSIVE ADAPTATIONS ── */
         @media (max-width: 900px) {
             .grid { grid-template-columns: 1fr 260px; gap: 14px; }
         }
@@ -699,7 +717,10 @@
             <div class="card">
                 <div class="section-label">⏱️ Minuteur Pomodoro</div>
                 <div class="pomo-wrap">
-                    <div class="pomo-time" id="pomoTime">25:00</div>
+                    <div>
+                        <div class="pomo-time" id="pomoTime">25:00</div>
+                        <div class="pomo-mode" id="pomoMode">Focus</div>
+                    </div>
                     <button class="pomo-btn" id="pomoBtn">Lancer Focus</button>
                 </div>
             </div>
@@ -772,9 +793,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ================================================================
-   PLANNINGS — modifie uniquement cette section
-================================================================ */
 const ADMIN_PASSWORD = "admin"; 
 
 const SCOLAIRE = [
@@ -820,11 +838,7 @@ const ETE_DIMANCHE = [
     ["16:00 - 22:00", "Temps libre / Repos"],
     ["22:00 - 23:30", "Dîner + repos — pas de dev ni maths"],
 ];
-/* ================================================================
-   FIN SECTION PLANNINGS
-================================================================ */
 
-// Configuration Firebase récupérée depuis tes clés
 const firebaseConfig = {
     apiKey: "AIzaSyDI5mG7GYtCEcZ6grNrrlv0DJULOBZ9gUI",
     authDomain: "timetableee.firebaseapp.com",
@@ -835,7 +849,6 @@ const firebaseConfig = {
     measurementId: "G-QH0NEF6DZ8"
 };
 
-// Initialisation de Firebase et de Firestore
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -843,16 +856,35 @@ const JOURS = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"
 let isAdmin = sessionStorage.getItem('adminMode') === '1';
 let viewOffset = 0;
 
-const today = () => new Date().toISOString().split('T');
+const today = () => new Date().toISOString().split('T')[0];
 
-function parse(s) { 
-    if (s === null || s === undefined) return 0;
-    if (typeof s === 'number') return s;
-    if (typeof s !== 'string') s = String(s);
-    const cleaned = s.trim();
-    if (!cleaned) return 0;
-    const [h, m] = cleaned.split(':').map(Number); 
-    return (h || 0) + (m || 0) / 60; 
+/* ── PARSE HEURE "HH:MM" → decimal ── */
+function parse(s) {
+    if (!s) return 0;
+    s = String(s).trim();
+    if (!s) return 0;
+    const [h, m] = s.split(':').map(Number);
+    return (isNaN(h) ? 0 : h) + (isNaN(m) ? 0 : m) / 60;
+}
+
+/* ── PARSE UNE PLAGE "HH:MM - HH:MM" → {start, end} ── */
+function parseSlot(txt) {
+    const parts = txt.trim().split(/\s*[-–—]\s*/);
+    if (parts.length < 2) return null;
+    const start = parse(parts[0]);
+    let end = parse(parts[1]);
+    if (end === 0 && parts[1].trim().startsWith('00')) end = 24;
+    if (end <= start) end += 24;
+    return { start, end };
+}
+
+function formatRemaining(hours) {
+    const totalMin = Math.round(hours * 60);
+    if (totalMin <= 0) return null;
+    if (totalMin < 60) return `${totalMin} min`;
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return m > 0 ? `${h}h${String(m).padStart(2,'0')}` : `${h}h`;
 }
 
 function getViewedDow() {
@@ -869,8 +901,11 @@ function getSchedule() {
 
 function renderSchedule() {
     const data = getSchedule();
-    document.getElementById('scheduleBody').innerHTML = data.map(([h,a]) =>
-        `<tr><td class="time-cell">${h}</td><td>${a}</td></tr>`
+    document.getElementById('scheduleBody').innerHTML = data.map(([h, a]) =>
+        `<tr>
+            <td class="time-cell">${h}</td>
+            <td class="act-cell">${a}</td>
+        </tr>`
     ).join('');
 
     const dow = getViewedDow();
@@ -904,27 +939,55 @@ function updateActiveRow() {
     if (viewOffset !== 0) { fill.style.width = '0%'; return; }
 
     const now = new Date();
-    const cur = now.getHours() + now.getMinutes()/60;
+    const cur = now.getHours() + now.getMinutes() / 60;
 
     const dayStart = 6, dayEnd = 23.99;
     const pct = Math.max(0, Math.min(100, (cur - dayStart) / (dayEnd - dayStart) * 100));
     fill.style.width = pct + '%';
 
     rows.forEach(row => {
-        const cell = row.querySelector('.time-cell');
-        const txt = cell ? cell.textContent.trim() : '';
-        const parts = txt.split(/\s*[-–—]\s*/);
-        if (parts.length === 2) {
-            let start = parse(parts);
-            let end = parse(parts);
-            if (end === 0 && parts.includes('00')) end = 24;
-            
-            if (cur >= start && cur < end) {
-                row.classList.add('active-row');
+        const timeCell = row.querySelector('.time-cell');
+        const actCell = row.querySelector('.act-cell');
+        if (!timeCell || !actCell) return;
+
+        const slot = parseSlot(timeCell.textContent);
+        if (!slot) return;
+
+        if (cur >= slot.start && cur < slot.end) {
+            row.classList.add('active-row');
+
+            const remaining = slot.end - cur;
+            const remStr = formatRemaining(remaining);
+
+            const slotDuration = slot.end - slot.start;
+            const elapsed = cur - slot.start;
+            const slotPct = Math.max(0, Math.min(100, (elapsed / slotDuration) * 100));
+
+            const existingBadge = actCell.querySelector('.time-remaining');
+            const existingBar = actCell.querySelector('.slot-progress-wrap');
+            if (existingBadge) existingBadge.remove();
+            if (existingBar) existingBar.remove();
+
+            if (remStr) {
+                const badge = document.createElement('span');
+                badge.className = 'time-remaining';
+                badge.textContent = `−${remStr}`;
+                actCell.appendChild(badge);
             }
+
+            const barWrap = document.createElement('div');
+            barWrap.className = 'slot-progress-wrap';
+            barWrap.innerHTML = `<div class="slot-progress-fill" style="width:${slotPct.toFixed(1)}%"></div>`;
+            actCell.appendChild(barWrap);
+        } else {
+            const existingBadge = actCell.querySelector('.time-remaining');
+            const existingBar = actCell.querySelector('.slot-progress-wrap');
+            if (existingBadge) existingBadge.remove();
+            if (existingBar) existingBar.remove();
         }
     });
 }
+
 setInterval(updateActiveRow, 10000);
 
 document.getElementById('prevDay').addEventListener('click', () => { viewOffset--; renderSchedule(); });
@@ -955,12 +1018,41 @@ focusBtn.addEventListener('click', () => {
     focusBtn.classList.toggle('active', document.body.classList.contains('focus-mode'));
 });
 
-/* ── POMODORO TIMER ── */
+/* ── POMODORO ── */
 let pomoInterval = null;
-let pomoTimeLeft = 25 * 60; 
+let pomoTimeLeft = 25 * 60;
 let isPomoBreak = false;
 const pomoTimeDisplay = document.getElementById('pomoTime');
+const pomoModeDisplay = document.getElementById('pomoMode');
 const pomoBtn = document.getElementById('pomoBtn');
+
+function playBeep() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+        setTimeout(() => {
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(1100, ctx.currentTime);
+            gain2.gain.setValueAtTime(0.4, ctx.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+            osc2.start(ctx.currentTime);
+            osc2.stop(ctx.currentTime + 0.8);
+        }, 400);
+    } catch(e) {}
+}
 
 function updatePomoDisplay() {
     const min = String(Math.floor(pomoTimeLeft / 60)).padStart(2, '0');
@@ -976,10 +1068,12 @@ pomoBtn.addEventListener('click', () => {
         isPomoBreak = false;
         pomoBtn.textContent = "Lancer Focus";
         pomoBtn.classList.remove('running');
+        pomoModeDisplay.textContent = "Focus";
         updatePomoDisplay();
     } else {
         pomoBtn.textContent = "Arrêter";
         pomoBtn.classList.add('running');
+        pomoModeDisplay.textContent = isPomoBreak ? "Pause ☕" : "Focus 🎯";
         pomoInterval = setInterval(() => {
             if (pomoTimeLeft > 0) {
                 pomoTimeLeft--;
@@ -988,10 +1082,11 @@ pomoBtn.addEventListener('click', () => {
                 clearInterval(pomoInterval);
                 pomoInterval = null;
                 isPomoBreak = !isPomoBreak;
-                alert(isPomoBreak ? "Session finie ! Pause de 5 minutes ☕" : "Au travail ! 🎯");
+                playBeep();
                 pomoTimeLeft = (isPomoBreak ? 5 : 25) * 60;
                 pomoBtn.textContent = isPomoBreak ? "Lancer Pause" : "Lancer Focus";
                 pomoBtn.classList.remove('running');
+                pomoModeDisplay.textContent = isPomoBreak ? "Pause ☕" : "Focus 🎯";
                 updatePomoDisplay();
             }
         }, 1000);
@@ -1030,7 +1125,7 @@ function tryLogin() {
         sessionStorage.setItem('adminMode', '1');
         overlay.classList.remove('show');
         renderSchedule();
-        setupFirebaseListeners(); // Lance l'écoute en direct une fois connecté
+        setupFirebaseListeners();
     } else {
         loginError.classList.add('show');
         pwdInput.value = ''; pwdInput.focus();
@@ -1040,7 +1135,7 @@ document.getElementById('btnConfirm').addEventListener('click', tryLogin);
 document.getElementById('btnCancel').addEventListener('click', () => overlay.classList.remove('show'));
 pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
 
-/* ── GESTION DU PRÉNOM ── */
+/* ── PRÉNOM ── */
 const nameInputWrap = document.getElementById('nameInputWrap');
 const userNameInput = document.getElementById('userNameInput');
 const nameSaveBtn = document.getElementById('nameSaveBtn');
@@ -1061,10 +1156,7 @@ function updateGreeting() {
 
 nameSaveBtn.addEventListener('click', () => {
     const name = userNameInput.value.trim();
-    if (name) {
-        localStorage.setItem('userName', name);
-        updateGreeting();
-    }
+    if (name) { localStorage.setItem('userName', name); updateGreeting(); }
 });
 userNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') nameSaveBtn.click(); });
 greetingCard.addEventListener('click', () => {
@@ -1075,7 +1167,7 @@ greetingCard.addEventListener('click', () => {
 });
 updateGreeting();
 
-/* ── GESTION DES CHECKS PUBLICS ── */
+/* ── TODOS PUBLICS ── */
 const publicItems = document.querySelectorAll('.todo-item');
 
 function loadPublicTodos() {
@@ -1113,7 +1205,7 @@ tabBtns.forEach(btn => {
     });
 });
 
-/* ── SYNCHRONISATION CLOUD FIREBASE (SOLUTION A-SÉCURISÉE) ── */
+/* ── FIREBASE ── */
 let unsubscribeTodos = null;
 let unsubscribeGoals = null;
 
@@ -1127,24 +1219,16 @@ function clearAdminInterface() {
 function setupFirebaseListeners() {
     if (!isAdmin) return;
 
-    // 1. Écoute dynamique des tâches d'aujourd'hui
     unsubscribeTodos = db.collection('todos').onSnapshot(snapshot => {
         let localTodos = [];
-        snapshot.forEach(doc => {
-            localTodos.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Tri par priorité (A, B, C)
+        snapshot.forEach(doc => { localTodos.push({ id: doc.id, ...doc.data() }); });
         localTodos.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
         renderCloudTodos(localTodos);
     });
 
-    // 2. Écoute dynamique des objectifs globaux
     unsubscribeGoals = db.collection('goals').onSnapshot(snapshot => {
         let localGoals = [];
-        snapshot.forEach(doc => {
-            localGoals.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach(doc => { localGoals.push({ id: doc.id, ...doc.data() }); });
         renderCloudGoals(localGoals);
     });
 }
@@ -1155,7 +1239,6 @@ function renderCloudTodos(todosList) {
         todayList.innerHTML = '<div class="empty-state">Aucune tâche pour aujourd\'hui.</div>';
         return;
     }
-    
     todayList.innerHTML = todosList.map(t => {
         const lblPrio = t.priority === 'A' ? 'Urgent' : t.priority === 'C' ? 'Bas' : 'Moyen';
         const clsPrio = t.priority === 'A' ? 'prio-high' : t.priority === 'C' ? 'prio-low' : 'prio-med';
@@ -1164,19 +1247,14 @@ function renderCloudTodos(todosList) {
             <input type="checkbox" class="atodo-check" ${t.done ? 'checked' : ''}>
             <span class="atodo-label"><span class="prio-tag ${clsPrio}">${lblPrio}</span>${t.text}</span>
             <button class="atodo-del">🗑️</button>
-        </div>
-    `}).join('');
+        </div>`;
+    }).join('');
 
     todayList.querySelectorAll('.atodo-item').forEach(item => {
         const id = item.getAttribute('data-id');
-        const isChecked = item.querySelector('.atodo-check').checked;
-        
-        item.querySelector('.atodo-check').addEventListener('change', () => {
-            db.collection('todos').doc(id).update({ done: !isChecked });
-        });
-        item.querySelector('.atodo-del').addEventListener('click', () => {
-            db.collection('todos').doc(id).delete();
-        });
+        const cb = item.querySelector('.atodo-check');
+        cb.addEventListener('change', () => { db.collection('todos').doc(id).update({ done: cb.checked }); });
+        item.querySelector('.atodo-del').addEventListener('click', () => { db.collection('todos').doc(id).delete(); });
     });
 }
 
@@ -1186,71 +1264,47 @@ function renderCloudGoals(goalsList) {
         goalsListEl.innerHTML = '<div class="empty-state">Aucun objectif global configuré.</div>';
         return;
     }
-
     goalsListEl.innerHTML = goalsList.map(g => `
         <div class="goal-item ${g.done ? 'done' : ''}" data-id="${g.id}">
             <input type="checkbox" class="goal-check" ${g.done ? 'checked' : ''}>
             <span class="goal-label">${g.text}</span>
             <button class="goal-del">🗑️</button>
-        </div>
-    `).join('');
+        </div>`).join('');
 
     goalsListEl.querySelectorAll('.goal-item').forEach(item => {
         const id = item.getAttribute('data-id');
-        const isChecked = item.querySelector('.goal-check').checked;
-        
-        item.querySelector('.goal-check').addEventListener('change', () => {
-            db.collection('goals').doc(id).update({ done: !isChecked });
-        });
-        item.querySelector('.goal-del').addEventListener('click', () => {
-            db.collection('goals').doc(id).delete();
-        });
+        const cb = item.querySelector('.goal-check');
+        cb.addEventListener('change', () => { db.collection('goals').doc(id).update({ done: cb.checked }); });
+        item.querySelector('.goal-del').addEventListener('click', () => { db.collection('goals').doc(id).delete(); });
     });
 }
 
-// Ajouter une tâche du jour sur Firebase
 document.getElementById('addTodayBtn').addEventListener('click', () => {
     if (!isAdmin) return;
     const input = document.getElementById('addTodayInput');
     const prio = document.getElementById('prioSelect').value;
     const text = input.value.trim();
     if (text) {
-        db.collection('todos').add({
-            text: text,
-            done: false,
-            priority: prio,
-            createdAt: Date.now()
-        });
+        db.collection('todos').add({ text, done: false, priority: prio, createdAt: Date.now() });
         input.value = '';
     }
 });
-document.getElementById('addTodayInput').addEventListener('keydown', (e) => { 
-    if (e.key === 'Enter') document.getElementById('addTodayBtn').click(); 
-});
+document.getElementById('addTodayInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addTodayBtn').click(); });
 
-// Ajouter un objectif global sur Firebase
 document.getElementById('addGoalBtn').addEventListener('click', () => {
     if (!isAdmin) return;
     const input = document.getElementById('addGoalInput');
     const text = input.value.trim();
     if (text) {
-        db.collection('goals').add({
-            text: text,
-            done: false,
-            createdAt: Date.now()
-        });
+        db.collection('goals').add({ text, done: false, createdAt: Date.now() });
         input.value = '';
     }
 });
-document.getElementById('addGoalInput').addEventListener('keydown', (e) => { 
-    if (e.key === 'Enter') document.getElementById('addGoalBtn').click(); 
-});
+document.getElementById('addGoalInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addGoalBtn').click(); });
 
-/* ── INITIALISATION ── */
+/* ── INIT ── */
 renderSchedule();
-if (isAdmin) {
-    setupFirebaseListeners();
-} else {
-    clearAdminInterface();
-}
+if (isAdmin) { setupFirebaseListeners(); } else { clearAdminInterface(); }
 </script>
+</body>
+</html>
