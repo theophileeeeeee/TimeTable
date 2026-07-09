@@ -116,7 +116,6 @@
         .icon-btn.active { background: var(--accent); color: #fff; }
         .icon-btn.hidden { display: none; }
 
-        /* DAY PROGRESS BAR */
         .progress-wrap {
             height: 3px;
             background: var(--border);
@@ -140,7 +139,6 @@
             box-shadow: 0 0 6px var(--mint);
         }
 
-        /* SLOT PROGRESS BAR */
         .slot-progress-wrap {
             height: 2px;
             background: var(--border);
@@ -155,7 +153,6 @@
             transition: width .5s ease;
         }
 
-        /* TIME REMAINING BADGE */
         .time-remaining {
             display: inline-block;
             font-size: 10px;
@@ -221,6 +218,7 @@
         }
         .badge-school { background: var(--accent-lo); color: var(--accent); }
         .badge-summer { background: var(--amber-lo); color: var(--amber); }
+        .badge-mint { background: var(--mint-lo); color: var(--mint); }
 
         .day-label { font-size: 12px; color: var(--text2); font-weight: 500; }
 
@@ -286,28 +284,12 @@
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: var(--surface2); }
 
-        /* ACTIVE ROW — highlight principal */
-        tbody tr.active-row td {
-            background: var(--accent-lo) !important;
-        }
-        tbody tr.active-row td:first-child {
-            border-left: 3px solid var(--accent);
-            padding-left: 13px;
-        }
-        tbody tr.active-row .time-cell {
-            color: var(--accent) !important;
-            font-weight: 600;
-        }
-        tbody tr.active-row .act-cell {
-            color: var(--accent) !important;
-            font-weight: 600;
-        }
+        tbody tr.active-row td { background: var(--accent-lo) !important; }
+        tbody tr.active-row td:first-child { border-left: 3px solid var(--accent); padding-left: 13px; }
+        tbody tr.active-row .time-cell { color: var(--accent) !important; font-weight: 600; }
+        tbody tr.active-row .act-cell { color: var(--accent) !important; font-weight: 600; }
 
-        td.time-cell {
-            font-variant-numeric: tabular-nums;
-            color: var(--text2);
-            font-size: 12px;
-        }
+        td.time-cell { font-variant-numeric: tabular-nums; color: var(--text2); font-size: 12px; }
 
         .sidebar { display: flex; flex-direction: column; gap: 14px; }
 
@@ -388,28 +370,41 @@
             flex-shrink: 0;
         }
         .todo-label { flex: 1; font-size: 13px; color: var(--text); cursor: pointer; }
-
-        .pomo-wrap { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 12px; gap: 10px;}
-        .pomo-time { font-family: 'Inter', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
-        .pomo-mode { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-        .pomo-btn { padding: 6px 12px; border-radius: 6px; border: none; background: var(--accent); color: white; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .pomo-btn:hover { background: var(--accent-hi); }
-        .pomo-btn.running { background: var(--red); }
-
-        .brain-textarea { width: calc(100% - 20px); margin: 0 10px 10px; height: 70px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 12px; resize: none; outline: none; }
-        .brain-textarea:focus { border-color: var(--accent); background: var(--surface); }
-
-        .admin-panel { display: none; }
-        .admin-panel.show { display: flex; flex-direction: column; gap: 14px; }
-
-        .tabs {
-            display: flex;
-            gap: 4px;
-            padding: 4px;
+        .todo-tag {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
             background: var(--surface2);
-            border-radius: 10px;
+            color: var(--text3);
+            flex-shrink: 0;
         }
-        .tab-btn {
+
+        .routine-pct-wrap { display: flex; align-items: center; gap: 10px; padding: 4px 16px 2px; }
+        .routine-ring-mini { flex-shrink: 0; }
+        .routine-pct-text { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent); }
+        .routine-pct-sub { font-size: 11px; color: var(--text2); }
+
+        .chart-toolbar { display: flex; gap: 6px; padding: 0 16px 10px; }
+        .range-btn {
+            padding: 5px 11px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text2);
+            font-family: 'Inter', sans-serif;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .range-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .range-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .chart-canvas-wrap { padding: 6px 14px 16px; }
+
+        .goal-tabs { display: flex; gap: 4px; padding: 4px; margin: 10px 12px 0; background: var(--surface2); border-radius: 10px; }
+        .goal-tab-btn {
             flex: 1;
             padding: 7px 0;
             border: none;
@@ -422,10 +417,56 @@
             cursor: pointer;
             transition: all .15s;
         }
-        .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+        .goal-tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+        .goal-tab-panel { display: none; }
+        .goal-tab-panel.active { display: block; }
 
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
+        .pomo-card { display: flex; flex-direction: column; align-items: center; padding: 18px 12px; gap: 10px; }
+        .pomo-ring-wrap { position: relative; width: 168px; height: 168px; }
+        .pomo-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .pomo-ring-bg { fill: none; stroke: var(--surface2); stroke-width: 10; }
+        .pomo-ring-fg { fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke .3s; }
+        .pomo-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .pomo-time { font-family: 'Inter', monospace; font-size: 28px; font-weight: 700; color: var(--text); }
+        .pomo-mode { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+        .pomo-controls { display: flex; gap: 8px; }
+        .pomo-btn { padding: 8px 16px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+        .pomo-btn:hover { background: var(--accent-hi); }
+        .pomo-btn.running { background: var(--red); }
+        .pomo-btn.ghost { background: var(--surface2); color: var(--text2); }
+        .pomo-btn.ghost:hover { background: var(--border); }
+        .pomo-cycles { font-size: 11px; color: var(--text3); }
+
+        .pomo-fullscreen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            background: var(--bg);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+        }
+        .pomo-fullscreen.show { display: flex; }
+        .pomo-fullscreen .pomo-ring-wrap { width: min(70vw, 380px); height: min(70vw, 380px); }
+        .pomo-fullscreen .pomo-time { font-size: 54px; }
+        .pomo-fullscreen .pomo-mode { font-size: 13px; }
+        .pomo-fs-close {
+            position: absolute; top: 18px; right: 18px;
+            width: 38px; height: 38px; border-radius: 10px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text2); font-size: 16px; cursor: pointer;
+        }
+        .pomo-fs-close:hover { color: var(--accent); border-color: var(--accent); }
+
+        .brain-textarea { width: calc(100% - 20px); margin: 0 10px 10px; height: 90px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 12px; resize: none; outline: none; }
+        .brain-textarea:focus { border-color: var(--accent); background: var(--surface); }
+
+        .admin-panel { display: none; }
+        .admin-panel.show { display: flex; flex-direction: column; gap: 14px; }
+        .admin-only-card { display: none; }
+        .admin-only-card.show { display: block; }
 
         .atodo-item {
             display: flex;
@@ -448,7 +489,7 @@
             flex-shrink: 0;
         }
         .atodo-label { flex: 1; font-size: 13px; color: var(--text); min-width: 0; }
-        
+
         .prio-tag { font-size: 9px; font-weight: bold; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; margin-right: 4px; display: inline-block; vertical-align: middle;}
         .prio-high { background: var(--red-lo); color: var(--red); }
         .prio-med { background: var(--amber-lo); color: var(--amber); }
@@ -470,16 +511,8 @@
         .atodo-item:hover .atodo-del { opacity: 1; }
         .atodo-del:hover { background: var(--red-lo); color: var(--red); }
 
-        .add-row {
-            padding: 10px;
-            border-top: 1px solid var(--border);
-        }
-        .add-row-inputs { 
-            display: flex; 
-            gap: 6px; 
-            width: 100%; 
-            align-items: center;
-        }
+        .add-row { padding: 10px; border-top: 1px solid var(--border); }
+        .add-row-inputs { display: flex; gap: 6px; width: 100%; align-items: center; }
         .add-input {
             flex: 1;
             padding: 8px 10px;
@@ -496,14 +529,14 @@
         .add-input:focus { border-color: var(--accent); background: var(--surface); }
         .add-input::placeholder { color: var(--text3); }
 
-        .prio-select { 
-            padding: 0 4px; 
+        .prio-select, .cat-select {
+            padding: 0 4px;
             height: 34px;
-            border: 1.5px solid var(--border); 
-            border-radius: 8px; 
-            background: var(--surface2); 
-            color: var(--text); 
-            font-size: 12px; 
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 12px;
             outline: none;
             flex-shrink: 0;
         }
@@ -522,49 +555,7 @@
         }
         .add-btn:hover { transform: scale(1.05); background: var(--accent-hi); }
 
-        .empty-state {
-            text-align: center;
-            padding: 20px 16px;
-            color: var(--text3);
-            font-size: 12px;
-        }
-
-        .goal-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 10px;
-            border-radius: 8px;
-            transition: background .15s;
-        }
-        .goal-item:hover { background: var(--surface2); }
-        .goal-item.done { opacity: .5; }
-        .goal-item.done .goal-label { text-decoration: line-through; }
-
-        .goal-check {
-            width: 17px; height: 17px;
-            border-radius: 5px;
-            border: 2px solid var(--border);
-            cursor: pointer;
-            accent-color: var(--amber);
-            flex-shrink: 0;
-        }
-        .goal-label { flex: 1; font-size: 13px; color: var(--text); min-width: 0; }
-        .goal-del {
-            width: 22px; height: 22px;
-            border-radius: 6px;
-            border: none;
-            background: transparent;
-            color: var(--text3);
-            cursor: pointer;
-            font-size: 14px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0;
-            transition: all .15s;
-            flex-shrink: 0;
-        }
-        .goal-item:hover .goal-del { opacity: 1; }
-        .goal-del:hover { background: var(--red-lo); color: var(--red); }
+        .empty-state { text-align: center; padding: 20px 16px; color: var(--text3); font-size: 12px; }
 
         .overlay {
             display: none;
@@ -589,15 +580,8 @@
             flex-direction: column;
             gap: 16px;
         }
-
-        .modal-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text);
-        }
+        .modal-title { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
         .modal-sub { font-size: 13px; color: var(--text2); margin-top: -8px; }
-
         .modal-input {
             padding: 10px 14px;
             border: 1.5px solid var(--border);
@@ -610,21 +594,26 @@
             transition: border-color .15s;
         }
         .modal-input:focus { border-color: var(--accent); }
-
         .modal-error { font-size: 12px; color: var(--red); display: none; }
         .modal-error.show { display: block; }
-
         .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
-        @media (max-width: 900px) {
-            .grid { grid-template-columns: 1fr 260px; gap: 14px; }
+        .btn-ghost {
+            padding: 9px 14px; border-radius: 9px; border: 1px solid var(--border);
+            background: transparent; color: var(--text2); font-family: 'Inter', sans-serif;
+            font-size: 13px; font-weight: 600; cursor: pointer;
         }
+        .btn-primary {
+            padding: 9px 16px; border-radius: 9px; border: none;
+            background: var(--accent); color: #fff; font-family: 'Inter', sans-serif;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr 260px; gap: 14px; } }
         @media (max-width: 680px) {
             .page { padding: 12px; }
             .grid { grid-template-columns: 1fr; gap: 14px; }
             .sidebar { order: 2; }
             body.focus-mode .sidebar { display: none !important; }
-            
             .card-header { padding: 10px 12px; }
             thead th, tbody td { padding: 10px 12px; font-size: 12px; }
             col.col-time { width: 40%; }
@@ -638,7 +627,7 @@
     <div class="modal">
         <div>
             <div class="modal-title">🔒 Mode admin</div>
-            <div class="modal-sub">Planning complet + gestion des tâches</div>
+            <div class="modal-sub">Planning complet + gestion des objectifs</div>
         </div>
         <input type="password" class="modal-input" id="pwdInput" placeholder="Mot de passe…" autocomplete="off">
         <div class="modal-error" id="loginError">Mot de passe incorrect.</div>
@@ -647,6 +636,25 @@
             <button class="btn-primary" id="btnConfirm">Entrer</button>
         </div>
     </div>
+</div>
+
+<div class="pomo-fullscreen" id="pomoFullscreen">
+    <button class="pomo-fs-close" id="pomoFsClose">✕</button>
+    <div class="pomo-ring-wrap">
+        <svg viewBox="0 0 200 200">
+            <circle class="pomo-ring-bg" cx="100" cy="100" r="88"></circle>
+            <circle class="pomo-ring-fg" id="pomoRingFsFg" cx="100" cy="100" r="88"></circle>
+        </svg>
+        <div class="pomo-ring-center">
+            <div class="pomo-time" id="pomoTimeFs">25:00</div>
+            <div class="pomo-mode" id="pomoModeFs">Focus</div>
+        </div>
+    </div>
+    <div class="pomo-controls">
+        <button class="pomo-btn" id="pomoBtnFs">Lancer</button>
+        <button class="pomo-btn ghost" id="pomoResetFs">Réinitialiser</button>
+    </div>
+    <div class="pomo-cycles" id="pomoCyclesFs"></div>
 </div>
 
 <div class="topbar">
@@ -687,13 +695,100 @@
                             <col class="col-act">
                         </colgroup>
                         <thead>
-                            <tr>
-                                <th>Heure</th>
-                                <th>Activité</th>
-                            </tr>
+                            <tr><th>Heure</th><th>Activité</th></tr>
                         </thead>
                         <tbody id="scheduleBody"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Routine du jour</div>
+                    <span class="badge badge-mint" id="routineDayTypeBadge">Semaine</span>
+                </div>
+                <div class="routine-pct-wrap">
+                    <div class="routine-ring-mini">
+                        <svg width="40" height="40" viewBox="0 0 40 40" style="transform:rotate(-90deg)">
+                            <circle cx="20" cy="20" r="16" fill="none" stroke="var(--surface2)" stroke-width="5"></circle>
+                            <circle id="routineRingFg" cx="20" cy="20" r="16" fill="none" stroke="var(--mint)" stroke-width="5" stroke-linecap="round" style="transition:stroke-dashoffset .4s"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="routine-pct-text" id="routinePctText">0%</div>
+                        <div class="routine-pct-sub" id="routinePctSub">0 / 0 tenus aujourd'hui</div>
+                    </div>
+                </div>
+                <div class="todo-list" id="routineList"></div>
+                <div class="add-row admin-only-card" id="routineAddRow">
+                    <div class="add-row-inputs">
+                        <input type="text" class="add-input" id="addRoutineInput" placeholder="Nouvel item de routine…">
+                        <select class="cat-select" id="routineCatSelect">
+                            <option value="fixed">Fixe</option>
+                            <option value="weekday">Semaine</option>
+                            <option value="weekend">Week-end</option>
+                        </select>
+                        <button class="add-btn" id="addRoutineBtn">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Historique de la routine</div>
+                </div>
+                <div class="chart-toolbar" id="rangeToolbar">
+                    <button class="range-btn" data-range="30">30j</button>
+                    <button class="range-btn active" data-range="60">60j</button>
+                    <button class="range-btn" data-range="90">90j</button>
+                    <button class="range-btn" data-range="365">365j</button>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="routineChart" height="160"></canvas>
+                </div>
+            </div>
+
+            <div class="card admin-only-card" id="goalsCard">
+                <div class="card-header">
+                    <div class="card-title">Objectifs</div>
+                </div>
+                <div class="goal-tabs">
+                    <button class="goal-tab-btn active" data-goaltab="week">Semaine</button>
+                    <button class="goal-tab-btn" data-goaltab="month">Mois</button>
+                    <button class="goal-tab-btn" data-goaltab="year">Année</button>
+                </div>
+
+                <div class="goal-tab-panel active" id="goaltab-week">
+                    <div style="padding:8px 10px 0;" id="goalsWeekList"></div>
+                    <div class="add-row">
+                        <div class="add-row-inputs">
+                            <input type="text" class="add-input" id="addGoalWeekInput" placeholder="Objectif de la semaine…">
+                            <select class="prio-select" id="prioGoalWeek"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option></select>
+                            <button class="add-btn" id="addGoalWeekBtn">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-tab-panel" id="goaltab-month">
+                    <div style="padding:8px 10px 0;" id="goalsMonthList"></div>
+                    <div class="add-row">
+                        <div class="add-row-inputs">
+                            <input type="text" class="add-input" id="addGoalMonthInput" placeholder="Objectif du mois…">
+                            <select class="prio-select" id="prioGoalMonth"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option></select>
+                            <button class="add-btn" id="addGoalMonthBtn">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-tab-panel" id="goaltab-year">
+                    <div style="padding:8px 10px 0;" id="goalsYearList"></div>
+                    <div class="add-row">
+                        <div class="add-row-inputs">
+                            <input type="text" class="add-input" id="addGoalYearInput" placeholder="Objectif de l'année…">
+                            <select class="prio-select" id="prioGoalYear"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option></select>
+                            <button class="add-btn" id="addGoalYearBtn">+</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -715,31 +810,26 @@
             </div>
 
             <div class="card">
-                <div class="section-label">⏱️ Minuteur Pomodoro</div>
-                <div class="pomo-wrap">
-                    <div>
-                        <div class="pomo-time" id="pomoTime">25:00</div>
-                        <div class="pomo-mode" id="pomoMode">Focus</div>
-                    </div>
-                    <button class="pomo-btn" id="pomoBtn">Lancer Focus</button>
+                <div class="card-header">
+                    <div class="card-title">Pomodoro</div>
+                    <button class="icon-btn" id="pomoFsOpen" title="Plein écran">⛶</button>
                 </div>
-            </div>
-
-            <div class="card" id="publicTodoCard">
-                <div class="section-label">À faire aujourd'hui</div>
-                <div class="todo-list" id="publicTodoList">
-                    <div class="todo-item" data-key="devoirs">
-                        <input type="checkbox" class="todo-check" id="pub0">
-                        <label class="todo-label" for="pub0">Faire les devoirs</label>
+                <div class="pomo-card">
+                    <div class="pomo-ring-wrap">
+                        <svg viewBox="0 0 200 200">
+                            <circle class="pomo-ring-bg" cx="100" cy="100" r="88"></circle>
+                            <circle class="pomo-ring-fg" id="pomoRingFg" cx="100" cy="100" r="88"></circle>
+                        </svg>
+                        <div class="pomo-ring-center">
+                            <div class="pomo-time" id="pomoTime">25:00</div>
+                            <div class="pomo-mode" id="pomoMode">Focus</div>
+                        </div>
                     </div>
-                    <div class="todo-item" data-key="douche">
-                        <input type="checkbox" class="todo-check" id="pub1">
-                        <label class="todo-label" for="pub1">Douche froide</label>
+                    <div class="pomo-controls">
+                        <button class="pomo-btn" id="pomoBtn">Lancer</button>
+                        <button class="pomo-btn ghost" id="pomoReset">Réinitialiser</button>
                     </div>
-                    <div class="todo-item" data-key="seance">
-                        <input type="checkbox" class="todo-check" id="pub2">
-                        <label class="todo-label" for="pub2">Séance sport</label>
-                    </div>
+                    <div class="pomo-cycles" id="pomoCycles"></div>
                 </div>
             </div>
 
@@ -750,36 +840,13 @@
 
             <div class="admin-panel" id="adminPanel">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Mes tâches</div>
-                    </div>
-                    <div class="tabs" style="margin:10px 10px 0;">
-                        <button class="tab-btn active" data-tab="today">Aujourd'hui</button>
-                        <button class="tab-btn" data-tab="goals">Objectifs</button>
-                    </div>
-
-                    <div class="tab-panel active" id="tab-today">
-                        <div style="padding:8px 10px 0;" id="todayList"></div>
-                        <div class="add-row">
-                            <div class="add-row-inputs">
-                                <input type="text" class="add-input" id="addTodayInput" placeholder="Ajouter une tâche…">
-                                <select class="prio-select" id="prioSelect">
-                                    <option value="A">A</option>
-                                    <option value="B" selected>B</option>
-                                    <option value="C">C</option>
-                                </select>
-                                <button class="add-btn" id="addTodayBtn">+</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-panel" id="tab-goals">
-                        <div style="padding:8px 10px 0;" id="goalsList"></div>
-                        <div class="add-row">
-                            <div class="add-row-inputs">
-                                <input type="text" class="add-input" id="addGoalInput" placeholder="Objectif global…">
-                                <button class="add-btn" id="addGoalBtn">+</button>
-                            </div>
+                    <div class="card-header"><div class="card-title">Tâches perso</div></div>
+                    <div style="padding:8px 10px 0;" id="todayList"></div>
+                    <div class="add-row">
+                        <div class="add-row-inputs">
+                            <input type="text" class="add-input" id="addTodayInput" placeholder="Ajouter une tâche…">
+                            <select class="prio-select" id="prioSelect"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option></select>
+                            <button class="add-btn" id="addTodayBtn">+</button>
                         </div>
                     </div>
                 </div>
@@ -791,9 +858,10 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 
 <script>
-const ADMIN_PASSWORD = "admin"; 
+const ADMIN_PASSWORD = "admin";
 
 const SCOLAIRE = [
     ["06:30 - 08:00", "Déjeuner + se coiffer"],
@@ -839,6 +907,14 @@ const ETE_DIMANCHE = [
     ["22:00 - 23:30", "Dîner + repos — pas de dev ni maths"],
 ];
 
+const DEFAULT_ROUTINE = [
+    { text: "Devoirs faits", category: "fixed" },
+    { text: "Douche froide", category: "fixed" },
+    { text: "Lecture avant de dormir", category: "fixed" },
+    { text: "Séance sport / dev", category: "weekday" },
+    { text: "Sortie / temps libre", category: "weekend" },
+];
+
 const firebaseConfig = {
     apiKey: "AIzaSyDI5mG7GYtCEcZ6grNrrlv0DJULOBZ9gUI",
     authDomain: "timetableee.firebaseapp.com",
@@ -856,9 +932,23 @@ const JOURS = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"
 let isAdmin = sessionStorage.getItem('adminMode') === '1';
 let viewOffset = 0;
 
-const today = () => new Date().toISOString().split('T')[0];
+function todayKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+}
 
-/* ── PARSE HEURE "HH:MM" → decimal ── */
+function dateKeyOffset(daysAgo) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+}
+
 function parse(s) {
     if (!s) return 0;
     s = String(s).trim();
@@ -867,7 +957,6 @@ function parse(s) {
     return (isNaN(h) ? 0 : h) + (isNaN(m) ? 0 : m) / 60;
 }
 
-/* ── PARSE UNE PLAGE "HH:MM - HH:MM" → {start, end} ── */
 function parseSlot(txt) {
     const parts = txt.trim().split(/\s*[-–—]\s*/);
     if (parts.length < 2) return null;
@@ -902,10 +991,7 @@ function getSchedule() {
 function renderSchedule() {
     const data = getSchedule();
     document.getElementById('scheduleBody').innerHTML = data.map(([h, a]) =>
-        `<tr>
-            <td class="time-cell">${h}</td>
-            <td class="act-cell">${a}</td>
-        </tr>`
+        `<tr><td class="time-cell">${h}</td><td class="act-cell">${a}</td></tr>`
     ).join('');
 
     const dow = getViewedDow();
@@ -928,6 +1014,7 @@ function renderSchedule() {
                     : JOURS[dow];
 
     document.getElementById('adminPanel').classList.toggle('show', isAdmin);
+    document.querySelectorAll('.admin-only-card').forEach(el => el.classList.toggle('show', isAdmin));
     updateActiveRow();
 }
 
@@ -958,7 +1045,6 @@ function updateActiveRow() {
 
             const remaining = slot.end - cur;
             const remStr = formatRemaining(remaining);
-
             const slotDuration = slot.end - slot.start;
             const elapsed = cur - slot.start;
             const slotPct = Math.max(0, Math.min(100, (elapsed / slotDuration) * 100));
@@ -969,10 +1055,10 @@ function updateActiveRow() {
             if (existingBar) existingBar.remove();
 
             if (remStr) {
-                const badge = document.createElement('span');
-                badge.className = 'time-remaining';
-                badge.textContent = `−${remStr}`;
-                actCell.appendChild(badge);
+                const badgeEl = document.createElement('span');
+                badgeEl.className = 'time-remaining';
+                badgeEl.textContent = `−${remStr}`;
+                actCell.appendChild(badgeEl);
             }
 
             const barWrap = document.createElement('div');
@@ -1010,6 +1096,7 @@ themeBtn.addEventListener('click', () => {
     const dark = document.body.classList.contains('dark');
     localStorage.setItem('theme', dark ? 'dark' : 'light');
     themeBtn.textContent = dark ? '☀️' : '🌙';
+    if (routineChart) { routineChart.update(); }
 });
 
 const focusBtn = document.getElementById('focusToggle');
@@ -1018,62 +1105,74 @@ focusBtn.addEventListener('click', () => {
     focusBtn.classList.toggle('active', document.body.classList.contains('focus-mode'));
 });
 
-/* ── POMODORO ── */
+const POMO_FOCUS = 25 * 60;
+const POMO_SHORT = 5 * 60;
+const POMO_LONG = 15 * 60;
+const POMO_LONG_EVERY = 4;
+const POMO_CIRC = 2 * Math.PI * 88;
+
 let pomoInterval = null;
-let pomoTimeLeft = 25 * 60;
-let isPomoBreak = false;
-const pomoTimeDisplay = document.getElementById('pomoTime');
-const pomoModeDisplay = document.getElementById('pomoMode');
-const pomoBtn = document.getElementById('pomoBtn');
+let pomoTotal = POMO_FOCUS;
+let pomoTimeLeft = POMO_FOCUS;
+let pomoIsBreak = false;
+let pomoFocusCount = 0;
+
+const pomoRingFg = document.getElementById('pomoRingFg');
+const pomoRingFsFg = document.getElementById('pomoRingFsFg');
+[pomoRingFg, pomoRingFsFg].forEach(el => {
+    el.style.strokeDasharray = `${POMO_CIRC}`;
+    el.style.strokeDashoffset = `0`;
+});
 
 function playBeep() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        gain.gain.setValueAtTime(0.4, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.8);
-        setTimeout(() => {
-            const osc2 = ctx.createOscillator();
-            const gain2 = ctx.createGain();
-            osc2.connect(gain2);
-            gain2.connect(ctx.destination);
-            osc2.type = 'sine';
-            osc2.frequency.setValueAtTime(1100, ctx.currentTime);
-            gain2.gain.setValueAtTime(0.4, ctx.currentTime);
-            gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-            osc2.start(ctx.currentTime);
-            osc2.stop(ctx.currentTime + 0.8);
-        }, 400);
+        [880, 1100].forEach((freq, i) => {
+            setTimeout(() => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.4, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+                osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.8);
+            }, i * 400);
+        });
     } catch(e) {}
 }
 
 function updatePomoDisplay() {
     const min = String(Math.floor(pomoTimeLeft / 60)).padStart(2, '0');
     const sec = String(pomoTimeLeft % 60).padStart(2, '0');
-    pomoTimeDisplay.textContent = `${min}:${sec}`;
+    const txt = `${min}:${sec}`;
+    document.getElementById('pomoTime').textContent = txt;
+    document.getElementById('pomoTimeFs').textContent = txt;
+
+    const modeTxt = pomoIsBreak ? (pomoTotal === POMO_LONG ? "Pause longue ☕" : "Pause ☕") : "Focus 🎯";
+    document.getElementById('pomoMode').textContent = modeTxt;
+    document.getElementById('pomoModeFs').textContent = modeTxt;
+
+    const offset = POMO_CIRC * (1 - pomoTimeLeft / pomoTotal);
+    const color = pomoIsBreak ? 'var(--mint)' : 'var(--accent)';
+    [pomoRingFg, pomoRingFsFg].forEach(el => {
+        el.style.strokeDashoffset = `${offset}`;
+        el.style.stroke = color;
+    });
+
+    const cyclesTxt = `Cycle ${pomoFocusCount % POMO_LONG_EVERY + (pomoIsBreak?0:1)} / ${POMO_LONG_EVERY}`;
+    document.getElementById('pomoCycles').textContent = cyclesTxt;
+    document.getElementById('pomoCyclesFs').textContent = cyclesTxt;
 }
 
-pomoBtn.addEventListener('click', () => {
+function togglePomo() {
+    const btns = [document.getElementById('pomoBtn'), document.getElementById('pomoBtnFs')];
     if (pomoInterval) {
         clearInterval(pomoInterval);
         pomoInterval = null;
-        pomoTimeLeft = 25 * 60;
-        isPomoBreak = false;
-        pomoBtn.textContent = "Lancer Focus";
-        pomoBtn.classList.remove('running');
-        pomoModeDisplay.textContent = "Focus";
-        updatePomoDisplay();
+        btns.forEach(b => { b.textContent = "Lancer"; b.classList.remove('running'); });
     } else {
-        pomoBtn.textContent = "Arrêter";
-        pomoBtn.classList.add('running');
-        pomoModeDisplay.textContent = isPomoBreak ? "Pause ☕" : "Focus 🎯";
+        btns.forEach(b => { b.textContent = "Pause"; b.classList.add('running'); });
         pomoInterval = setInterval(() => {
             if (pomoTimeLeft > 0) {
                 pomoTimeLeft--;
@@ -1081,26 +1180,49 @@ pomoBtn.addEventListener('click', () => {
             } else {
                 clearInterval(pomoInterval);
                 pomoInterval = null;
-                isPomoBreak = !isPomoBreak;
                 playBeep();
-                pomoTimeLeft = (isPomoBreak ? 5 : 25) * 60;
-                pomoBtn.textContent = isPomoBreak ? "Lancer Pause" : "Lancer Focus";
-                pomoBtn.classList.remove('running');
-                pomoModeDisplay.textContent = isPomoBreak ? "Pause ☕" : "Focus 🎯";
+                if (!pomoIsBreak) {
+                    pomoFocusCount++;
+                    pomoIsBreak = true;
+                    pomoTotal = (pomoFocusCount % POMO_LONG_EVERY === 0) ? POMO_LONG : POMO_SHORT;
+                } else {
+                    pomoIsBreak = false;
+                    pomoTotal = POMO_FOCUS;
+                }
+                pomoTimeLeft = pomoTotal;
+                btns.forEach(b => { b.textContent = "Lancer"; b.classList.remove('running'); });
                 updatePomoDisplay();
             }
         }, 1000);
     }
-});
+}
 
-/* ── BRAIN-NOTES ── */
+function resetPomo() {
+    clearInterval(pomoInterval);
+    pomoInterval = null;
+    pomoIsBreak = false;
+    pomoTotal = POMO_FOCUS;
+    pomoTimeLeft = POMO_FOCUS;
+    [document.getElementById('pomoBtn'), document.getElementById('pomoBtnFs')].forEach(b => {
+        b.textContent = "Lancer"; b.classList.remove('running');
+    });
+    updatePomoDisplay();
+}
+
+document.getElementById('pomoBtn').addEventListener('click', togglePomo);
+document.getElementById('pomoBtnFs').addEventListener('click', togglePomo);
+document.getElementById('pomoReset').addEventListener('click', resetPomo);
+document.getElementById('pomoResetFs').addEventListener('click', resetPomo);
+document.getElementById('pomoFsOpen').addEventListener('click', () => document.getElementById('pomoFullscreen').classList.add('show'));
+document.getElementById('pomoFsClose').addEventListener('click', () => document.getElementById('pomoFullscreen').classList.remove('show'));
+updatePomoDisplay();
+
 const brainNotesTextarea = document.getElementById('brainNotes');
 brainNotesTextarea.value = localStorage.getItem('brainNotes') || '';
 brainNotesTextarea.addEventListener('input', () => {
     localStorage.setItem('brainNotes', brainNotesTextarea.value);
 });
 
-/* ── LOGIN ── */
 const overlay = document.getElementById('loginOverlay');
 const pwdInput = document.getElementById('pwdInput');
 const loginError = document.getElementById('loginError');
@@ -1135,7 +1257,6 @@ document.getElementById('btnConfirm').addEventListener('click', tryLogin);
 document.getElementById('btnCancel').addEventListener('click', () => overlay.classList.remove('show'));
 pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
 
-/* ── PRÉNOM ── */
 const nameInputWrap = document.getElementById('nameInputWrap');
 const userNameInput = document.getElementById('userNameInput');
 const nameSaveBtn = document.getElementById('nameSaveBtn');
@@ -1167,53 +1288,223 @@ greetingCard.addEventListener('click', () => {
 });
 updateGreeting();
 
-/* ── TODOS PUBLICS ── */
-const publicItems = document.querySelectorAll('.todo-item');
+let routineTemplate = [];
+let routineUnsub = null;
+let routineLogUnsub = null;
+let todayRoutineLog = {};
 
-function loadPublicTodos() {
-    const dateKey = today();
-    publicItems.forEach(item => {
-        const key = item.getAttribute('data-key');
-        const checkbox = item.querySelector('.todo-check');
-        const isDone = localStorage.getItem(`pub_${dateKey}_${key}`) === '1';
-        checkbox.checked = isDone;
-        item.classList.toggle('done', isDone);
+function currentDayCategory() {
+    const dow = new Date().getDay();
+    return (dow === 0 || dow === 6) ? 'weekend' : 'weekday';
+}
+
+function applicableRoutineItems() {
+    const cat = currentDayCategory();
+    return routineTemplate.filter(it => it.category === 'fixed' || it.category === cat);
+}
+
+function renderRoutine() {
+    const items = applicableRoutineItems();
+    const list = document.getElementById('routineList');
+    document.getElementById('routineDayTypeBadge').textContent = currentDayCategory() === 'weekend' ? 'Week-end' : 'Semaine';
+
+    if (items.length === 0) {
+        list.innerHTML = '<div class="empty-state">Aucun item de routine configuré.</div>';
+    } else {
+        list.innerHTML = items.map(it => {
+            const done = !!(todayRoutineLog[it.id]);
+            return `
+            <div class="todo-item ${done ? 'done' : ''}" data-id="${it.id}">
+                <input type="checkbox" class="todo-check" ${done ? 'checked' : ''}>
+                <span class="todo-label">${it.text}</span>
+                <span class="todo-tag">${it.category === 'fixed' ? 'fixe' : it.category === 'weekday' ? 'sem.' : 'w-e'}</span>
+            </div>`;
+        }).join('');
+
+        list.querySelectorAll('.todo-item').forEach(el => {
+            const id = el.getAttribute('data-id');
+            const cb = el.querySelector('.todo-check');
+            el.addEventListener('click', (e) => {
+                if (e.target === cb) return;
+                cb.checked = !cb.checked;
+                cb.dispatchEvent(new Event('change'));
+            });
+            cb.addEventListener('change', () => toggleRoutineItem(id, cb.checked));
+        });
+    }
+
+    const done = items.filter(it => todayRoutineLog[it.id]).length;
+    const total = items.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    document.getElementById('routinePctText').textContent = `${pct}%`;
+    document.getElementById('routinePctSub').textContent = `${done} / ${total} tenus aujourd'hui`;
+    const ringCirc = 2 * Math.PI * 16;
+    const ring = document.getElementById('routineRingFg');
+    ring.style.strokeDasharray = `${ringCirc}`;
+    ring.style.strokeDashoffset = `${ringCirc * (1 - pct/100)}`;
+}
+
+function toggleRoutineItem(id, val) {
+    todayRoutineLog[id] = val;
+    const items = applicableRoutineItems();
+    const done = items.filter(it => todayRoutineLog[it.id]).length;
+    const total = items.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    db.collection('routineLog').doc(todayKey()).set({
+        date: todayKey(),
+        completed: todayRoutineLog,
+        pct: pct,
+        updatedAt: Date.now()
+    }, { merge: true });
+    renderRoutine();
+}
+
+function loadRoutineTemplate() {
+    routineUnsub = db.collection('routineTemplate').onSnapshot(async snapshot => {
+        if (snapshot.empty && !snapshot.metadata.fromCache) {
+            for (const item of DEFAULT_ROUTINE) {
+                await db.collection('routineTemplate').add({ ...item, createdAt: Date.now() });
+            }
+            return;
+        }
+        routineTemplate = [];
+        snapshot.forEach(doc => routineTemplate.push({ id: doc.id, ...doc.data() }));
+        renderRoutine();
+        renderRoutineAdmin();
+    });
+
+    routineLogUnsub = db.collection('routineLog').doc(todayKey()).onSnapshot(doc => {
+        todayRoutineLog = (doc.exists && doc.data().completed) ? doc.data().completed : {};
+        renderRoutine();
     });
 }
 
-publicItems.forEach(item => {
-    const checkbox = item.querySelector('.todo-check');
-    checkbox.addEventListener('change', () => {
-        const dateKey = today();
-        const key = item.getAttribute('data-key');
-        localStorage.setItem(`pub_${dateKey}_${key}`, checkbox.checked ? '1' : '0');
-        item.classList.toggle('done', checkbox.checked);
-    });
+function renderRoutineAdmin() {
+    const wrap = document.getElementById('routineAddRow');
+    if (!wrap) return;
+}
+
+document.getElementById('addRoutineBtn').addEventListener('click', () => {
+    if (!isAdmin) return;
+    const input = document.getElementById('addRoutineInput');
+    const cat = document.getElementById('routineCatSelect').value;
+    const text = input.value.trim();
+    if (text) {
+        db.collection('routineTemplate').add({ text, category: cat, createdAt: Date.now() });
+        input.value = '';
+    }
 });
-loadPublicTodos();
+document.getElementById('addRoutineInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addRoutineBtn').click(); });
 
-/* ── TABS ADMIN ── */
-const tabBtns = document.querySelectorAll('.tab-btn');
-const tabPanels = document.querySelectorAll('.tab-panel');
+let routineChart = null;
+let currentRange = 60;
 
-tabBtns.forEach(btn => {
+function chartColors() {
+    const dark = document.body.classList.contains('dark');
+    return {
+        line: dark ? '#7c5cff' : '#6c47ff',
+        fillTop: dark ? 'rgba(124,92,255,0.25)' : 'rgba(108,71,255,0.18)',
+        fillBottom: dark ? 'rgba(124,92,255,0)' : 'rgba(108,71,255,0)',
+        grid: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+        text: dark ? '#9898bb' : '#6b6b8a'
+    };
+}
+
+async function loadChartData(rangeDays) {
+    const startKey = dateKeyOffset(rangeDays - 1);
+    const snapshot = await db.collection('routineLog')
+        .where('date', '>=', startKey)
+        .orderBy('date', 'asc')
+        .get();
+
+    const map = {};
+    snapshot.forEach(doc => { const d = doc.data(); map[d.date] = d.pct; });
+
+    const labels = [];
+    const values = [];
+    for (let i = rangeDays - 1; i >= 0; i--) {
+        const key = dateKeyOffset(i);
+        labels.push(key.slice(5));
+        values.push(key in map ? map[key] : null);
+    }
+    return { labels, values };
+}
+
+async function renderChart(rangeDays) {
+    const { labels, values } = await loadChartData(rangeDays);
+    const colors = chartColors();
+    const ctx = document.getElementById('routineChart').getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+    gradient.addColorStop(0, colors.fillTop);
+    gradient.addColorStop(1, colors.fillBottom);
+
+    if (routineChart) routineChart.destroy();
+    routineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                borderColor: colors.line,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                spanGaps: true,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    ticks: { color: colors.text, maxTicksLimit: 8, font: { size: 10 } },
+                    grid: { display: false }
+                },
+                y: {
+                    min: 0, max: 100,
+                    ticks: { color: colors.text, callback: v => v + '%', font: { size: 10 } },
+                    grid: { color: colors.grid }
+                }
+            }
+        }
+    });
+}
+
+document.getElementById('rangeToolbar').addEventListener('click', (e) => {
+    const btn = e.target.closest('.range-btn');
+    if (!btn) return;
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = parseInt(btn.getAttribute('data-range'), 10);
+    renderChart(currentRange);
+});
+
+document.querySelectorAll('.goal-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabPanels.forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.goal-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.goal-tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(`tab-${btn.getAttribute('data-tab')}`).classList.add('active');
+        document.getElementById(`goaltab-${btn.getAttribute('data-goaltab')}`).classList.add('active');
     });
 });
 
-/* ── FIREBASE ── */
 let unsubscribeTodos = null;
-let unsubscribeGoals = null;
+let unsubGoalsWeek = null, unsubGoalsMonth = null, unsubGoalsYear = null;
 
 function clearAdminInterface() {
-    if(unsubscribeTodos) unsubscribeTodos();
-    if(unsubscribeGoals) unsubscribeGoals();
+    if (unsubscribeTodos) unsubscribeTodos();
+    if (unsubGoalsWeek) unsubGoalsWeek();
+    if (unsubGoalsMonth) unsubGoalsMonth();
+    if (unsubGoalsYear) unsubGoalsYear();
     document.getElementById('todayList').innerHTML = '<div class="empty-state">Mode Admin déconnecté.</div>';
-    document.getElementById('goalsList').innerHTML = '<div class="empty-state">Mode Admin déconnecté.</div>';
+    ['goalsWeekList','goalsMonthList','goalsYearList'].forEach(id => {
+        document.getElementById(id).innerHTML = '<div class="empty-state">Mode Admin déconnecté.</div>';
+    });
 }
 
 function setupFirebaseListeners() {
@@ -1221,25 +1512,40 @@ function setupFirebaseListeners() {
 
     unsubscribeTodos = db.collection('todos').onSnapshot(snapshot => {
         let localTodos = [];
-        snapshot.forEach(doc => { localTodos.push({ id: doc.id, ...doc.data() }); });
+        snapshot.forEach(doc => localTodos.push({ id: doc.id, ...doc.data() }));
         localTodos.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
-        renderCloudTodos(localTodos);
+        renderCloudTodos(localTodos, 'todayList', 'todos');
     });
 
-    unsubscribeGoals = db.collection('goals').onSnapshot(snapshot => {
-        let localGoals = [];
-        snapshot.forEach(doc => { localGoals.push({ id: doc.id, ...doc.data() }); });
-        renderCloudGoals(localGoals);
+    unsubGoalsWeek = db.collection('goalsWeek').onSnapshot(snapshot => {
+        let items = [];
+        snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+        items.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
+        renderCloudTodos(items, 'goalsWeekList', 'goalsWeek');
+    });
+
+    unsubGoalsMonth = db.collection('goalsMonth').onSnapshot(snapshot => {
+        let items = [];
+        snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+        items.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
+        renderCloudTodos(items, 'goalsMonthList', 'goalsMonth');
+    });
+
+    unsubGoalsYear = db.collection('goalsYear').onSnapshot(snapshot => {
+        let items = [];
+        snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+        items.sort((a,b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
+        renderCloudTodos(items, 'goalsYearList', 'goalsYear');
     });
 }
 
-function renderCloudTodos(todosList) {
-    const todayList = document.getElementById('todayList');
-    if (todosList.length === 0) {
-        todayList.innerHTML = '<div class="empty-state">Aucune tâche pour aujourd\'hui.</div>';
+function renderCloudTodos(itemsList, containerId, collectionName) {
+    const container = document.getElementById(containerId);
+    if (itemsList.length === 0) {
+        container.innerHTML = '<div class="empty-state">Rien pour le moment.</div>';
         return;
     }
-    todayList.innerHTML = todosList.map(t => {
+    container.innerHTML = itemsList.map(t => {
         const lblPrio = t.priority === 'A' ? 'Urgent' : t.priority === 'C' ? 'Bas' : 'Moyen';
         const clsPrio = t.priority === 'A' ? 'prio-high' : t.priority === 'C' ? 'prio-low' : 'prio-med';
         return `
@@ -1250,32 +1556,11 @@ function renderCloudTodos(todosList) {
         </div>`;
     }).join('');
 
-    todayList.querySelectorAll('.atodo-item').forEach(item => {
+    container.querySelectorAll('.atodo-item').forEach(item => {
         const id = item.getAttribute('data-id');
         const cb = item.querySelector('.atodo-check');
-        cb.addEventListener('change', () => { db.collection('todos').doc(id).update({ done: cb.checked }); });
-        item.querySelector('.atodo-del').addEventListener('click', () => { db.collection('todos').doc(id).delete(); });
-    });
-}
-
-function renderCloudGoals(goalsList) {
-    const goalsListEl = document.getElementById('goalsList');
-    if (goalsList.length === 0) {
-        goalsListEl.innerHTML = '<div class="empty-state">Aucun objectif global configuré.</div>';
-        return;
-    }
-    goalsListEl.innerHTML = goalsList.map(g => `
-        <div class="goal-item ${g.done ? 'done' : ''}" data-id="${g.id}">
-            <input type="checkbox" class="goal-check" ${g.done ? 'checked' : ''}>
-            <span class="goal-label">${g.text}</span>
-            <button class="goal-del">🗑️</button>
-        </div>`).join('');
-
-    goalsListEl.querySelectorAll('.goal-item').forEach(item => {
-        const id = item.getAttribute('data-id');
-        const cb = item.querySelector('.goal-check');
-        cb.addEventListener('change', () => { db.collection('goals').doc(id).update({ done: cb.checked }); });
-        item.querySelector('.goal-del').addEventListener('click', () => { db.collection('goals').doc(id).delete(); });
+        cb.addEventListener('change', () => db.collection(collectionName).doc(id).update({ done: cb.checked }));
+        item.querySelector('.atodo-del').addEventListener('click', () => db.collection(collectionName).doc(id).delete());
     });
 }
 
@@ -1284,26 +1569,27 @@ document.getElementById('addTodayBtn').addEventListener('click', () => {
     const input = document.getElementById('addTodayInput');
     const prio = document.getElementById('prioSelect').value;
     const text = input.value.trim();
-    if (text) {
-        db.collection('todos').add({ text, done: false, priority: prio, createdAt: Date.now() });
-        input.value = '';
-    }
+    if (text) { db.collection('todos').add({ text, done: false, priority: prio, createdAt: Date.now() }); input.value = ''; }
 });
 document.getElementById('addTodayInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addTodayBtn').click(); });
 
-document.getElementById('addGoalBtn').addEventListener('click', () => {
-    if (!isAdmin) return;
-    const input = document.getElementById('addGoalInput');
-    const text = input.value.trim();
-    if (text) {
-        db.collection('goals').add({ text, done: false, createdAt: Date.now() });
-        input.value = '';
-    }
-});
-document.getElementById('addGoalInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addGoalBtn').click(); });
+function wireGoalAdd(btnId, inputId, prioId, collectionName) {
+    document.getElementById(btnId).addEventListener('click', () => {
+        if (!isAdmin) return;
+        const input = document.getElementById(inputId);
+        const prio = document.getElementById(prioId).value;
+        const text = input.value.trim();
+        if (text) { db.collection(collectionName).add({ text, done: false, priority: prio, createdAt: Date.now() }); input.value = ''; }
+    });
+    document.getElementById(inputId).addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById(btnId).click(); });
+}
+wireGoalAdd('addGoalWeekBtn', 'addGoalWeekInput', 'prioGoalWeek', 'goalsWeek');
+wireGoalAdd('addGoalMonthBtn', 'addGoalMonthInput', 'prioGoalMonth', 'goalsMonth');
+wireGoalAdd('addGoalYearBtn', 'addGoalYearInput', 'prioGoalYear', 'goalsYear');
 
-/* ── INIT ── */
 renderSchedule();
+loadRoutineTemplate();
+renderChart(currentRange);
 if (isAdmin) { setupFirebaseListeners(); } else { clearAdminInterface(); }
 </script>
 </body>
