@@ -401,7 +401,8 @@
         }
         .range-btn:hover { border-color: var(--accent); color: var(--accent); }
         .range-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-        .chart-canvas-wrap { padding: 6px 14px 16px; }
+        .chart-canvas-wrap { padding: 6px 14px 16px; position: relative; height: 220px; }
+        .chart-canvas-wrap canvas { width: 100% !important; height: 100% !important; }
 
         .goal-tabs { display: flex; gap: 4px; padding: 4px; margin: 10px 12px 0; background: var(--surface2); border-radius: 10px; }
         .goal-tab-btn {
@@ -702,7 +703,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card admin-only-card">
                 <div class="card-header">
                     <div class="card-title">Routine du jour</div>
                     <span class="badge badge-mint" id="routineDayTypeBadge">Semaine</span>
@@ -733,7 +734,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card admin-only-card">
                 <div class="card-header">
                     <div class="card-title">Historique de la routine</div>
                 </div>
@@ -858,7 +859,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <script>
 const ADMIN_PASSWORD = "admin";
@@ -1412,10 +1413,16 @@ function chartColors() {
 
 async function loadChartData(rangeDays) {
     const startKey = dateKeyOffset(rangeDays - 1);
-    const snapshot = await db.collection('routineLog')
-        .where('date', '>=', startKey)
-        .orderBy('date', 'asc')
-        .get();
+    let snapshot;
+    try {
+        snapshot = await db.collection('routineLog')
+            .where('date', '>=', startKey)
+            .orderBy('date', 'asc')
+            .get();
+    } catch (err) {
+        console.error('routineLog query failed', err);
+        return { labels: [], values: [], error: err };
+    }
 
     const map = {};
     snapshot.forEach(doc => { const d = doc.data(); map[d.date] = d.pct; });
@@ -1427,11 +1434,35 @@ async function loadChartData(rangeDays) {
         labels.push(key.slice(5));
         values.push(key in map ? map[key] : null);
     }
-    return { labels, values };
+    return { labels, values, error: null };
 }
 
 async function renderChart(rangeDays) {
-    const { labels, values } = await loadChartData(rangeDays);
+    const wrap = document.querySelector('.chart-canvas-wrap');
+    const existingMsg = wrap.querySelector('.chart-empty-msg');
+    if (existingMsg) existingMsg.remove();
+    document.getElementById('routineChart').style.display = 'block';
+
+    const { labels, values, error } = await loadChartData(rangeDays);
+
+    if (error) {
+        document.getElementById('routineChart').style.display = 'none';
+        const msg = document.createElement('div');
+        msg.className = 'chart-empty-msg empty-state';
+        msg.textContent = "Impossible de charger l'historique (voir la console pour le détail).";
+        wrap.appendChild(msg);
+        return;
+    }
+
+    if (values.every(v => v === null)) {
+        document.getElementById('routineChart').style.display = 'none';
+        const msg = document.createElement('div');
+        msg.className = 'chart-empty-msg empty-state';
+        msg.textContent = "Pas encore de donnée sur cette période — coche des items de routine pour commencer à remplir le graphique.";
+        wrap.appendChild(msg);
+        return;
+    }
+
     const colors = chartColors();
     const ctx = document.getElementById('routineChart').getContext('2d');
 
