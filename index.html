@@ -511,6 +511,8 @@
         }
         .atodo-item:hover .atodo-del { opacity: 1; }
         .atodo-del:hover { background: var(--red-lo); color: var(--red); }
+        .routine-del { opacity: .5; margin-left: auto; }
+        .routine-del:hover { opacity: 1; background: var(--red-lo); color: var(--red); }
 
         .add-row { padding: 10px; border-top: 1px solid var(--border); }
         .add-row-inputs { display: flex; gap: 6px; width: 100%; align-items: center; }
@@ -703,7 +705,33 @@
                 </div>
             </div>
 
-            <div class="card admin-only-card">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Séance du jour</div>
+                    <span class="badge badge-mint" id="workoutDayBadge">Lundi</span>
+                </div>
+                <div class="routine-pct-wrap">
+                    <div class="routine-ring-mini">
+                        <svg width="40" height="40" viewBox="0 0 40 40" style="transform:rotate(-90deg)">
+                            <circle cx="20" cy="20" r="16" fill="none" stroke="var(--surface2)" stroke-width="5"></circle>
+                            <circle id="workoutRingFg" cx="20" cy="20" r="16" fill="none" stroke="var(--mint)" stroke-width="5" stroke-linecap="round" style="transition:stroke-dashoffset .4s"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="routine-pct-text" id="workoutPctText">0%</div>
+                        <div class="routine-pct-sub" id="workoutPctSub">0 / 0 exos faits</div>
+                    </div>
+                </div>
+                <div class="todo-list" id="workoutList"></div>
+                <div class="add-row admin-only-card" id="workoutAddRow">
+                    <div class="add-row-inputs">
+                        <input type="text" class="add-input" id="addWorkoutInput" placeholder="Nouvel exercice…">
+                        <button class="add-btn" id="addWorkoutBtn">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
                 <div class="card-header">
                     <div class="card-title">Routine du jour</div>
                     <span class="badge badge-mint" id="routineDayTypeBadge">Semaine</span>
@@ -734,7 +762,7 @@
                 </div>
             </div>
 
-            <div class="card admin-only-card">
+            <div class="card">
                 <div class="card-header">
                     <div class="card-title">Historique de la routine</div>
                 </div>
@@ -909,11 +937,41 @@ const ETE_DIMANCHE = [
 ];
 
 const DEFAULT_ROUTINE = [
-    { text: "Devoirs faits", category: "fixed" },
     { text: "Douche froide", category: "fixed" },
     { text: "Lecture avant de dormir", category: "fixed" },
-    { text: "Séance sport / dev", category: "weekday" },
+    { text: "Séance sport", category: "fixed" },
+    { text: "Dev Unity", category: "weekday" },
+    { text: "Content", category: "fixed" },
     { text: "Sortie / temps libre", category: "weekend" },
+];
+
+const DEFAULT_WORKOUT = [
+    { text: "Repos complet", day: 0 },
+    { text: "Wall handstand hold – 3x30-45s", day: 1 },
+    { text: "Handstand push-up négatives", day: 1 },
+    { text: "Pike push-ups", day: 1 },
+    { text: "Pompes diamant", day: 1 },
+    { text: "Hollow body hold", day: 1 },
+    { text: "Souplesse dos/épaules", day: 2 },
+    { text: "Box jumps / jump squats", day: 2 },
+    { text: "Drills de rotation arrière", day: 2 },
+    { text: "V-ups", day: 2 },
+    { text: "Arch hold", day: 2 },
+    { text: "Planche lean", day: 3 },
+    { text: "Tuck planche hold", day: 3 },
+    { text: "Pseudo planche push-ups", day: 3 },
+    { text: "Dips au sol (entre 2 chaises)", day: 3 },
+    { text: "Gainage planche-specific", day: 3 },
+    { text: "Étirements dos/épaules", day: 4 },
+    { text: "Mobilité poignets", day: 4 },
+    { text: "Freestanding HS practice (kick-up mur)", day: 5 },
+    { text: "Tuck planche hold", day: 5 },
+    { text: "L-sit progressions", day: 5 },
+    { text: "Hollow body hold", day: 5 },
+    { text: "Drills de backflip", day: 6 },
+    { text: "Squats bulgares", day: 6 },
+    { text: "Pistol squat progressions", day: 6 },
+    { text: "Travail épaules/bras", day: 6 },
 ];
 
 const firebaseConfig = {
@@ -1077,9 +1135,9 @@ function updateActiveRow() {
 
 setInterval(updateActiveRow, 10000);
 
-document.getElementById('prevDay').addEventListener('click', () => { viewOffset--; renderSchedule(); });
-document.getElementById('nextDay').addEventListener('click', () => { viewOffset++; renderSchedule(); });
-document.getElementById('todayBtn').addEventListener('click', () => { viewOffset = 0; renderSchedule(); });
+document.getElementById('prevDay').addEventListener('click', () => { viewOffset--; renderSchedule(); subscribeWorkoutLog(); });
+document.getElementById('nextDay').addEventListener('click', () => { viewOffset++; renderSchedule(); subscribeWorkoutLog(); });
+document.getElementById('todayBtn').addEventListener('click', () => { viewOffset = 0; renderSchedule(); subscribeWorkoutLog(); });
 
 function updateClock() {
     const now = new Date();
@@ -1233,6 +1291,8 @@ document.getElementById('adminBtn').addEventListener('click', () => {
         isAdmin = false;
         sessionStorage.removeItem('adminMode');
         renderSchedule();
+        renderRoutine();
+        renderWorkout();
         clearAdminInterface();
     } else {
         pwdInput.value = '';
@@ -1248,6 +1308,8 @@ function tryLogin() {
         sessionStorage.setItem('adminMode', '1');
         overlay.classList.remove('show');
         renderSchedule();
+        renderRoutine();
+        renderWorkout();
         setupFirebaseListeners();
     } else {
         loginError.classList.add('show');
@@ -1319,18 +1381,26 @@ function renderRoutine() {
                 <input type="checkbox" class="todo-check" ${done ? 'checked' : ''}>
                 <span class="todo-label">${it.text}</span>
                 <span class="todo-tag">${it.category === 'fixed' ? 'fixe' : it.category === 'weekday' ? 'sem.' : 'w-e'}</span>
+                ${isAdmin ? '<button class="atodo-del routine-del" title="Supprimer">🗑️</button>' : ''}
             </div>`;
         }).join('');
 
         list.querySelectorAll('.todo-item').forEach(el => {
             const id = el.getAttribute('data-id');
             const cb = el.querySelector('.todo-check');
+            const delBtn = el.querySelector('.routine-del');
             el.addEventListener('click', (e) => {
-                if (e.target === cb) return;
+                if (e.target === cb || e.target === delBtn) return;
                 cb.checked = !cb.checked;
                 cb.dispatchEvent(new Event('change'));
             });
             cb.addEventListener('change', () => toggleRoutineItem(id, cb.checked));
+            if (delBtn) {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteRoutineItem(id);
+                });
+            }
         });
     }
 
@@ -1343,6 +1413,11 @@ function renderRoutine() {
     const ring = document.getElementById('routineRingFg');
     ring.style.strokeDasharray = `${ringCirc}`;
     ring.style.strokeDashoffset = `${ringCirc * (1 - pct/100)}`;
+}
+
+function deleteRoutineItem(id) {
+    if (!isAdmin) return;
+    db.collection('routineTemplate').doc(id).delete();
 }
 
 function toggleRoutineItem(id, val) {
@@ -1396,6 +1471,119 @@ document.getElementById('addRoutineBtn').addEventListener('click', () => {
     }
 });
 document.getElementById('addRoutineInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addRoutineBtn').click(); });
+
+let workoutTemplate = [];
+let workoutTemplateUnsub = null;
+let workoutLogUnsub = null;
+let todayWorkoutLog = {};
+
+function renderWorkout() {
+    const dow = getViewedDow();
+    const items = workoutTemplate.filter(it => it.day === dow).sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
+    document.getElementById('workoutDayBadge').textContent = JOURS[dow];
+
+    const list = document.getElementById('workoutList');
+    if (items.length === 0) {
+        list.innerHTML = '<div class="empty-state">Jour de repos — aucune séance prévue.</div>';
+    } else {
+        list.innerHTML = items.map(it => {
+            const done = !!(todayWorkoutLog[it.id]);
+            return `
+            <div class="todo-item ${done ? 'done' : ''}" data-id="${it.id}">
+                <input type="checkbox" class="todo-check" ${done ? 'checked' : ''}>
+                <span class="todo-label">${it.text}</span>
+                ${isAdmin ? '<button class="atodo-del routine-del" title="Supprimer">🗑️</button>' : ''}
+            </div>`;
+        }).join('');
+
+        list.querySelectorAll('.todo-item').forEach(el => {
+            const id = el.getAttribute('data-id');
+            const cb = el.querySelector('.todo-check');
+            const delBtn = el.querySelector('.routine-del');
+            el.addEventListener('click', (e) => {
+                if (e.target === cb || e.target === delBtn) return;
+                cb.checked = !cb.checked;
+                cb.dispatchEvent(new Event('change'));
+            });
+            cb.addEventListener('change', () => toggleWorkoutItem(id, cb.checked));
+            if (delBtn) {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteWorkoutItem(id);
+                });
+            }
+        });
+    }
+
+    const done = items.filter(it => todayWorkoutLog[it.id]).length;
+    const total = items.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    document.getElementById('workoutPctText').textContent = `${pct}%`;
+    document.getElementById('workoutPctSub').textContent = `${done} / ${total} exos faits`;
+    const ringCirc = 2 * Math.PI * 16;
+    const ring = document.getElementById('workoutRingFg');
+    ring.style.strokeDasharray = `${ringCirc}`;
+    ring.style.strokeDashoffset = `${ringCirc * (1 - pct/100)}`;
+}
+
+function deleteWorkoutItem(id) {
+    if (!isAdmin) return;
+    db.collection('workoutPlan').doc(id).delete();
+}
+
+function toggleWorkoutItem(id, val) {
+    todayWorkoutLog[id] = val;
+    const dow = getViewedDow();
+    const items = workoutTemplate.filter(it => it.day === dow);
+    const done = items.filter(it => todayWorkoutLog[it.id]).length;
+    const total = items.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    const key = dateKeyOffset(-viewOffset);
+    db.collection('workoutLog').doc(key).set({
+        date: key,
+        completed: todayWorkoutLog,
+        pct: pct,
+        updatedAt: Date.now()
+    }, { merge: true });
+    renderWorkout();
+}
+
+function subscribeWorkoutLog() {
+    if (workoutLogUnsub) workoutLogUnsub();
+    const key = dateKeyOffset(-viewOffset);
+    workoutLogUnsub = db.collection('workoutLog').doc(key).onSnapshot(doc => {
+        todayWorkoutLog = (doc.exists && doc.data().completed) ? doc.data().completed : {};
+        renderWorkout();
+    });
+}
+
+function loadWorkoutTemplate() {
+    workoutTemplateUnsub = db.collection('workoutPlan').onSnapshot(async snapshot => {
+        if (snapshot.empty && !snapshot.metadata.fromCache) {
+            const batch = db.batch();
+            DEFAULT_WORKOUT.forEach((item, idx) => {
+                const ref = db.collection('workoutPlan').doc(`seed_${item.day}_${idx}`);
+                batch.set(ref, { ...item, createdAt: Date.now() });
+            });
+            await batch.commit();
+            return;
+        }
+        workoutTemplate = [];
+        snapshot.forEach(doc => workoutTemplate.push({ id: doc.id, ...doc.data() }));
+        renderWorkout();
+    });
+}
+
+document.getElementById('addWorkoutBtn').addEventListener('click', () => {
+    if (!isAdmin) return;
+    const input = document.getElementById('addWorkoutInput');
+    const text = input.value.trim();
+    if (text) {
+        db.collection('workoutPlan').add({ text, day: getViewedDow(), createdAt: Date.now() });
+        input.value = '';
+    }
+});
+document.getElementById('addWorkoutInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addWorkoutBtn').click(); });
 
 let routineChart = null;
 let currentRange = 60;
@@ -1620,6 +1808,8 @@ wireGoalAdd('addGoalYearBtn', 'addGoalYearInput', 'prioGoalYear', 'goalsYear');
 
 renderSchedule();
 loadRoutineTemplate();
+loadWorkoutTemplate();
+subscribeWorkoutLog();
 renderChart(currentRange);
 if (isAdmin) { setupFirebaseListeners(); } else { clearAdminInterface(); }
 </script>
