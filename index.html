@@ -330,7 +330,7 @@ td.time-cell{font-variant-numeric:tabular-nums;color:var(--text2);font-size:12px
         </div>
       </div>
 
-      <div class="card">
+      <div class="card admin-only-card"">
         <div class="card-header"><div class="card-title">Routine du jour</div><span class="badge badge-mint" id="routineDayTypeBadge">Semaine</span></div>
         <div class="routine-pct-wrap">
           <div class="routine-ring-mini">
@@ -351,7 +351,7 @@ td.time-cell{font-variant-numeric:tabular-nums;color:var(--text2);font-size:12px
         </div>
       </div>
 
-      <div class="card">
+      <div class="card admin-only-card">
         <div class="card-header"><div class="card-title">Historique de la routine</div></div>
         <div class="chart-toolbar" id="rangeToolbar">
           <button class="range-btn" data-range="30">30j</button>
@@ -392,7 +392,7 @@ td.time-cell{font-variant-numeric:tabular-nums;color:var(--text2);font-size:12px
       </div>
 
       <!-- WORKOUT SIDEBAR -->
-      <div class="card">
+      <div class="card admin-only-card">
         <div class="card-header">
           <div class="card-title">Séance du jour</div>
           <div style="display:flex;align-items:center;gap:6px">
@@ -762,13 +762,57 @@ function renderWorkout(){
   ring.style.strokeDasharray=`${ringCirc}`;ring.style.strokeDashoffset=`${ringCirc*(1-pct/100)}`;
 }
 
-function toggleWorkoutItem(id,val){
-  todayWorkoutLog[id]=val;
-  const dow=getViewedDow(),items=workoutTemplate.filter(it=>it.day===dow);
-  const done=items.filter(it=>todayWorkoutLog[it.id]).length,total=items.length;
-  const key=dateKeyOffset(-viewOffset);
-  db.collection('workoutLog').doc(key).set({date:key,completed:todayWorkoutLog,pct:total?Math.round(done/total*100):0,updatedAt:Date.now()},{merge:true});
+function toggleWorkoutItem(id, val) {
+  todayWorkoutLog[id] = val;
+  const dow = getViewedDow();
+  const items = workoutTemplate.filter(it => it.day === dow);
+  const done = items.filter(it => todayWorkoutLog[it.id]).length;
+  const total = items.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  
+  const key = dateKeyOffset(-viewOffset);
+  db.collection('workoutLog').doc(key).set({
+    date: key,
+    completed: todayWorkoutLog,
+    pct: pct,
+    updatedAt: Date.now()
+  }, { merge: true });
+
+  const isAllDone = (total > 0 && done === total);
+  autoCheckSportRoutine(isAllDone);
+
   renderWorkout();
+}
+function checkSportRoutine(isDone) {
+  const dow = getViewedDow();
+  const sportRoutine = routineTemplate.find(r => 
+    r.day === dow && (
+      r.text.toLowerCase().includes('Séance Sport') || 
+      r.text.toLowerCase().includes('Sport')
+    )
+  );
+
+  if (sportRoutine) {
+    toggleRoutineItem(sportRoutine.id, isDone);
+  }
+}
+function autoCheckSportRoutine(shouldBeChecked) {
+  const routineList = document.getElementById('routineList');
+  if (!routineList) return;
+
+  const routineItems = routineList.querySelectorAll('.todo-item, .routine-item');
+  
+  routineItems.forEach(item => {
+    const label = item.querySelector('.todo-label, span');
+    const checkbox = item.querySelector('.todo-check, input[type="checkbox"]');
+    
+    if (label && checkbox && label.textContent.toLowerCase().includes('sport')) {
+      if (checkbox.checked !== shouldBeChecked) {
+        checkbox.checked = shouldBeChecked;
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  });
 }
 
 function subscribeWorkoutLog(){
