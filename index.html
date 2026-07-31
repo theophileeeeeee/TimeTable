@@ -454,72 +454,70 @@ const ETE_DIMANCHE=[["10:00 - 11:30","Maths ou lecture tech/quant"],["11:30 - 14
 const DEFAULT_ROUTINE=[{text:"Douche froide",category:"fixed"},{text:"Lecture avant de dormir",category:"fixed"},{text:"Séance sport",category:"fixed"},{text:"Dev Unity",category:"weekday"},{text:"Content",category:"fixed"},{text:"Sortie / temps libre",category:"weekend"}];
 
 const DAY_META=[
-  {label:"Dimanche",short:"Dim",type:"Skill & Handstand",colType:"skill"},
+  {label:"Dimanche",short:"Dim",type:"Skill & Endurance",colType:"skill"},
   {label:"Lundi",short:"Lun",type:"Pecs & Bras A",colType:"arms"},
-  {label:"Mardi",short:"Mar",type:"Abdos A",colType:"abs"},
-  {label:"Mercredi",short:"Mer",type:"Pecs — maintien",colType:"pecs"},
-  {label:"Jeudi",short:"Jeu",type:"Abdos B",colType:"abs"},
+  {label:"Mardi",short:"Mar",type:"Legs &Abdos A",colType:"abs"},
+  {label:"Mercredi",short:"Mer",type:"Break et repos actif",colType:"pecs"},
+  {label:"Jeudi",short:"Jeu",type:"Legs & Abdos B",colType:"abs"},
   {label:"Vendredi",short:"Ven",type:"Pecs & Bras B",colType:"arms"},
   {label:"Samedi",short:"Sam",type:"Run & Épaules",colType:"skill"}
 ];
 
-// sets_easy / sets_medium / sets_hard — interpolés selon le slider
+// DEFAULT_WORKOUT configuré avec ton programme exact
 const DEFAULT_WORKOUT=[
   // Lundi (1) — Pecs & Bras A
-  {text:"Pompes classiques",day:1,e:"3 × 10",m:"4 × 15",h:"5 × 20"},
-  {text:"Pompes diamants",day:1,e:"3 × 8",m:"4 × 12",h:"4 × 15"},
-  {text:"Pompes one arm",day:1,e:"3 × 3/côté",m:"3 × 5/côté",h:"4 × 8/côté"},
-  {text:"Dips au sol",day:1,e:"3 × 8",m:"4 × 12",h:"4 × 15"},
-  {text:"Pince avant-bras",day:1,e:"3 × 20s/main",m:"3 × 35s/main",h:"4 × 45s/main"},
-  {text:"Expandeur doigts",day:1,e:"3 × 12/main",m:"3 × 20/main",h:"4 × 25/main"},
-  // Mardi (2) — Abdos A
-  {text:"Crunch lent",day:2,e:"3 × 15",m:"4 × 20",h:"4 × 30"},
-  {text:"Leg raises",day:2,e:"3 × 10",m:"4 × 15",h:"4 × 20"},
-  {text:"Planche frontale",day:2,e:"3 × 25s",m:"4 × 40s",h:"4 × 60s"},
-  {text:"Mountain climbers",day:2,e:"3 × 20s",m:"3 × 35s",h:"4 × 45s"},
-  {text:"Vacuum abdominal",day:2,e:"3 × 15s",m:"3 × 20s",h:"4 × 25s"},
-  // Mercredi (3) — Pecs
-  {text:"Pompes classiques",day:3,e:"3 × 12",m:"4 × 15",h:"5 × 20"},
-  {text:"Pompes déclinées",day:3,e:"3 × 8",m:"3 × 12",h:"4 × 15"},
-  {text:"Pompes inclinées",day:3,e:"3 × 8",m:"3 × 12",h:"4 × 15"},
-  {text:"Pompes explosives",day:3,e:"3 × 5",m:"3 × 8",h:"4 × 10"},
-  // Jeudi (4) — Abdos B
-  {text:"Crunch bicycle",day:4,e:"3 × 15",m:"4 × 25",h:"4 × 35"},
-  {text:"Russian twist",day:4,e:"3 × 20",m:"4 × 30",h:"4 × 40"},
-  {text:"Planche latérale",day:4,e:"3 × 20s/côté",m:"3 × 30s/côté",h:"4 × 45s/côté"},
-  {text:"Windshield wipers",day:4,e:"3 × 8",m:"3 × 12",h:"4 × 15"},
+  {text:"Pompes classiques (x4)", day:1, baseReps:15},
+  {text:"Pompes one arm (assistées) (x3)", day:1, baseReps:4, unit:" / côté"},
+  {text:"Pompes diamants (x4)", day:1, baseReps:12},
+  {text:"Dips chaise (x4)", day:1, baseReps:12},
+  {text:"Tractions (octobre) (x4)", day:1, baseReps:6},
+  {text:"Pince avant-bras (x3)", day:1, baseReps:30, unit:"s / main"},
+  {text:"Expandeur doigts (x3)", day:1, baseReps:20, unit:" / main"},
+
+  // Mardi (2) — Legs & Abdos A
+  {text:"Squats bulgares (x3)", day:2, baseReps:12, unit:" / côté"},
+  {text:"Squats une jambe (pistol assisté) (x3)", day:2, baseReps:6, unit:" / côté"},
+  {text:"Crunchs lents (x4)", day:2, baseReps:20},
+  {text:"Leg raises jambes tendues (x4)", day:2, baseReps:15},
+  {text:"Planche frontale (x4)", day:2, baseReps:35, unit:"s"},
+  {text:"Touché chevilles allongé (x3)", day:2, baseReps:20},
+  {text:"Mains côté gauche / droit (x3)", day:2, baseReps:15, unit:" / côté"},
+
+  // Mercredi (3) — Break & Repos actif
+  {text:"Étirements (si douleurs)", day:3, baseReps:20, unit:" min"},
+  {text:"Repos actif / Marche / Escalade", day:3, baseReps:1, unit:" session"},
+
+  // Jeudi (4) — Legs & Abdos B
+  {text:"Squats bulgares (x3)", day:4, baseReps:12, unit:" / côté"},
+  {text:"Squats une jambe (pistol assisté) (x3)", day:4, baseReps:6, unit:" / côté"},
+  {text:"Crunchs lents (x4)", day:4, baseReps:20},
+  {text:"Leg raises jambes tendues (x4)", day:4, baseReps:15},
+  {text:"Planche frontale (x4)", day:4, baseReps:35, unit:"s"},
+  {text:"Touché chevilles allongé (x3)", day:4, baseReps:20},
+  {text:"Mains côté gauche / droit (x3)", day:4, baseReps:15, unit:" / côté"},
+
   // Vendredi (5) — Pecs & Bras B
-  {text:"Pompes classiques",day:5,e:"3 × 12",m:"4 × 15",h:"5 × 20"},
-  {text:"Pompes diamants lentes",day:5,e:"3 × 8",m:"4 × 10",h:"4 × 12"},
-  {text:"Isométrie biceps",day:5,e:"3 × 15s",m:"4 × 20s",h:"4 × 30s"},
-  {text:"Curl serviette",day:5,e:"3 × 10",m:"4 × 15",h:"4 × 20"},
-  {text:"Pince avant-bras",day:5,e:"3 × 25s/main",m:"3 × 35s/main",h:"4 × 45s/main"},
-  {text:"Expandeur doigts",day:5,e:"3 × 15/main",m:"3 × 20/main",h:"4 × 25/main"},
+  {text:"Pompes classiques (x4)", day:5, baseReps:15},
+  {text:"Pompes one arm (assistées) (x3)", day:5, baseReps:4, unit:" / côté"},
+  {text:"Pompes diamants (x4)", day:5, baseReps:12},
+  {text:"Dips chaise (x4)", day:5, baseReps:12},
+  {text:"Tractions (octobre) (x4)", day:5, baseReps:6},
+  {text:"Pince avant-bras (x3)", day:5, baseReps:30, unit:"s / main"},
+  {text:"Expandeur doigts (x3)", day:5, baseReps:20, unit:" / main"},
+
   // Samedi (6) — Run & Épaules
-  {text:"Course à pied",day:6,e:"15 min léger",m:"20–25 min",h:"30 min + sprints"},
-  {text:"Pike push-ups normaux",day:6,e:"3 × 6",m:"4 × 10",h:"5 × 12"},
-  {text:"Pike push-ups élevés",day:6,e:"3 × 5",m:"3 × 8",h:"4 × 10"},
-  {text:"Frog stand",day:6,e:"3 × 15s",m:"3 × 30s",h:"4 × 45s"},
-  {text:"Stacked planche",day:6,e:"3 × 8s",m:"3 × 12s",h:"4 × 18s"},
-  // Dimanche (0) — Skill & Handstand
-  {text:"Handstand ventre au mur",day:0,e:"3 × 25s",m:"5 × 35s",h:"6 × 50s"},
-  {text:"Kick-up → tenue libre",day:0,e:"10 essais",m:"20 essais",h:"30 essais"},
-  {text:"Décoller pieds du mur",day:0,e:"8 × 1-2s",m:"15 × 3s",h:"20 × 5s"},
-  {text:"Max pompes (record)",day:0,e:"1 série",m:"1 série",h:"1 série"},
-  {text:"Max crunchs (record)",day:0,e:"1 série",m:"1 série",h:"1 série"},
-  {text:"Pince avant-bras",day:0,e:"5 min",m:"5 min",h:"5 min"}
+  {text:"Course à pied", day:6, baseReps:25, unit:" min"},
+  {text:"Pike push-ups normaux (x4)", day:6, baseReps:10},
+  {text:"Pike push-ups élevés (x3)", day:6, baseReps:8},
+  {text:"Frog stand (x3)", day:6, baseReps:30, unit:"s"},
+  {text:"Stacked planche (x3)", day:6, baseReps:10, unit:"s"},
+
+  // Dimanche (0) — Skill & Endurance
+  {text:"Skill du moment (handstand)", day:0, baseReps:10, unit:" min"},
+  {text:"Max pompes", day:0, baseReps:1, unit:" série max"},
+  {text:"Max crunchs", day:0, baseReps:1, unit:" série max"},
+  {text:"Pince avant-bras", day:0, baseReps:5, unit:" min"}
 ];
-
-// Interpolation fluide selon slider 0-100
-function getSets(item, val) {
-  const e = item.e || item.sets_easy || '';
-  const m = item.m || item.sets_medium || '';
-  const h = item.h || item.sets_hard || '';
-  if (val <= 33) return e;
-  if (val <= 66) return m;
-  return h;
-}
-
 function getDiffLabel(v) {
   if(v<=10) return "Débutant — prends ton temps";
   if(v<=25) return "Débutant+ — montée en charge";
@@ -600,26 +598,27 @@ if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark');t
 themeBtn.addEventListener('click',()=>{document.body.classList.toggle('dark');const dark=document.body.classList.contains('dark');localStorage.setItem('theme',dark?'dark':'light');themeBtn.textContent=dark?'☀️':'🌙';if(routineChart)routineChart.update();});
 document.getElementById('focusToggle').addEventListener('click',function(){document.body.classList.toggle('focus-mode');this.classList.toggle('active',document.body.classList.contains('focus-mode'));});
 
-// ===== DIFFICULTY =====
-function applyDiff(v){
-  diff=v;localStorage.setItem('workoutDiff',v);
-  const col=getDiffColor(v);
-  // mini bar
-  document.getElementById('diffMiniVal').textContent=v+'%';
-  document.getElementById('diffMiniFill').style.width=v+'%';
-  // fullscreen
-  document.getElementById('wfsDiffPct').textContent=v+'%';
-  document.getElementById('wfsDiffPct').style.color=col;
-  document.getElementById('wfsDiffLabel').textContent=getDiffLabel(v);
-  document.getElementById('wfsSlider').value=v;
-  // thumb color via css variable
-  document.querySelector('.wfs-slider').style.setProperty('--thumb-color',col);
-  // ticks
-  document.querySelectorAll('.wfs-tick').forEach(t=>{
-    const at=parseInt(t.dataset.at);
-    t.classList.toggle('active',Math.abs(at-v)<18);
-    t.style.color=Math.abs(at-v)<18?col:'';
-  });
+function getSets(it, d) {
+  const mult = 0.5 + (1.5 * (d / 100)); // 0% -> 0.5, 100% -> 2.0
+  
+  if (it.baseReps) {
+    const val = Math.round(it.baseReps * mult);
+    const unit = it.unit || ' reps';
+    return `${val}${unit}`;
+  }
+  
+  // Rétrocompatibilité si d'anciens exercices ont encore e/m/h
+  return d <= 33 ? (it.e || '') : d <= 66 ? (it.m || '') : (it.h || '');
+}
+function applyDiff(val) {
+  diff = val;
+  localStorage.setItem('workoutDiff', val);
+  const pctEl = document.getElementById('wfsDiffPct'), lblEl = document.getElementById('wfsDiffLabel');
+  if (pctEl) pctEl.textContent = val + '%';
+  if (lblEl) lblEl.textContent = val === 0 ? '🟢 Débutant (x0.5)' : val === 100 ? '🔴 Expert (x2.0)' : `Difficulté (${val}%)`;
+  const miniVal = document.getElementById('diffMiniVal'), miniFill = document.getElementById('diffMiniFill');
+  if (miniVal) miniVal.textContent = val + '%';
+  if (miniFill) { miniFill.style.width = val + '%'; miniFill.style.background = getDiffColor(val); }
   renderWorkout();
   rerenderWfsExos();
 }
@@ -672,13 +671,32 @@ function buildWfsGrid(){
     if(isAdmin){
       const addRow=document.createElement('div');
       addRow.className='wfs-add';
-      addRow.innerHTML=`<input type="text" placeholder="Ajouter…"><button>+</button>`;
-      const inp=addRow.querySelector('input'),btn=addRow.querySelector('button');
-      btn.addEventListener('click',()=>{
-        const text=inp.value.trim();
-        if(text){db.collection('workoutPlan').add({text,day:dow,e:'3 × 10',m:'4 × 15',h:'5 × 20',createdAt:Date.now()});inp.value='';}
-      });
-      inp.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click();});
+      addRow.innerHTML=`<input type="text" class="wfs-input-name" placeholder="Exo" style="flex:2;"><input type="number" class="wfs-input-reps" placeholder="Reps" style="width:50px;"><button class="wfs-add-btn">+</button>`;
+      
+      const inpName=addRow.querySelector('.wfs-input-name');
+      const inpReps=addRow.querySelector('.wfs-input-reps');
+      const btn=addRow.querySelector('.wfs-add-btn');
+
+      const handleAdd = () => {
+        const text = inpName.value.trim();
+        const baseReps = parseInt(inpReps.value, 10) || 10; // 10 par défaut
+        if(text){
+          db.collection('workoutPlan').add({
+            text,
+            day: dow,
+            baseReps: baseReps,
+            createdAt: Date.now()
+          }).then(() => {
+            inpName.value = '';
+            inpReps.value = '';
+          });
+        }
+      };
+
+      btn.addEventListener('click', handleAdd);
+      inpName.addEventListener('keydown', e => { if(e.key === 'Enter') handleAdd(); });
+      inpReps.addEventListener('keydown', e => { if(e.key === 'Enter') handleAdd(); });
+
       col.appendChild(addRow);
     }
     grid.appendChild(col);
@@ -774,7 +792,6 @@ function loadWorkoutTemplate(){
     if(document.getElementById('workoutFs').classList.contains('show'))buildWfsGrid();
   });
 }
-
 // ===== POMODORO =====
 const POMO_FOCUS=25*60,POMO_SHORT=5*60,POMO_LONG=15*60,POMO_LONG_EVERY=4,POMO_CIRC=2*Math.PI*88;
 let pomoInterval=null,pomoTotal=POMO_FOCUS,pomoTimeLeft=POMO_FOCUS,pomoIsBreak=false,pomoFocusCount=0;
