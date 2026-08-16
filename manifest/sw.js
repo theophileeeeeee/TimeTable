@@ -28,3 +28,14 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then(clientsArr => {
+      const hadWindow = clientsArr.find(c => c.url.includes('/TimeTable/'));
+      if (hadWindow) return hadWindow.focus();
+      return self.clients.openWindow('/TimeTable/');
+    })
+  );
+});
