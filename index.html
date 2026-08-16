@@ -330,6 +330,25 @@ td.time-cell{font-variant-numeric:tabular-nums;color:var(--text2);font-size:12.5
   </div>
 </div>
 
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <div><div class="modal-title">⚙️ Notifications</div><div class="modal-sub">Rappels des événements du calendrier</div></div>
+    <label class="cal-repeat-label" style="margin-top:0">
+      <input type="checkbox" id="notifEnabledCheck">Activer les notifications
+    </label>
+    <label class="cal-repeat-label" style="margin-top:0">
+      <input type="checkbox" id="notifVeilleCheck">Me prévenir la veille
+    </label>
+    <label class="cal-repeat-label" style="margin-top:0">
+      <input type="checkbox" id="notifJourCheck">Me prévenir le jour même
+    </label>
+    <div class="modal-error" id="notifPermError">Notifications bloquées — autorise-les dans les réglages du navigateur.</div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="btnSettingsClose">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <div class="pomo-fullscreen" id="pomoFullscreen">
   <button class="pomo-fs-close" id="pomoFsClose">✕</button>
   <div class="pomo-ring-wrap">
@@ -375,6 +394,7 @@ td.time-cell{font-variant-numeric:tabular-nums;color:var(--text2);font-size:12.5
   <div class="topbar-actions">
     <button class="icon-btn" id="focusToggle" title="Mode Focus">🎯</button>
     <button class="icon-btn hidden" id="installButton">📥</button>
+    <button class="icon-btn" id="settingsBtn" title="Notifications">⚙️</button>
     <button class="icon-btn" id="adminBtn" title="Admin">🔑</button>
     <button class="icon-btn" id="themeToggle" title="Thème">🌙</button>
   </div>
@@ -1228,6 +1248,117 @@ function wireGoalAdd(btnId,inputId,prioId,col){document.getElementById(btnId).ad
 wireGoalAdd('addGoalWeekBtn','addGoalWeekInput','prioGoalWeek','goalsWeek');
 wireGoalAdd('addGoalMonthBtn','addGoalMonthInput','prioGoalMonth','goalsMonth');
 wireGoalAdd('addGoalYearBtn','addGoalYearInput','prioGoalYear','goalsYear');
+
+// ===== SERVICE WORKER =====
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/TimeTable/sw.js').catch(()=>{});
+  });
+}
+
+// ===== NOTIFICATIONS =====
+const settingsOverlay=document.getElementById('settingsOverlay');
+const notifEnabledCheck=document.getElementById('notifEnabledCheck');
+const notifVeilleCheck=document.getElementById('notifVeilleCheck');
+const notifJourCheck=document.getElementById('notifJourCheck');
+const notifPermError=document.getElementById('notifPermError');
+
+function getNotifPrefs(){
+  try{return JSON.parse(localStorage.getItem('notifPrefs'))||{enabled:false,veille:false,jour:false};}
+  catch(e){return{enabled:false,veille:false,jour:false};}
+}
+function saveNotifPrefs(p){localStorage.setItem('notifPrefs',JSON.stringify(p));}
+
+function refreshSettingsUI(){
+  const p=getNotifPrefs();
+  notifEnabledCheck.checked=p.enabled;
+  notifVeilleCheck.checked=p.veille;
+  notifJourCheck.checked=p.jour;
+  notifPermError.classList.toggle('show',p.enabled&&'Notification' in window&&Notification.permission==='denied');
+}
+
+document.getElementById('settingsBtn').addEventListener('click',()=>{refreshSettingsUI();settingsOverlay.classList.add('show');});
+document.getElementById('btnSettingsClose').addEventListener('click',()=>settingsOverlay.classList.remove('show'));
+
+async function onNotifToggleChange(){
+  const p=getNotifPrefs();
+  if(notifEnabledCheck.checked&&'Notification' in window&&Notification.permission!=='granted'){
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){notifEnabledCheck.checked=false;}
+  }
+  p.enabled=notifEnabledCheck.checked;
+  p.veille=notifVeilleCheck.checked;
+  p.jour=notifJourCheck.checked;
+  saveNotifPrefs(p);
+  refreshSettingsUI();
+  if(p.enabled)checkAndSendNotifications();
+}
+notifEnabledCheck.addEventListener('change',onNotifToggleChange);
+notifVeilleCheck.addEventListener('change',onNotifToggleChange);
+notifJourCheck.addEventListener('change',onNotifToggleChange);
+
+function getNotifLog(){
+  try{return JSON.parse(localStorage.getItem('notifSentLog'))||{};}
+  catch(e){return{};}
+}
+function saveNotifLog(log){
+  const keys=Object.keys(log).sort();
+  if(keys.length>10){delete log[keys[0]];}
+  localStorage.setItem('notifSentLog',JSON.stringify(log));
+}
+function markSent(log,day,id){if(!log[day])log[day]=[];if(!log[day].includes(id))log[day].push(id);}
+function wasSent(log,day,id){return !!(log[day]&&log[day].includes(id));}
+
+function sendLocalNotification(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(reg&&reg.showNotification){
+        reg.showNotification(title,{body,icon:'/TimeTable/android-chrome-192x192.png',badge:'/TimeTable/android-chrome-192x192.png'});
+      }else{
+        new Notification(title,{body});
+      }
+    }).catch(()=>{new Notification(title,{body});});
+  }else{
+    new Notification(title,{body});
+  }
+}
+
+function checkAndSendNotifications(){
+  const p=getNotifPrefs();
+  if(!p.enabled)return;
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const log=getNotifLog();
+  const tKey=todayKey();
+  let changed=false;
+
+  if(p.jour){
+    eventsForKey(tKey).forEach(ev=>{
+      const id=`jour-${ev.id}`;
+      if(!wasSent(log,tKey,id)){
+        sendLocalNotification("Aujourd'hui",ev.text);
+        markSent(log,tKey,id);changed=true;
+      }
+    });
+  }
+  if(p.veille){
+    const tmrw=new Date();tmrw.setDate(tmrw.getDate()+1);
+    const tmrwKey=dateKeyFromDate(tmrw);
+    eventsForKey(tmrwKey).forEach(ev=>{
+      const id=`veille-${ev.id}`;
+      if(!wasSent(log,tKey,id)){
+        sendLocalNotification("Demain",ev.text);
+        markSent(log,tKey,id);changed=true;
+      }
+    });
+  }
+  if(changed)saveNotifLog(log);
+}
+
+// Vérifie au chargement (une fois les événements chargés) puis toutes les 15 min pendant que l'appli est ouverte
+setTimeout(checkAndSendNotifications,2000);
+setInterval(checkAndSendNotifications,15*60*1000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkAndSendNotifications();});
 
 // ===== INIT =====
 applyDiff(diff);
