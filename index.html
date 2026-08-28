@@ -315,7 +315,44 @@ button,input,select,textarea{font-family:inherit}
 </style>
 </head>
 <body>
+<button onclick="testNotif()" style="position:fixed; top:10px; right:10px; z-index:9999; padding:10px; background:red; color:white; border:none; border-radius:5px;">
+  🧪 TESTER NOTIF
+</button>
 
+<script>
+async function testNotif() {
+  alert("1. Clic détecté");
+
+  if (!('serviceWorker' in navigator)) {
+    return alert("Erreur : Service Worker non supporté sur ce navigateur");
+  }
+
+  alert("2. Statut permission actuelle : " + Notification.permission);
+
+  if (Notification.permission === 'default') {
+    const perm = await Notification.requestPermission();
+    alert("3. Nouvelle permission demandée : " + perm);
+  }
+
+  if (Notification.permission !== 'granted') {
+    return alert("Bloqué : La permission est refusée dans les paramètres de ton tel !");
+  }
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    alert("4. SW prêt, envoi de la notif...");
+    
+    await reg.showNotification('Test Notif réussi !', {
+      body: 'Si tu vois ça, tout est nickel sur ton tel !',
+      icon: '/TimeTable/android-chrome-192x192.png'
+    });
+    
+    alert("5. Notification envoyée au système !");
+  } catch (err) {
+    alert("Erreur lors de l'envoi : " + err.message);
+  }
+}
+</script>
 <!-- LOGIN GATE — bloque tout l'accès -->
 <div class="overlay" id="loginOverlay" style="z-index:9999;background:var(--bg)">
   <div class="modal" style="max-width:320px;text-align:center;align-items:center">
