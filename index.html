@@ -644,6 +644,7 @@ function tryLogin(){
     loginError.classList.add('show');
     pwdInput.value='';pwdInput.focus();
   }
+  initNotifications();
 }
 document.getElementById('btnConfirm').addEventListener('click',tryLogin);
 pwdInput.addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
@@ -1115,9 +1116,44 @@ wireGoalAdd('addGoalWeekBtn','addGoalWeekInput','prioGoalWeek','goalsWeek');
 wireGoalAdd('addGoalMonthBtn','addGoalMonthInput','prioGoalMonth','goalsMonth');
 wireGoalAdd('addGoalYearBtn','addGoalYearInput','prioGoalYear','goalsYear');
 
-// ── SERVICE WORKER ───────────────────────────────────
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/TimeTable/sw.js').catch(()=>{}));}
+// ── SERVICE WORKER + NOTIFICATIONS ──────────────────
+async function initNotifications() {
+  if (!('serviceWorker' in navigator)) return;
 
+  // Enregistre le SW
+  const reg = await navigator.serviceWorker.register('/TimeTable/sw.js').catch(() => null);
+  if (!reg) return;
+
+  // Demande la permission
+  if (Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+  if (Notification.permission !== 'granted') return;
+
+  // Enregistre le periodic sync si supporté (Chrome Android)
+  if ('periodicSync' in reg) {
+    try {
+      await reg.periodicSync.register('timetable-daily-check', {
+        minInterval: 60 * 60 * 1000 // toutes les heures au minimum
+      });
+    } catch (e) {
+      console.warn('periodicSync non supporté:', e);
+    }
+  }
+
+  // Fallback : vérif toutes les 10 min quand l'appli est ouverte
+  // Utile sur PC et quand Chrome est au premier plan
+  setInterval(() => {
+    if (reg.active) reg.active.postMessage({ type: 'CHECK_EVENTS' });
+  }, 10 * 60 * 1000);
+
+  // Vérif immédiate au chargement (cas : ouverture appli entre 7h50 et 8h10 ou 20h50 et 21h10)
+  if (reg.active) reg.active.postMessage({ type: 'CHECK_EVENTS' });
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', initNotifications);
+}
 // ── INIT ─────────────────────────────────────────────
 applyDiff(diff);
 if(isAdmin){
