@@ -315,28 +315,7 @@ button,input,select,textarea{font-family:inherit}
 </style>
 </head>
 <body>
-<button onclick="testNotif()" style="position:fixed; top:10px; right:10px; z-index:9999; padding:10px; background:red; color:white; border:none; border-radius:5px;">
-  🧪 TESTER NOTIF
-</button>
 
-<script>
-async function testNotif() {
-  alert("1. Attente du SW...");
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    alert("2. SW trouvé ! Envoi notif brute...");
-    
-    // Notif ultra basique : AUCUNE icône, AUCUN badge, AUCUNE vibration
-    await reg.showNotification("Ça marche enfin ! 🎉", {
-      body: "Test réussi sans icône."
-    });
-    
-    alert("3. Notification envoyée sans erreur !");
-  } catch (e) {
-    alert("Erreur SW : " + e.message);
-  }
-}
-</script>
 <!-- LOGIN GATE — bloque tout l'accès -->
 <div class="overlay" id="loginOverlay" style="z-index:9999;background:var(--bg)">
   <div class="modal" style="max-width:320px;text-align:center;align-items:center">
@@ -1141,40 +1120,50 @@ wireGoalAdd('addGoalYearBtn','addGoalYearInput','prioGoalYear','goalsYear');
 async function initNotifications() {
   if (!('serviceWorker' in navigator)) return;
 
-  // Enregistre le SW
-  const reg = await navigator.serviceWorker.register('/TimeTable/sw.js').catch(() => null);
-  if (!reg) return;
-
-  // Demande la permission
-  if (Notification.permission === 'default') {
-    await Notification.requestPermission();
-  }
-  if (Notification.permission !== 'granted') return;
-
-  // Enregistre le periodic sync si supporté (Chrome Android)
-  if ('periodicSync' in reg) {
-    try {
-      await reg.periodicSync.register('timetable-daily-check', {
-        minInterval: 60 * 60 * 1000 // toutes les heures au minimum
-      });
-    } catch (e) {
-      console.warn('periodicSync non supporté:', e);
+  try {
+    // Enregistrement à la racine
+    const reg = await navigator.serviceWorker.register('/TimeTable/sw.js');
+    
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission();
     }
+    if (Notification.permission !== 'granted') return;
+
+    // Background Sync pour Chrome Android
+    if ('periodicSync' in reg) {
+      try {
+        await reg.periodicSync.register('timetable-daily-check', {
+          minInterval: 60 * 60 * 1000
+        });
+      } catch (err) {
+        console.warn('PeriodicSync non supporté :', err);
+      }
+    }
+
+    const activeReg = await navigator.serviceWorker.ready;
+
+    // Vérification au chargement
+    if (activeReg.active) {
+      activeReg.active.postMessage({ type: 'CHECK_EVENTS' });
+    }
+
+    // Fallback si l'app reste ouverte
+    setInterval(() => {
+      if (activeReg.active) {
+        activeReg.active.postMessage({ type: 'CHECK_EVENTS' });
+      }
+    }, 10 * 60 * 1000);
+
+  } catch (e) {
+    console.error('Erreur SW :', e);
   }
-
-  // Fallback : vérif toutes les 10 min quand l'appli est ouverte
-  // Utile sur PC et quand Chrome est au premier plan
-  setInterval(() => {
-    if (reg.active) reg.active.postMessage({ type: 'CHECK_EVENTS' });
-  }, 10 * 60 * 1000);
-
-  // Vérif immédiate au chargement (cas : ouverture appli entre 7h50 et 8h10 ou 20h50 et 21h10)
-  if (reg.active) reg.active.postMessage({ type: 'CHECK_EVENTS' });
 }
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', initNotifications);
 }
+
+
 // ── INIT ─────────────────────────────────────────────
 applyDiff(diff);
 if(isAdmin){
