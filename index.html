@@ -321,17 +321,19 @@ button,input,select,textarea{font-family:inherit}
 
 <script>
 async function testNotif() {
-  alert("1. Permission : " + Notification.permission);
-  
-  // Test direct sans passer par le Service Worker
+  alert("1. Attente du SW...");
   try {
-    const notif = new Notification("Test direct Chrome", {
-      body: "Est-ce que tu vois ce message ?",
-      icon: '/TimeTable/android-chrome-192x192.png'
+    const reg = await navigator.serviceWorker.ready;
+    alert("2. SW trouvé ! Envoi notif brute...");
+    
+    // Notif ultra basique : AUCUNE icône, AUCUN badge, AUCUNE vibration
+    await reg.showNotification("Ça marche enfin ! 🎉", {
+      body: "Test réussi sans icône."
     });
-    alert("2. Notification créée avec succès !");
+    
+    alert("3. Notification envoyée sans erreur !");
   } catch (e) {
-    alert("2. Erreur création directe : " + e.message);
+    alert("Erreur SW : " + e.message);
   }
 }
 </script>
