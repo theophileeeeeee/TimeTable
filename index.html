@@ -321,35 +321,17 @@ button,input,select,textarea{font-family:inherit}
 
 <script>
 async function testNotif() {
-  alert("1. Clic détecté");
-
-  if (!('serviceWorker' in navigator)) {
-    return alert("Erreur : Service Worker non supporté sur ce navigateur");
-  }
-
-  alert("2. Statut permission actuelle : " + Notification.permission);
-
-  if (Notification.permission === 'default') {
-    const perm = await Notification.requestPermission();
-    alert("3. Nouvelle permission demandée : " + perm);
-  }
-
-  if (Notification.permission !== 'granted') {
-    return alert("Bloqué : La permission est refusée dans les paramètres de ton tel !");
-  }
-
+  alert("1. Permission : " + Notification.permission);
+  
+  // Test direct sans passer par le Service Worker
   try {
-    const reg = await navigator.serviceWorker.ready;
-    alert("4. SW prêt, envoi de la notif...");
-    
-    await reg.showNotification('Test Notif réussi !', {
-      body: 'Si tu vois ça, tout est nickel sur ton tel !',
+    const notif = new Notification("Test direct Chrome", {
+      body: "Est-ce que tu vois ce message ?",
       icon: '/TimeTable/android-chrome-192x192.png'
     });
-    
-    alert("5. Notification envoyée au système !");
-  } catch (err) {
-    alert("Erreur lors de l'envoi : " + err.message);
+    alert("2. Notification créée avec succès !");
+  } catch (e) {
+    alert("2. Erreur création directe : " + e.message);
   }
 }
 </script>
