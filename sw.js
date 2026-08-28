@@ -57,12 +57,9 @@ async function checkAndNotify() {
   const now = new Date();
   const totalMin = now.getHours() * 60 + now.getMinutes();
 
-// MODIFICATION TEMPORAIRE POUR TEST :
-const isMorning = true; // Forcer le test en mode matin
-const isEvening = false;
-// const isMorning = totalMin >= 470 && totalMin <= 490;
-// const isEvening = totalMin >= 1250 && totalMin <= 1270;
-// if (!isMorning && !isEvening) return; <-- Commenter cette ligne;
+const isMorning = totalMin >= 470 && totalMin <= 490;
+const isEvening = totalMin >= 1250 && totalMin <= 1270;
+if (!isMorning && !isEvening) return;
 
   const dateStr = toDateKey(now);
   const slotKey = `${isMorning ? 'morning' : 'evening'}-${dateStr}`;
