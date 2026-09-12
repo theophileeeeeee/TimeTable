@@ -416,12 +416,12 @@ button,input,select,textarea{font-family:inherit}
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background-color: #6e6d6d;;
+  background-color: #6e6d6d;
   display: inline-block;
 }
 
 .cal-dot.recurring {
-  background-color: var(--amber);
+  box-shadow: 0 0 0 1.5px var(--s0), 0 0 0 2.5px var(--amber);
 }
 
 .cal-cell-events {
@@ -435,7 +435,7 @@ button,input,select,textarea{font-family:inherit}
 .cal-pill {
   font-size: 9.5px;
   line-height: 1.4;
-  padding: 1px 5px;
+  padding: 1px 5px 1px 14px;
   border-radius: 4px;
   background: var(--warm3);
   color: var(--t0);
@@ -443,11 +443,23 @@ button,input,select,textarea{font-family:inherit}
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
+  position: relative;
+}
+.cal-pill::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pill-color, #6e6d6d);
 }
 
 .cal-pill.recurring {
-  background: var(--amber-lo);
-  color: var(--amber);
+  outline: 1px solid var(--amber);
+  outline-offset: -1px;
 }
 
 .cal-pill-more {
@@ -549,7 +561,7 @@ button,input,select,textarea{font-family:inherit}
 
 .cal-week-event {
   font-size: 9.5px;
-  padding: 1px 4px;
+  padding: 1px 4px 1px 6px;
   border-radius: 3px;
   background: var(--s2);
   color: var(--t0);
@@ -558,6 +570,7 @@ button,input,select,textarea{font-family:inherit}
   text-overflow: ellipsis;
   margin-bottom: 1px;
   cursor: pointer;
+  border-left: 3px solid var(--pill-color, #6e6d6d);
 }
 
 /* ── PANNEAU ÉVÉNEMENTS DU JOUR ── */
@@ -659,18 +672,101 @@ button,input,select,textarea{font-family:inherit}
   cursor: pointer;
   flex-shrink: 0;
 }
+.cal-details-toggle{background:none;border:none;color:var(--t2);font-size:11.5px;font-weight:600;cursor:pointer;padding:8px 0 2px;text-align:left}
+.cal-details-toggle:hover{color:var(--t0)}
+.cal-details-panel{display:flex;flex-direction:column;gap:8px;padding:6px 0 2px}
+.cal-time-input{padding:9px 12px;border:1.5px solid var(--brd);border-radius:9px;background:var(--s1);color:var(--t0);font-size:13.5px;outline:none;width:130px}
+.cal-time-input:focus{border-color:var(--acc);background:var(--s0)}
+.cal-desc-input{padding:9px 12px;border:1.5px solid var(--brd);border-radius:9px;background:var(--s1);color:var(--t0);font-size:13px;outline:none;width:100%;min-height:56px;resize:vertical;font-family:inherit}
+.cal-desc-input:focus{border-color:var(--acc);background:var(--s0)}
+.cal-cat-select{padding:9px 10px;border:1.5px solid var(--brd);border-radius:9px;background:var(--s1);color:var(--t0);font-size:13px;outline:none;width:100%}
+.cal-cat-select:focus{border-color:var(--acc)}
+.cal-cat-legend{display:flex;flex-wrap:wrap;gap:8px;padding:8px 18px 2px}
+.cal-cat-legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t2);font-weight:600}
+.cal-cat-legend-dot{width:7px;height:7px;border-radius:50%}
+.cal-search-wrap{position:relative;padding:0 18px 8px}
+.cal-search-input{width:100%;padding:8px 12px;border:1.5px solid var(--brd);border-radius:9px;background:var(--s1);color:var(--t0);font-size:12.5px;outline:none}
+.cal-search-input:focus{border-color:var(--acc);background:var(--s0)}
+.cal-search-results{position:absolute;top:calc(100% - 4px);left:18px;right:18px;background:var(--s0);border:1px solid var(--brd);border-radius:10px;box-shadow:var(--sh-lg);max-height:220px;overflow-y:auto;z-index:30;display:none}
+.cal-search-results.show{display:block}
+.cal-search-result{padding:9px 12px;border-bottom:1px solid var(--brd);cursor:pointer;display:flex;align-items:center;gap:8px}
+.cal-search-result:last-child{border-bottom:none}
+.cal-search-result:hover{background:var(--s1)}
+.cal-search-result-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cal-search-result-text{flex:1;font-size:12.5px;color:var(--t0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-search-result-date{font-size:10.5px;color:var(--t2);flex-shrink:0}
+.cal-search-empty{padding:12px;font-size:12px;color:var(--t2);text-align:center}
+.cal-event-item{cursor:pointer}
+.cal-event-time{font-size:10px;font-weight:700;color:var(--t2);flex-shrink:0;font-variant-numeric:tabular-nums}
+.cal-event-has-desc{font-size:10px;color:var(--t2);flex-shrink:0}
+.event-detail-time{font-size:13px;color:var(--t1);font-weight:600}
+.event-detail-desc{font-size:13px;color:var(--t1);line-height:1.6;white-space:pre-wrap;max-height:220px;overflow-y:auto}
+.event-detail-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--amber-lo);color:var(--amber);text-transform:uppercase;margin-top:2px}
+
+/* ── DASHBOARD "AUJOURD'HUI" ─────────────────────── */
+.dash-card{padding:16px 18px}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.dash-tile{background:var(--warm);border:1px solid var(--brd);border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:2px}
+.dash-tile-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t2)}
+.dash-tile-val{font-size:19px;font-weight:700;color:var(--t0);font-variant-numeric:tabular-nums}
+.dash-tile-sub{font-size:10.5px;color:var(--t1)}
+.dash-tile.streak .dash-tile-val{color:var(--amber)}
+.dash-next-event{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--acc-lo);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s}
+.dash-next-event:hover{background:var(--s2)}
+.dash-next-event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dash-next-event-text{flex:1;font-size:13px;color:var(--t0);font-weight:600}
+.dash-next-event-time{font-size:11px;color:var(--t1);font-weight:700;flex-shrink:0}
+@media(max-width:680px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media(max-width:900px){.grid{grid-template-columns:1fr 270px;gap:16px}}
 @media(max-width:680px){
-  .page{padding:12px}
+  html{overflow-x:hidden}
+  body{overflow-x:hidden}
+  .page{padding:10px}
   .grid{grid-template-columns:1fr;gap:12px}
   .sidebar{order:2}
   .card{margin-bottom:12px}
-  .card-header{padding:12px 14px}
+  .card-header{padding:12px 14px;flex-wrap:wrap;gap:8px}
+  .card-title{font-size:13px}
   .add-input{font-size:16px}
-  .cal-cell{min-height:56px}
+  .add-row-inputs{flex-wrap:wrap}
+  .add-row-inputs .add-input{min-width:0;flex-basis:100%}
+  .cal-cell{min-height:52px;padding:4px}
   .cal-pill{display:none}
-  .topbar{padding:0 14px;height:52px}
+  .cal-cell-num{font-size:11px}
+  .topbar{padding:0 12px;height:50px}
+  .topbar-time{font-size:14px;min-width:40px}
+  .topbar-title{font-size:11px}
+  .icon-btn{width:32px;height:32px;font-size:13px}
+  .goal-tabs{margin:8px 10px 0}
+  .goal-tab-btn{font-size:11px;padding:6px 0}
+  .prio-select,.cat-select{font-size:11px;padding:0 4px}
+  .modal{width:94vw;padding:18px}
+  /* Séance du jour — grille semaine passe en scroll horizontal, colonnes plus étroites */
+  .wfs-grid{grid-template-columns:repeat(7,minmax(130px,1fr));min-width:910px}
+  .wfs-diff{flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px}
+  .wfs-diff-info{min-width:0}
+  .wfs-topbar{padding:0 14px;height:50px}
+  .wfs-title{font-size:13px}
+  /* Calendrier semaine — scroll horizontal pour garder les heures lisibles */
+  .cal-week-grid{grid-template-columns:44px repeat(7,minmax(76px,1fr));overflow-x:auto;display:grid}
+  #calGridWrap{overflow-x:auto}
+  .cal-week-time-col{font-size:9px}
+  .cal-week-event{font-size:8.5px}
+  .chart-tooltip{max-width:160px;font-size:10.5px}
+  .pomo-fullscreen .pomo-ring-wrap{width:min(78vw,320px);height:min(78vw,320px)}
+  .pomo-fullscreen .pomo-time{font-size:42px}
+  .diff-mini-label{font-size:10px}
+  .diff-mini-val{font-size:11px}
+  .cal-daypanel{padding:12px 14px 14px}
+}
+@media(max-width:400px){
+  .topbar-title{display:none}
+  .pct-ring svg{width:32px;height:32px}
+  .greeting-text{font-size:13px}
+  .cal-view-btn{padding:4px 7px;font-size:10.5px}
+  .cal-today-btn{padding:0 8px;font-size:10px}
+  .goal-tab-btn{font-size:10px}
 }
 </style>
 </head>
@@ -684,6 +780,23 @@ button,input,select,textarea{font-family:inherit}
     <input type="password" class="modal-input" id="pwdInput" placeholder="Mot de passe…" autocomplete="off" style="text-align:center;letter-spacing:.1em">
     <div class="modal-error" id="loginError" style="text-align:center">Mot de passe incorrect.</div>
     <button class="btn-primary" id="btnConfirm" style="width:100%;padding:12px">Entrer</button>
+  </div>
+</div>
+
+<!-- DÉTAIL ÉVÉNEMENT -->
+<div class="overlay" id="eventDetailOverlay">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="eventDetailDot" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+      <div class="modal-title" id="eventDetailTitle"></div>
+    </div>
+    <div class="event-detail-time" id="eventDetailTime" style="display:none"></div>
+    <div class="event-detail-desc" id="eventDetailDesc" style="display:none"></div>
+    <span class="event-detail-tag" id="eventDetailTag" style="display:none">Se répète chaque année</span>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="eventDetailDelete">Supprimer</button>
+      <button class="btn-primary" id="eventDetailClose">Fermer</button>
+    </div>
   </div>
 </div>
 
@@ -739,6 +852,20 @@ button,input,select,textarea{font-family:inherit}
 
     <!-- LEFT COLUMN -->
     <div>
+      <!-- DASHBOARD AUJOURD'HUI -->
+      <div class="card admin-only-card dash-card" id="dashCard">
+        <div class="card-header" style="padding:0 0 2px;border:none;background:none">
+          <div class="card-title" id="dashDateTitle">Aujourd'hui</div>
+        </div>
+        <div class="dash-grid">
+          <div class="dash-tile"><div class="dash-tile-label">Routine</div><div class="dash-tile-val" id="dashRoutinePct">—</div><div class="dash-tile-sub" id="dashRoutineSub"></div></div>
+          <div class="dash-tile"><div class="dash-tile-label">Séance</div><div class="dash-tile-val" id="dashWorkoutPct">—</div><div class="dash-tile-sub" id="dashWorkoutSub"></div></div>
+          <div class="dash-tile"><div class="dash-tile-label">Tâches urgentes</div><div class="dash-tile-val" id="dashUrgentCount">—</div><div class="dash-tile-sub">priorité A</div></div>
+          <div class="dash-tile streak"><div class="dash-tile-label">Série routine</div><div class="dash-tile-val" id="dashStreak">—</div><div class="dash-tile-sub">jours d'affilée</div></div>
+        </div>
+        <div class="dash-next-event" id="dashNextEvent" style="display:none"></div>
+      </div>
+
       <!-- ROUTINE -->
       <div class="card admin-only-card">
         <div class="card-header">
@@ -809,6 +936,11 @@ button,input,select,textarea{font-family:inherit}
             </div>
           </div>
         </div>
+        <div class="cal-search-wrap">
+          <input type="text" class="cal-search-input" id="calSearchInput" placeholder="🔍 Rechercher un événement…">
+          <div class="cal-search-results" id="calSearchResults"></div>
+        </div>
+        <div class="cal-cat-legend" id="calCatLegend"></div>
         <div class="cal-toolbar">
           <button class="cal-chevron" id="calPrev">&#8249;</button>
           <div class="cal-month-label" id="calLabel"></div>
@@ -828,6 +960,17 @@ button,input,select,textarea{font-family:inherit}
             <div class="add-row-inputs">
               <input type="text" class="add-input" id="calAddInput" placeholder="Ajouter un événement…">
               <button class="add-btn" id="calAddBtn">+</button>
+            </div>
+            <button class="cal-details-toggle" id="calDetailsToggle" type="button">+ Heure / description / catégorie</button>
+            <div class="cal-details-panel" id="calDetailsPanel" style="display:none">
+              <select class="cal-cat-select" id="calCatSelect">
+                <option value="perso">🔵 Perso</option>
+                <option value="ecole">🟠 École</option>
+                <option value="sport">🟢 Sport</option>
+                <option value="rdv">🟣 RDV</option>
+              </select>
+              <input type="time" class="cal-time-input" id="calTimeInput">
+              <textarea class="cal-desc-input" id="calDescInput" placeholder="Description (optionnel)…"></textarea>
             </div>
             <label class="cal-repeat-label"><input type="checkbox" id="calRepeatCheck"> Se répète chaque année</label>
           </div>
@@ -959,6 +1102,10 @@ const DEFAULT_WORKOUT=[
 const firebaseConfig={apiKey:"AIzaSyDI5mG7GYtCEcZ6grNrrlv0DJULOBZ9gUI",authDomain:"timetableee.firebaseapp.com",projectId:"timetableee",storageBucket:"timetableee.firebasestorage.app",messagingSenderId:"706990156498",appId:"1:706990156498:web:5a69a65cad9ba564435b0b",measurementId:"G-QH0NEF6DZ8"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+db.enablePersistence({synchronizeTabs:true}).catch(err=>{
+  if(err.code==='failed-precondition')console.warn('Persistance hors-ligne: déjà active dans un autre onglet.');
+  else if(err.code==='unimplemented')console.warn('Persistance hors-ligne non supportée par ce navigateur.');
+});
 
 let isAdmin=sessionStorage.getItem('adminMode')==='1';
 let diff=parseInt(localStorage.getItem('workoutDiff')||'0',10);
@@ -1000,6 +1147,9 @@ function tryLogin(){
     renderCalendarDayPanel();
     loadCalendarEvents();
     loadBrainNotes();
+    updateDashboard();
+    refreshDashboardStreak();
+    setInterval(updateDashboardNextEvent,60000);
   } else {
     loginError.classList.add('show');
     pwdInput.value='';pwdInput.focus();
@@ -1113,6 +1263,7 @@ function renderWorkout(){
   document.getElementById('workoutPctSub').textContent=`${done} / ${total} exos`;
   const ringCirc=2*Math.PI*15,ring=document.getElementById('workoutRingFg');
   ring.style.strokeDasharray=`${ringCirc}`;ring.style.strokeDashoffset=`${ringCirc*(1-pct/100)}`;
+  updateDashboardTile('dashWorkoutPct','dashWorkoutSub',pct,`${done}/${total} exos`);
 }
 function toggleWorkoutItem(id,val){
   todayWorkoutLog[id]=val;
@@ -1199,6 +1350,7 @@ function renderRoutine(){
   document.getElementById('routinePctSub').textContent=`${done} / ${total} tenus`;
   const ringCirc=2*Math.PI*15,ring=document.getElementById('routineRingFg');
   ring.style.strokeDasharray=`${ringCirc}`;ring.style.strokeDashoffset=`${ringCirc*(1-pct/100)}`;
+  updateDashboardTile('dashRoutinePct','dashRoutineSub',pct,`${done}/${total} tenus`);
 }
 function toggleRoutineItem(id,val){
   todayRoutineLog[id]=val;
@@ -1214,6 +1366,70 @@ function loadRoutineTemplate(){
 }
 document.getElementById('addRoutineBtn').addEventListener('click',()=>{if(!isAdmin)return;const inp=document.getElementById('addRoutineInput'),cat=document.getElementById('routineCatSelect').value,text=inp.value.trim();if(text){db.collection('routineTemplate').add({text,category:cat,createdAt:Date.now()});inp.value='';}});
 document.getElementById('addRoutineInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addRoutineBtn').click();});
+
+// ── DASHBOARD "AUJOURD'HUI" ───────────────────────────
+function updateDashboardTile(valId,subId,pct,subText){
+  const valEl=document.getElementById(valId),subEl=document.getElementById(subId);
+  if(!valEl)return;
+  valEl.textContent=pct+'%';
+  if(subEl)subEl.textContent=subText;
+}
+function fmtTodayLong(){
+  return new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+}
+function updateDashboardDate(){
+  const el=document.getElementById('dashDateTitle');
+  if(el)el.textContent=`Aujourd'hui — ${fmtTodayLong()}`;
+}
+function updateDashboardUrgentCount(){
+  const el=document.getElementById('dashUrgentCount');
+  if(!el)return;
+  // todosCache est alimenté par setupFirebaseListeners (voir bloc ADMIN TODOS)
+  const count=(todosCache||[]).filter(t=>t.priority==='A'&&!t.done).length;
+  el.textContent=count;
+}
+function updateDashboardNextEvent(){
+  const wrap=document.getElementById('dashNextEvent');
+  if(!wrap)return;
+  const evs=eventsForKey(todayKey());
+  if(!evs.length){wrap.style.display='none';return;}
+  const nowMin=new Date().getHours()*60+new Date().getMinutes();
+  let next=evs.find(ev=>{
+    if(!ev.time)return false;
+    const [h,m]=ev.time.split(':').map(Number);
+    return h*60+m>=nowMin;
+  });
+  if(!next)next=evs[0];
+  wrap.style.display='flex';
+  wrap.innerHTML=`<div class="dash-next-event-dot" style="background:${catColor(next.category)}"></div><div class="dash-next-event-text">${next.text}</div>${next.time?`<div class="dash-next-event-time">${next.time}</div>`:''}`;
+  wrap.onclick=()=>openEventDetail(next);
+}
+async function computeStreak(collectionName){
+  try{
+    const sn=await db.collection(collectionName).orderBy('date','desc').limit(400).get();
+    const map={};sn.forEach(doc=>{const d=doc.data();map[d.date]=d.pct;});
+    let streak=0;
+    for(let i=0;i<400;i++){
+      const key=dateKeyOffset(i);
+      const pct=map[key];
+      if(pct&&pct>0)streak++;
+      else if(i===0)continue; // aujourd'hui pas encore fait : on regarde hier sans casser la série
+      else break;
+    }
+    return streak;
+  }catch(e){return null;}
+}
+async function refreshDashboardStreak(){
+  const el=document.getElementById('dashStreak');
+  if(!el)return;
+  const s=await computeStreak('routineLog');
+  el.textContent=(s===null)?'—':s;
+}
+function updateDashboard(){
+  updateDashboardDate();
+  updateDashboardUrgentCount();
+  updateDashboardNextEvent();
+}
 
 // ── CHART ────────────────────────────────────────────
 let routineChart=null,currentRange=60,chartFullData=[];
@@ -1261,8 +1477,12 @@ async function renderChart(r){
   const labels=data.map(d=>d.key.slice(5));
   const values=data.map(d=>d.pct);
   // Points visibles seulement si peu de jours affichés (sinon illisible)
-  const showPoints=data.length<=100;
-  const pointR=data.length<=31?6:data.length<=61?4:data.length<=91?3:data.length<=121?2:1;
+  // Densité des points adaptée au nombre réel de jours affichés (pas à la
+  // plage demandée) : dense et gros quand peu de jours, disparaît au-delà
+  // de 60 points pour rester lisible.
+  const n=data.length;
+  const showPoints=n<=60;
+  const pointR=n<=10?5:n<=20?4:n<=31?3:n<=45?2.5:n<=60?1.8:0;
 
   if(routineChart)routineChart.destroy();
 
@@ -1369,6 +1589,20 @@ chartResizeObserver.observe(document.querySelector('.chart-canvas-wrap'));
 // ── CALENDAR ─────────────────────────────────────────
 const CAL_MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const CAL_DOW_SHORT = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const CAL_CATEGORIES = {
+  perso: { label: 'Perso', color: '#5b8def' },
+  ecole: { label: 'École', color: '#e08a3c' },
+  sport: { label: 'Sport', color: '#3d9a6b' },
+  rdv:   { label: 'RDV',   color: '#a45fc4' }
+};
+function catColor(cat){ return (CAL_CATEGORIES[cat] && CAL_CATEGORIES[cat].color) || '#6e6d6d'; }
+function renderCatLegend(){
+  const el=document.getElementById('calCatLegend');
+  if(!el)return;
+  el.innerHTML=Object.entries(CAL_CATEGORIES).map(([key,c])=>
+    `<div class="cal-cat-legend-item"><span class="cal-cat-legend-dot" style="background:${c.color}"></span>${c.label}</div>`
+  ).join('');
+}
 let calEventsRaw = [];
 
 // Helper pour convertir un objet Date en clé "YYYY-MM-DD"
@@ -1385,11 +1619,17 @@ function eventDates(ev) {
 
 function eventsForKey(key) {
   const [y, m, d] = key.split('-').map(Number);
-  return calEventsRaw.filter(ev => eventDates(ev).some(dk => {
+  const evs = calEventsRaw.filter(ev => eventDates(ev).some(dk => {
     const [ey, em, ed] = dk.split('-').map(Number);
     if (ev.recurring) return em === m && ed === d;
     return ey === y && em === m && ed === d;
   }));
+  return evs.slice().sort((a, b) => {
+    if (a.time && b.time) return a.time.localeCompare(b.time);
+    if (a.time) return -1;
+    if (b.time) return 1;
+    return 0;
+  });
 }
 
 // Helper de sélection de plages
@@ -1446,7 +1686,7 @@ function renderMonthGrid(wrap) {
     const dk = dateKeyFromDate(new Date(y, m - 1, d));
     const events = eventsForKey(dk);
     const dotsHTML = events.length 
-      ? `<div class="cal-cell-dots">${events.map(ev => `<span class="cal-dot${ev.recurring ? ' recurring' : ''}"></span>`).join('')}</div>` 
+      ? `<div class="cal-cell-dots">${events.map(ev => `<span class="cal-dot${ev.recurring ? ' recurring' : ''}" style="background:${catColor(ev.category)}"></span>`).join('')}</div>` 
       : '';
     html += `<div class="cal-cell other-month" data-key="${dk}"><div class="cal-cell-num"><span>${d}</span>${dotsHTML}</div></div>`;
   }
@@ -1470,12 +1710,12 @@ function renderMonthGrid(wrap) {
 
     // Génération des puces/pastilles texte
     const pills = events.length
-      ? `<div class="cal-cell-events">${events.slice(0, 2).map(ev => `<div class="cal-pill${ev.recurring ? ' recurring' : ''}">${ev.text}</div>`).join('')}${events.length > 2 ? `<div class="cal-pill-more">+${events.length - 2}</div>` : ''}</div>`
+      ? `<div class="cal-cell-events">${events.slice(0, 2).map(ev => `<div class="cal-pill${ev.recurring ? ' recurring' : ''}" style="--pill-color:${catColor(ev.category)}">${ev.text}</div>`).join('')}${events.length > 2 ? `<div class="cal-pill-more">+${events.length - 2}</div>` : ''}</div>`
       : '';
 
     // Génération d'un point par événement à côté du numéro
     const dotsHTML = events.length 
-      ? `<div class="cal-cell-dots">${events.map(ev => `<span class="cal-dot${ev.recurring ? ' recurring' : ''}"></span>`).join('')}</div>` 
+      ? `<div class="cal-cell-dots">${events.map(ev => `<span class="cal-dot${ev.recurring ? ' recurring' : ''}" style="background:${catColor(ev.category)}"></span>`).join('')}</div>` 
       : '';
 
     html += `<div class="${cls}" data-key="${key}"><div class="cal-cell-num"><span>${day}</span>${dotsHTML}</div>${pills}</div>`;
@@ -1487,7 +1727,7 @@ function renderMonthGrid(wrap) {
     const dk = dateKeyFromDate(new Date(y, m + 1, i));
     const events = eventsForKey(dk);
     const dotsHTML = events.length 
-      ? `<div class="cal-cell-dots">${events.map(ev => `<span class="cal-dot${ev.recurring ? ' recurring' : ''}"></span>`).join('')}</div>` 
+      ? `<div class="cal-cell-dots">${events.map(ev => `<span class="cal-dot${ev.recurring ? ' recurring' : ''}" style="background:${catColor(ev.category)}"></span>`).join('')}</div>` 
       : '';
     html += `<div class="cal-cell other-month" data-key="${dk}"><div class="cal-cell-num"><span>${i}</span>${dotsHTML}</div></div>`;
   }
@@ -1559,13 +1799,21 @@ function renderWeekGrid(wrap) {
       const key = dateKeyFromDate(d);
       const isToday = key === tKey;
       const evs = eventsForKey(key);
-      const pills = evs.map(ev => `<div class="cal-week-event">${ev.text}</div>`).join('');
+      const pills = evs.map(ev => `<div class="cal-week-event" data-eid="${ev.id}" style="--pill-color:${catColor(ev.category)}">${ev.time ? ev.time+' ' : ''}${ev.text}</div>`).join('');
       html += `<div class="cal-week-cell${isToday ? ' today-col' : ''}" data-key="${key}">${h === 7 ? pills : ''}</div>`;
     });
   });
 
   html += '</div>';
   wrap.innerHTML = html;
+
+  wrap.querySelectorAll('.cal-week-event').forEach(pill => {
+    pill.addEventListener('click', e => {
+      e.stopPropagation();
+      const ev = calEventsRaw.find(ev => ev.id === pill.getAttribute('data-eid'));
+      if (ev) openEventDetail(ev);
+    });
+  });
 
   wrap.querySelectorAll('.cal-week-cell').forEach(cell => {
     cell.addEventListener('click', () => {
@@ -1616,8 +1864,14 @@ function renderCalendarDayPanel() {
   }
 
   list.querySelectorAll('.cal-event-item').forEach(item => {
-    item.querySelector('.cal-event-del').addEventListener('click', () => {
-      db.collection('calendarEvents').doc(item.getAttribute('data-id')).delete();
+    const id = item.getAttribute('data-id');
+    item.querySelector('.cal-event-del').addEventListener('click', e => {
+      e.stopPropagation();
+      db.collection('calendarEvents').doc(id).delete();
+    });
+    item.addEventListener('click', () => {
+      const ev = calEventsRaw.find(e => e.id === id);
+      if (ev) openEventDetail(ev);
     });
   });
 }
@@ -1628,8 +1882,86 @@ function fmtKey(key) {
 }
 
 function makeEventHTML(ev) {
-  return `<div class="cal-event-item" data-id="${ev.id}"><div class="cal-event-dot"></div><span class="cal-event-text">${ev.text}</span>${ev.recurring ? '<span class="cal-event-tag">Annuel</span>' : ''}<button class="cal-event-del">✕</button></div>`;
+  const timeHtml = ev.time ? `<span class="cal-event-time">${ev.time}</span>` : '';
+  const descHtml = ev.description ? `<span class="cal-event-has-desc">📝</span>` : '';
+  return `<div class="cal-event-item" data-id="${ev.id}"><div class="cal-event-dot" style="background:${catColor(ev.category)}"></div>${timeHtml}<span class="cal-event-text">${ev.text}</span>${descHtml}${ev.recurring ? '<span class="cal-event-tag">Annuel</span>' : ''}<button class="cal-event-del">✕</button></div>`;
 }
+
+// ── DÉTAIL ÉVÉNEMENT (modale) ────────────────────────
+let eventDetailCurrentId = null;
+function openEventDetail(ev) {
+  eventDetailCurrentId = ev.id;
+  document.getElementById('eventDetailTitle').textContent = ev.text;
+  document.getElementById('eventDetailDot').style.background = catColor(ev.category);
+  const timeEl = document.getElementById('eventDetailTime');
+  if (ev.time) { timeEl.textContent = `🕒 ${ev.time}`; timeEl.style.display = 'block'; }
+  else timeEl.style.display = 'none';
+  const descEl = document.getElementById('eventDetailDesc');
+  if (ev.description) { descEl.textContent = ev.description; descEl.style.display = 'block'; }
+  else descEl.style.display = 'none';
+  document.getElementById('eventDetailTag').style.display = ev.recurring ? 'inline-block' : 'none';
+  document.getElementById('eventDetailOverlay').classList.add('show');
+}
+document.getElementById('eventDetailClose').addEventListener('click', () => {
+  document.getElementById('eventDetailOverlay').classList.remove('show');
+});
+document.getElementById('eventDetailOverlay').addEventListener('click', e => {
+  if (e.target.id === 'eventDetailOverlay') document.getElementById('eventDetailOverlay').classList.remove('show');
+});
+document.getElementById('eventDetailDelete').addEventListener('click', () => {
+  if (eventDetailCurrentId) db.collection('calendarEvents').doc(eventDetailCurrentId).delete();
+  document.getElementById('eventDetailOverlay').classList.remove('show');
+});
+
+// ── PANNEAU DÉTAILS OPTIONNELS (heure / description) ─
+document.getElementById('calDetailsToggle').addEventListener('click', () => {
+  const panel = document.getElementById('calDetailsPanel');
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'flex';
+  document.getElementById('calDetailsToggle').textContent = open ? '+ Heure / description / catégorie' : '− Masquer les détails';
+});
+
+// ── RECHERCHE D'ÉVÉNEMENTS ───────────────────────────
+function jumpToEventDate(ev) {
+  const dk = eventDates(ev)[0];
+  if (!dk) return;
+  const [y, m, d] = dk.split('-').map(Number);
+  calViewDate = new Date(y, m - 1, 1);
+  calSelectedKey = dk;
+  calRangeStart = null;
+  calRangeEnd = null;
+  calView = 'month';
+  document.querySelectorAll('.cal-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'month'));
+  renderCalendarGrid();
+  renderCalendarDayPanel();
+}
+const calSearchInput = document.getElementById('calSearchInput');
+const calSearchResults = document.getElementById('calSearchResults');
+calSearchInput.addEventListener('input', () => {
+  const q = calSearchInput.value.trim().toLowerCase();
+  if (!q) { calSearchResults.classList.remove('show'); return; }
+  const matches = calEventsRaw.filter(ev => ev.text.toLowerCase().includes(q) || (ev.description || '').toLowerCase().includes(q)).slice(0, 20);
+  if (!matches.length) {
+    calSearchResults.innerHTML = '<div class="cal-search-empty">Aucun résultat.</div>';
+  } else {
+    calSearchResults.innerHTML = matches.map(ev => {
+      const dk = eventDates(ev)[0] || '';
+      return `<div class="cal-search-result" data-id="${ev.id}"><span class="cal-search-result-dot" style="background:${catColor(ev.category)}"></span><span class="cal-search-result-text">${ev.text}</span><span class="cal-search-result-date">${dk ? fmtKey(dk) : ''}${ev.recurring ? ' ↻' : ''}</span></div>`;
+    }).join('');
+    calSearchResults.querySelectorAll('.cal-search-result').forEach(row => {
+      row.addEventListener('click', () => {
+        const ev = calEventsRaw.find(e => e.id === row.getAttribute('data-id'));
+        if (ev) { jumpToEventDate(ev); openEventDetail(ev); }
+        calSearchResults.classList.remove('show');
+        calSearchInput.value = '';
+      });
+    });
+  }
+  calSearchResults.classList.add('show');
+});
+document.addEventListener('click', e => {
+  if (!calSearchInput.contains(e.target) && !calSearchResults.contains(e.target)) calSearchResults.classList.remove('show');
+});
 
 // Événement global pour stopper le glissement de la souris
 document.addEventListener('mouseup', () => {
@@ -1684,6 +2016,9 @@ document.getElementById('calAddBtn').addEventListener('click', () => {
   const inp = document.getElementById('calAddInput');
   const text = inp.value.trim();
   const repeat = document.getElementById('calRepeatCheck').checked;
+  const time = document.getElementById('calTimeInput').value || null;
+  const description = document.getElementById('calDescInput').value.trim() || null;
+  const category = document.getElementById('calCatSelect').value || 'perso';
   if (!text) return;
 
   const dates = (calRangeStart && calRangeEnd && calRangeStart !== calRangeEnd)
@@ -1696,11 +2031,19 @@ document.getElementById('calAddBtn').addEventListener('click', () => {
     dates,
     text,
     recurring: repeat,
+    time,
+    description,
+    category,
     createdAt: Date.now()
   });
 
   inp.value = '';
   document.getElementById('calRepeatCheck').checked = false;
+  document.getElementById('calTimeInput').value = '';
+  document.getElementById('calDescInput').value = '';
+  document.getElementById('calCatSelect').value = 'perso';
+  document.getElementById('calDetailsPanel').style.display = 'none';
+  document.getElementById('calDetailsToggle').textContent = '+ Heure / description / catégorie';
   calRangeStart = null;
   calRangeEnd = null;
   renderCalendarGrid();
@@ -1718,6 +2061,7 @@ function loadCalendarEvents() {
     calEventsRaw.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
     renderCalendarGrid();
     renderCalendarDayPanel();
+    updateDashboardNextEvent();
   });
 }
 
@@ -1751,13 +2095,13 @@ function loadCalendarEvents() {
   }, { passive: true });
 })();
 // ── ADMIN TODOS (with subtasks) ──────────────────────
-let unsubscribeTodos=null,unsubGoalsWeek=null,unsubGoalsMonth=null,unsubGoalsYear=null;
+let unsubscribeTodos=null,unsubGoalsWeek=null,unsubGoalsMonth=null,unsubGoalsYear=null,todosCache=[];
 function clearAdminInterface(){[unsubscribeTodos,unsubGoalsWeek,unsubGoalsMonth,unsubGoalsYear].forEach(u=>{if(u)u();});document.getElementById('todayList').innerHTML='<div class="empty-state">Connecte-toi en admin.</div>';['goalsWeekList','goalsMonthList','goalsYearList'].forEach(id=>document.getElementById(id).innerHTML='');}
 function setupFirebaseListeners(){
   if(!isAdmin)return;
-  unsubscribeTodos=db.collection('todos').onSnapshot(snapshot=>{let t=[];snapshot.forEach(doc=>t.push({id:doc.id,...doc.data()}));t.sort((a,b)=>(a.priority||'B').localeCompare(b.priority||'B'));renderTodosWithSubtasks(t,'todayList','todos');});
+  unsubscribeTodos=db.collection('todos').onSnapshot(snapshot=>{let t=[];snapshot.forEach(doc=>t.push({id:doc.id,...doc.data()}));t.sort((a,b)=>(a.priority||'B').localeCompare(b.priority||'B'));todosCache=t;renderTodosWithSubtasks(t,'todayList','todos');updateDashboardUrgentCount();});
   [['goalsWeek','goalsWeekList'],['goalsMonth','goalsMonthList'],['goalsYear','goalsYearList']].forEach(([col,el])=>{
-    const unsub=db.collection(col).onSnapshot(snapshot=>{let items=[];snapshot.forEach(doc=>items.push({id:doc.id,...doc.data()}));items.sort((a,b)=>(a.priority||'B').localeCompare(b.priority||'B'));renderCloudTodos(items,el,col);});
+    const unsub=db.collection(col).onSnapshot(snapshot=>{let items=[];snapshot.forEach(doc=>items.push({id:doc.id,...doc.data()}));items.sort((a,b)=>(a.priority||'B').localeCompare(b.priority||'B'));renderTodosWithSubtasks(items,el,col);});
     if(col==='goalsWeek')unsubGoalsWeek=unsub;else if(col==='goalsMonth')unsubGoalsMonth=unsub;else unsubGoalsYear=unsub;
   });
 }
@@ -1902,23 +2246,40 @@ function renderCloudTodos(itemsList,containerId,collectionName){
 
 document.getElementById('addTodayBtn').addEventListener('click',()=>{if(!isAdmin)return;const inp=document.getElementById('addTodayInput'),prio=document.getElementById('prioSelect').value,text=inp.value.trim();if(text){db.collection('todos').add({text,done:false,priority:prio,subtasks:[],createdAt:Date.now()});inp.value='';}});
 document.getElementById('addTodayInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addTodayBtn').click();});
-function wireGoalAdd(btnId,inputId,prioId,col){document.getElementById(btnId).addEventListener('click',()=>{if(!isAdmin)return;const inp=document.getElementById(inputId),prio=document.getElementById(prioId).value,text=inp.value.trim();if(text){db.collection(col).add({text,done:false,priority:prio,createdAt:Date.now()});inp.value='';}});document.getElementById(inputId).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById(btnId).click();});}
+function wireGoalAdd(btnId,inputId,prioId,col){document.getElementById(btnId).addEventListener('click',()=>{if(!isAdmin)return;const inp=document.getElementById(inputId),prio=document.getElementById(prioId).value,text=inp.value.trim();if(text){db.collection(col).add({text,done:false,priority:prio,subtasks:[],createdAt:Date.now()});inp.value='';}});document.getElementById(inputId).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById(btnId).click();});}
 wireGoalAdd('addGoalWeekBtn','addGoalWeekInput','prioGoalWeek','goalsWeek');
 wireGoalAdd('addGoalMonthBtn','addGoalMonthInput','prioGoalMonth','goalsMonth');
 wireGoalAdd('addGoalYearBtn','addGoalYearInput','prioGoalYear','goalsYear');
+
+// Onglets Objectifs (Semaine / Mois / Année) — bascule d'affichage
+document.querySelectorAll('.goal-tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.goal-tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.goal-tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`goaltab-${btn.getAttribute('data-goaltab')}`).classList.add('active');
+  });
+});
 
 // ── SERVICE WORKER + NOTIFICATIONS ──────────────────
 async function initNotifications() {
   if (!('serviceWorker' in navigator)) return;
 
   try {
-    // Enregistrement à la racine
-    const reg = await navigator.serviceWorker.register('/TimeTable/sw.js');
+    // Chemin RELATIF : fonctionne quel que soit l'endroit où le site est servi
+    // (racine en local, /TimeTable/ sur GitHub Pages, etc.) — avant, le chemin
+    // était codé en dur sur /TimeTable/sw.js, ce qui causait un 404 en local
+    // et empêchait le SW de s'installer, donc AUCUNE notification ne pouvait marcher.
+    const reg = await navigator.serviceWorker.register('sw.js');
     
     if (Notification.permission === 'default') {
       await Notification.requestPermission();
     }
-    if (Notification.permission !== 'granted') return;
+    if (Notification.permission !== 'granted') {
+      console.warn('[Notifs] Permission refusée ou non accordée. Statut actuel :', Notification.permission,
+        '— si "denied", il faut la réactiver manuellement dans les réglages du site (icône cadenas dans la barre d\'adresse).');
+      return;
+    }
 
     // Background Sync pour Chrome Android
     if ('periodicSync' in reg) {
@@ -1945,6 +2306,16 @@ async function initNotifications() {
       }
     }, 10 * 60 * 1000);
 
+    // Signal le plus fiable sur mobile : à chaque fois que l'app revient au
+    // premier plan (tu la rouvres depuis l'écran d'accueil / changes d'onglet),
+    // on revérifie. C'est ce qui garantit concrètement "une fois le matin,
+    // une fois le soir" même quand le système empêche le SW de tourner seul.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && activeReg.active) {
+        activeReg.active.postMessage({ type: 'CHECK_EVENTS' });
+      }
+    });
+
   } catch (e) {
     console.error('Erreur SW :', e);
   }
@@ -1956,6 +2327,7 @@ if ('serviceWorker' in navigator) {
 
 
 // ── INIT ─────────────────────────────────────────────
+renderCatLegend();
 applyDiff(diff);
 if(isAdmin){
   // already authenticated this session
@@ -1969,6 +2341,9 @@ if(isAdmin){
   loadCalendarEvents();
   loadBrainNotes();
   setupFirebaseListeners();
+  updateDashboard();
+  refreshDashboardStreak();
+  setInterval(updateDashboardNextEvent,60000);
 }
 // all data loads are triggered by tryLogin() on first access
 </script>
