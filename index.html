@@ -157,6 +157,15 @@ button,input,select,textarea{font-family:inherit}
 .range-btn.active{background:var(--acc);border-color:var(--acc);color:var(--bg)}
 .chart-canvas-wrap{padding:6px 16px 18px;height:210px}
 .chart-canvas-wrap canvas{width:100%!important;height:100%!important}
+.chart-canvas-wrap{position:relative}
+.chart-tooltip{position:absolute;pointer-events:none;background:var(--s0);border:1px solid var(--brd);border-radius:8px;padding:8px 10px;box-shadow:var(--sh-lg);font-size:11.5px;color:var(--t0);z-index:20;opacity:0;transition:opacity .1s;min-width:130px;max-width:200px}
+.chart-tooltip-date{font-weight:700;font-size:11.5px;margin-bottom:4px;text-transform:capitalize}
+.chart-tooltip-pct{font-size:16px;font-weight:700;margin-bottom:4px}
+.chart-tooltip-items{display:flex;flex-direction:column;gap:2px}
+.chart-tooltip-item{font-size:10.5px;color:var(--t1);display:flex;align-items:center;gap:5px}
+.chart-tooltip-item.done::before{content:"✓";color:var(--ok);font-weight:700}
+.chart-tooltip-item.miss::before{content:"✕";color:var(--t3)}
+.chart-tooltip-empty{font-size:10.5px;color:var(--t2)}
 
 /* ── WORKOUT SIDEBAR ─────────────────────────────── */
 .workout-diff-row{display:flex;align-items:center;gap:8px;padding:8px 18px 10px}
@@ -764,7 +773,7 @@ button,input,select,textarea{font-family:inherit}
           <button class="range-btn" data-range="90">90j</button>
           <button class="range-btn" data-range="365">1 an</button>
         </div>
-        <div class="chart-canvas-wrap"><canvas id="routineChart"></canvas></div>
+        <div class="chart-canvas-wrap"><canvas id="routineChart"></canvas><div class="chart-tooltip" id="chartTooltip"></div></div>
       </div>
 
       <!-- OBJECTIFS -->
@@ -1009,6 +1018,7 @@ function applyAdminUI(){
   document.querySelectorAll('.admin-only-card').forEach(el=>el.classList.toggle('show',isAdmin));
   renderRoutine();renderWorkout();
   if(document.getElementById('workoutFs').classList.contains('show'))buildWfsGrid();
+  if(routineChart){requestAnimationFrame(()=>routineChart.resize());setTimeout(()=>{if(routineChart)routineChart.resize();},150);}
 }
 
 // ── GREETING ─────────────────────────────────────────
@@ -1190,7 +1200,14 @@ function renderRoutine(){
   const ringCirc=2*Math.PI*15,ring=document.getElementById('routineRingFg');
   ring.style.strokeDasharray=`${ringCirc}`;ring.style.strokeDashoffset=`${ringCirc*(1-pct/100)}`;
 }
-function toggleRoutineItem(id,val){todayRoutineLog[id]=val;const items=applicableRoutineItems(),done=items.filter(it=>todayRoutineLog[it.id]).length,total=items.length,pct=total?Math.round(done/total*100):0;db.collection('routineLog').doc(todayKey()).set({date:todayKey(),completed:todayRoutineLog,pct,updatedAt:Date.now()},{merge:true});renderRoutine();}
+function toggleRoutineItem(id,val){
+  todayRoutineLog[id]=val;
+  const items=applicableRoutineItems();
+  const done=items.filter(it=>todayRoutineLog[it.id]).length,total=items.length,pct=total?Math.round(done/total*100):0;
+  const snapshot=items.map(it=>({text:it.text,done:!!todayRoutineLog[it.id]}));
+  db.collection('routineLog').doc(todayKey()).set({date:todayKey(),completed:todayRoutineLog,items:snapshot,pct,updatedAt:Date.now()},{merge:true});
+  renderRoutine();
+}
 function loadRoutineTemplate(){
   routineUnsub=db.collection('routineTemplate').onSnapshot(async snapshot=>{if(snapshot.empty&&!snapshot.metadata.fromCache){for(const item of DEFAULT_ROUTINE)await db.collection('routineTemplate').add({...item,createdAt:Date.now()});return;}routineTemplate=[];snapshot.forEach(doc=>routineTemplate.push({id:doc.id,...doc.data()}));renderRoutine();});
   routineLogUnsub=db.collection('routineLog').doc(todayKey()).onSnapshot(doc=>{todayRoutineLog=(doc.exists&&doc.data().completed)?doc.data().completed:{};renderRoutine();});
@@ -1199,21 +1216,156 @@ document.getElementById('addRoutineBtn').addEventListener('click',()=>{if(!isAdm
 document.getElementById('addRoutineInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addRoutineBtn').click();});
 
 // ── CHART ────────────────────────────────────────────
-let routineChart=null,currentRange=60;
-function chartColors(){const dark=document.body.classList.contains('dark');return{line:dark?'#e0e0e0':'#1a1a1a',fillTop:dark?'rgba(255,255,255,.14)':'rgba(0,0,0,.09)',fillBottom:'rgba(0,0,0,0)',grid:dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)',text:dark?'#888':'#999'};}
-async function loadChartData(r){const sk=dateKeyOffset(r-1);let sn;try{sn=await db.collection('routineLog').where('date','>=',sk).orderBy('date','asc').get();}catch(err){return{labels:[],values:[],error:err};}const map={};sn.forEach(doc=>{const d=doc.data();map[d.date]=d.pct;});const labels=[],values=[];for(let i=r-1;i>=0;i--){const key=dateKeyOffset(i);labels.push(key.slice(5));values.push(key in map?map[key]:null);}return{labels,values,error:null};}
+let routineChart=null,currentRange=60,chartFullData=[];
+function chartColors(){const dark=document.body.classList.contains('dark');return{line:dark?'#e0e0e0':'#1a1a1a',fillTop:dark?'rgba(255,255,255,.14)':'rgba(0,0,0,.09)',fillBottom:'rgba(0,0,0,0)',grid:dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)',text:dark?'#888':'#999',line2:dark?'rgba(255,255,255,.25)':'rgba(0,0,0,.2)'};}
+
+async function loadChartData(r){
+  const sk=dateKeyOffset(r-1);
+  let sn;
+  try{
+    sn=await db.collection('routineLog').where('date','>=',sk).orderBy('date','asc').get();
+  }catch(err){return{data:[],error:err};}
+  const logMap={};sn.forEach(doc=>{logMap[doc.data().date]=doc.data();});
+  const data=[];
+  for(let i=r-1;i>=0;i--){
+    const key=dateKeyOffset(i);
+    const entry=logMap[key];
+    data.push({key,pct:entry?entry.pct:null,items:entry&&entry.items?entry.items:null});
+  }
+  return{data,error:null};
+}
+
+function itemsForDate(entry){
+  if(entry.items)return entry.items; // snapshot exact du jour
+  return null; // ancien log sans snapshot — on ne peut pas garantir l'exactitude
+}
+
+function fmtTooltipDate(key){
+  const [y,m,d]=key.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+}
+
 async function renderChart(r){
   const wrap=document.querySelector('.chart-canvas-wrap'),em=wrap.querySelector('.chart-empty-msg');if(em)em.remove();document.getElementById('routineChart').style.display='block';
-  const{labels,values,error}=await loadChartData(r);
-  if(error||values.every(v=>v===null)){document.getElementById('routineChart').style.display='none';const m=document.createElement('div');m.className='chart-empty-msg empty-state';m.textContent=error?"Impossible de charger.":"Pas encore de données.";wrap.appendChild(m);return;}
+  let{data,error}=await loadChartData(r);
+  // Si la plage demandée dépasse les données réelles (ex: "1 an" mais routine
+  // suivie depuis 30 jours), on coupe les jours vides du début pour que la
+  // courbe remplisse toute la largeur au lieu de rester collée à droite.
+  const firstRealIdx=data.findIndex(d=>d.pct!==null);
+  if(firstRealIdx>0)data=data.slice(firstRealIdx);
+  chartFullData=data;
+  if(error||data.every(v=>v.pct===null)){document.getElementById('routineChart').style.display='none';const m=document.createElement('div');m.className='chart-empty-msg empty-state';m.textContent=error?"Impossible de charger.":"Pas encore de données.";wrap.appendChild(m);return;}
   const colors=chartColors(),ctx=document.getElementById('routineChart').getContext('2d');
   const gradient=ctx.createLinearGradient(0,0,0,160);gradient.addColorStop(0,colors.fillTop);gradient.addColorStop(1,colors.fillBottom);
-  if(routineChart)routineChart.destroy();
-  routineChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:values,borderColor:colors.line,backgroundColor:gradient,fill:true,tension:0.4,spanGaps:true,pointRadius:0,pointHoverRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:colors.text,maxTicksLimit:8,font:{size:10}},grid:{display:false}},y:{min:0,max:100,ticks:{color:colors.text,callback:v=>v+'%',font:{size:10}},grid:{color:colors.grid}}}}});
-}
-document.getElementById('rangeToolbar').addEventListener('click',e=>{const btn=e.target.closest('.range-btn');if(!btn)return;document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentRange=parseInt(btn.getAttribute('data-range'),10);renderChart(currentRange);});
-document.querySelectorAll('.goal-tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.goal-tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.goal-tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(`goaltab-${btn.getAttribute('data-goaltab')}`).classList.add('active');});});
 
+  const labels=data.map(d=>d.key.slice(5));
+  const values=data.map(d=>d.pct);
+  // Points visibles seulement si peu de jours affichés (sinon illisible)
+  const showPoints=data.length<=100;
+  const pointR=data.length<=31?6:data.length<=61?4:data.length<=91?3:data.length<=121?2:1;
+
+  if(routineChart)routineChart.destroy();
+
+  const verticalLinePlugin={
+    id:'verticalLine',
+    afterDraw(chart){
+      const active=chart.tooltip?._active;
+      if(!active||!active.length)return;
+      const {ctx,chartArea:{top,bottom}}=chart;
+      const x=active[0].element.x;
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([4,4]);
+      ctx.moveTo(x,top);
+      ctx.lineTo(x,bottom);
+      ctx.lineWidth=1;
+      ctx.strokeStyle=colors.line2;
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  const tooltipEl=document.getElementById('chartTooltip');
+
+  routineChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{data:values,borderColor:colors.line,backgroundColor:gradient,fill:true,tension:0.35,spanGaps:true,pointRadius:showPoints?pointR:0,pointHoverRadius:6,pointBackgroundColor:colors.line,pointBorderColor:colors.line,borderWidth:2}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          enabled:false,
+         external(context){
+  const {chart,tooltip}=context;
+  if(tooltip.opacity===0){tooltipEl.style.opacity='0';return;}
+  const idx=tooltip.dataPoints&&tooltip.dataPoints[0]?tooltip.dataPoints[0].dataIndex:null;
+  if(idx===null)return;
+  const entry=chartFullData[idx];
+  if(!entry||entry.pct===null){tooltipEl.style.opacity='0';return;}
+
+  const items=itemsForDate(entry);
+  let itemsHtml;
+  if(items===null){
+    itemsHtml=`<div class="chart-tooltip-empty">Détail non disponible (avant mise à jour).</div>`;
+  }else if(items.length===0){
+    itemsHtml=`<div class="chart-tooltip-empty">Aucun item ce jour-là.</div>`;
+  }else{
+    itemsHtml=`<div class="chart-tooltip-items">${items.map(it=>`<div class="chart-tooltip-item ${it.done?'done':'miss'}">${it.text}</div>`).join('')}</div>`;
+  }
+  tooltipEl.innerHTML=`<div class="chart-tooltip-date">${fmtTooltipDate(entry.key)}</div><div class="chart-tooltip-pct">${entry.pct}%</div>${itemsHtml}`;
+
+const {offsetLeft,offsetTop}=chart.canvas;
+const wrapEl=chart.canvas.parentElement;
+const wrapW=wrapEl.clientWidth,wrapH=wrapEl.clientHeight;
+
+// on affiche d'abord pour mesurer sa taille réelle
+tooltipEl.style.left='0px';tooltipEl.style.top='0px';tooltipEl.style.opacity='0';
+requestAnimationFrame(()=>{
+  const tw=tooltipEl.offsetWidth,th=tooltipEl.offsetHeight;
+  let x=offsetLeft+tooltip.caretX+14;
+  let y=offsetTop+tooltip.caretY-th/2;
+  if(x+tw>wrapW-4)x=offsetLeft+tooltip.caretX-tw-14; // bascule à gauche du point
+  if(x<4)x=4;
+  if(y<4)y=4;
+  if(y+th>wrapH-4)y=wrapH-th-4;
+  tooltipEl.style.left=x+'px';
+  tooltipEl.style.top=y+'px';
+  tooltipEl.style.opacity='1';
+});
+}
+        }
+      },
+      scales:{
+        x:{ticks:{color:colors.text,maxTicksLimit:8,font:{size:10}},grid:{display:false}},
+        y:{min:0,max:100,ticks:{color:colors.text,callback:v=>v+'%',font:{size:10}},grid:{color:colors.grid}}
+      }
+    },
+    plugins:[verticalLinePlugin]
+  });
+
+  document.getElementById('routineChart').onmouseleave=()=>{tooltipEl.style.opacity='0';};
+  requestAnimationFrame(()=>{if(routineChart)routineChart.resize();});
+}
+
+// Écouteur des boutons de plage — enregistré UNE SEULE FOIS (pas à chaque renderChart)
+document.getElementById('rangeToolbar').addEventListener('click',e=>{
+  const btn=e.target.closest('.range-btn');
+  if(!btn)return;
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentRange=parseInt(btn.getAttribute('data-range'),10);
+  renderChart(currentRange);
+});
+
+// Redimensionnement fiable : observe la vraie taille du conteneur du graphique.
+// Corrige le cas où le graphique est créé pendant que sa carte est encore cachée
+// (display:none avant connexion admin), ce qui le faisait rester collé/étroit.
+const chartResizeObserver=new ResizeObserver(()=>{
+  if(routineChart)routineChart.resize();
+});
+chartResizeObserver.observe(document.querySelector('.chart-canvas-wrap'));
 // ── CALENDAR ─────────────────────────────────────────
 const CAL_MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const CAL_DOW_SHORT = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
