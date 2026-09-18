@@ -716,57 +716,377 @@ button,input,select,textarea{font-family:inherit}
 .dash-next-event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .dash-next-event-text{flex:1;font-size:13px;color:var(--t0);font-weight:600}
 .dash-next-event-time{font-size:11px;color:var(--t1);font-weight:700;flex-shrink:0}
-@media(max-width:680px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media(max-width:900px){.grid{grid-template-columns:1fr 270px;gap:16px}}
 @media(max-width:680px){
   html{overflow-x:hidden}
   body{overflow-x:hidden}
   .page{padding:10px}
-  .grid{grid-template-columns:1fr;gap:12px}
-  .sidebar{order:2}
-  .card{margin-bottom:12px}
-  .card-header{padding:12px 14px;flex-wrap:wrap;gap:8px}
-  .card-title{font-size:13px}
+
+  /* L'ordre d'affichage est désormais géré par le routeur dashboard :
+     une seule section visible à la fois, donc plus de réordonnancement
+     CSS nécessaire ici. */
+  .grid{grid-template-columns:1fr;gap:14px}
+  .card{margin-bottom:14px}
+
+  /* ── Rythme d'espacement et typographie cohérents ── */
+  .card-header{padding:13px 14px;flex-wrap:wrap;gap:8px}
+  .card-title{font-size:13.5px}
+  .section-label{padding:13px 14px 8px}
   .add-input{font-size:16px}
-  .add-row-inputs{flex-wrap:wrap}
+  .add-row-inputs{flex-wrap:wrap;gap:7px}
   .add-row-inputs .add-input{min-width:0;flex-basis:100%}
-  .cal-cell{min-height:52px;padding:4px}
-  .cal-pill{display:none}
-  .cal-cell-num{font-size:11px}
+  .modal{width:92vw;padding:18px}
   .topbar{padding:0 12px;height:50px}
   .topbar-time{font-size:14px;min-width:40px}
   .topbar-title{font-size:11px}
   .icon-btn{width:32px;height:32px;font-size:13px}
+  .greeting-card{padding:12px 14px}
+  .greeting-text{font-size:13.5px}
+  .pct-ring svg{width:34px;height:34px}
+  .pct-num{font-size:18px}
+  .pct-sub{font-size:10.5px}
+
+  /* ── Objectifs ── */
   .goal-tabs{margin:8px 10px 0}
-  .goal-tab-btn{font-size:11px;padding:6px 0}
-  .prio-select,.cat-select{font-size:11px;padding:0 4px}
-  .modal{width:94vw;padding:18px}
-  /* Séance du jour — grille semaine passe en scroll horizontal, colonnes plus étroites */
-  .wfs-grid{grid-template-columns:repeat(7,minmax(130px,1fr));min-width:910px}
+  .goal-tab-btn{font-size:11px;padding:7px 0}
+  .prio-select,.cat-select{font-size:11px;padding:0 5px}
+
+  /* ── Calendrier ── */
+  .cal-cell{min-height:50px;padding:4px}
+  .cal-pill{display:none}
+  .cal-cell-num{font-size:11px}
+  .cal-toolbar{padding:10px 12px 6px}
+  .cal-month-label{font-size:13.5px}
+  .cal-daypanel{padding:12px 14px 14px}
+  .cal-week-grid{grid-template-columns:42px repeat(7,minmax(74px,1fr));overflow-x:auto;display:grid}
+  #calGridWrap{overflow-x:auto}
+  .cal-week-time-col{font-size:9px}
+  .cal-week-event{font-size:8.5px}
+  .cal-search-wrap{padding:0 14px 8px}
+  .cal-cat-legend{padding:6px 14px 2px}
+
+  /* ── Séance / semaine complète ── */
+  .wfs-grid{grid-template-columns:repeat(7,minmax(128px,1fr));min-width:900px}
   .wfs-diff{flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px}
   .wfs-diff-info{min-width:0}
   .wfs-topbar{padding:0 14px;height:50px}
   .wfs-title{font-size:13px}
-  /* Calendrier semaine — scroll horizontal pour garder les heures lisibles */
-  .cal-week-grid{grid-template-columns:44px repeat(7,minmax(76px,1fr));overflow-x:auto;display:grid}
-  #calGridWrap{overflow-x:auto}
-  .cal-week-time-col{font-size:9px}
-  .cal-week-event{font-size:8.5px}
-  .chart-tooltip{max-width:160px;font-size:10.5px}
-  .pomo-fullscreen .pomo-ring-wrap{width:min(78vw,320px);height:min(78vw,320px)}
-  .pomo-fullscreen .pomo-time{font-size:42px}
   .diff-mini-label{font-size:10px}
   .diff-mini-val{font-size:11px}
-  .cal-daypanel{padding:12px 14px 14px}
+
+  /* ── Graphique / tooltip ── */
+  .chart-tooltip{max-width:150px;font-size:10.5px}
+  .chart-toolbar{padding:0 14px 10px}
+  .range-btn{padding:5px 9px;font-size:11px}
+  .chart-canvas-wrap{padding:6px 12px 14px}
+
+  /* ── Pomodoro plein écran ── */
+  .pomo-fullscreen .pomo-ring-wrap{width:min(78vw,300px);height:min(78vw,300px)}
+  .pomo-fullscreen .pomo-time{font-size:40px}
+  .pomo-ring-wrap{width:140px;height:140px}
+  .pomo-time{font-size:24px}
+
+  /* ── Dashboard "Aujourd'hui" — hero agrandi sur mobile ── */
+  .dash-card{padding:16px 15px}
+  .dash-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .dash-tile{padding:13px 12px}
+  .dash-tile-val{font-size:22px}
+  .dash-tile-sub{font-size:10px}
+  .dash-sparkline{margin-top:10px}
 }
 @media(max-width:400px){
   .topbar-title{display:none}
-  .pct-ring svg{width:32px;height:32px}
-  .greeting-text{font-size:13px}
+  .pct-ring svg{width:30px;height:30px}
   .cal-view-btn{padding:4px 7px;font-size:10.5px}
   .cal-today-btn{padding:0 8px;font-size:10px}
   .goal-tab-btn{font-size:10px}
+  .dash-tile-val{font-size:19px}
+  .dash-grid{gap:6px}
+}
+
+/* ════════════════════════════════════════════════════
+   ARCHITECTURE DASHBOARD + VUES DÉTAIL
+   Accueil = vue d'ensemble. Chaque section s'ouvre en
+   vue dédiée : plus de tout-affiché-en-même-temps.
+   ════════════════════════════════════════════════════ */
+.viewbar{display:none;align-items:center;gap:10px;padding:0 20px;height:50px;background:var(--s0);border-bottom:1px solid var(--brd);position:sticky;top:56px;z-index:90}
+.viewbar.show{display:flex}
+.viewbar-back{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;border:1px solid var(--brd);background:transparent;color:var(--t1);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.viewbar-back:hover{background:var(--s1);color:var(--t0);border-color:var(--t0)}
+.viewbar-title{font-size:14px;font-weight:700;color:var(--t0)}
+
+#homeView{display:none}
+#homeView.show{display:block}
+#detailHost{display:none}
+#detailHost.show{display:block;max-width:1100px;margin:0 auto}
+.detail-view{display:none}
+.detail-view.show{display:block}
+
+.nav-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.nav-tile{background:var(--s0);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:transform .12s,box-shadow .15s,border-color .15s;text-align:left;font-family:inherit}
+.nav-tile:hover{transform:translateY(-2px);box-shadow:var(--sh-lg);border-color:var(--t2)}
+.nav-tile:active{transform:translateY(0)}
+.nav-tile-top{display:flex;align-items:center;gap:9px}
+.nav-tile-icon{font-size:17px;line-height:1}
+.nav-tile-name{font-size:13.5px;font-weight:700;color:var(--t0)}
+.nav-tile-val{font-size:24px;font-weight:700;color:var(--t0);font-variant-numeric:tabular-nums;line-height:1.1}
+.nav-tile-sub{font-size:11px;color:var(--t1)}
+.nav-tile-bar{height:4px;border-radius:2px;background:var(--s2);overflow:hidden;margin-top:2px}
+.nav-tile-bar-fill{height:100%;border-radius:2px;background:var(--acc);transition:width .35s}
+.nav-tile-arrow{margin-left:auto;color:var(--t3);font-size:14px}
+
+.home-section-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin:22px 0 2px}
+
+@media(max-width:900px){.nav-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){
+  .viewbar{padding:0 12px;height:46px;top:50px}
+  .viewbar-title{font-size:13px}
+  .nav-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+  .nav-tile{padding:13px 12px;gap:5px}
+  .nav-tile-val{font-size:20px}
+  .nav-tile-name{font-size:12.5px}
+  .nav-tile-sub{font-size:10px}
+  .home-section-label{margin:18px 0 2px}
+  #detailHost.show{max-width:100%}
+}
+@media(max-width:380px){.nav-grid{grid-template-columns:1fr}}
+/* ════════════════════════════════════════════════════
+   SKIN 2026 — couche de restyle (surcharge finale)
+   Papier chaud · encre profonde · une pointe de signal
+   ════════════════════════════════════════════════════ */
+:root{
+  --bg:#f7f5f1; --s0:#ffffff; --s1:#f3f0ea; --s2:#eae5dd; --s3:#ded7cc;
+  --t0:#15130f; --t1:#6b645c; --t2:#9c948a; --t3:#c6bfb5;
+  --brd:#e7e2d9; --acc:#15130f; --acc-lo:#f1ede6; --acc-hi:#000000;
+  --warm:#fbf9f6; --warm2:#f3efe8; --warm3:#e9e3d8;
+  --ok:#2f7d5b; --ok-lo:#e9f3ed;
+  --amber:#a9661f; --amber-lo:#f9efe2;
+  --pop:#e8511f; --pop-lo:#fdece5;
+  --cool:#3f56c4; --cool-lo:#eceefb;
+  --r:14px; --r-sm:9px; --r-lg:20px;
+  --sh:0 1px 2px rgba(20,16,10,.04);
+  --sh-lg:0 24px 60px -18px rgba(20,16,10,.28);
+  --ring:0 0 0 1px var(--brd);
+}
+body.dark{
+  --bg:#0b0a09; --s0:#131211; --s1:#1a1917; --s2:#232120; --s3:#2e2b28;
+  --t0:#f3f0ea; --t1:#a39b91; --t2:#71685e; --t3:#453f39;
+  --brd:#262421; --acc:#f3f0ea; --acc-lo:#1c1a18; --acc-hi:#ffffff;
+  --warm:#141311; --warm2:#1a1917; --warm3:#232120;
+  --ok:#4fbf8b; --ok-lo:#10231a;
+  --amber:#d69a4a; --amber-lo:#241a0e;
+  --pop:#ff6a3c; --pop-lo:#2a1610;
+  --cool:#7d8ff0; --cool-lo:#151a2e;
+  --sh:0 1px 2px rgba(0,0,0,.5);
+  --sh-lg:0 24px 60px -18px rgba(0,0,0,.8);
+}
+body{font-size:14px;letter-spacing:-.005em}
+
+/* ── TOPBAR ── */
+.topbar{height:60px;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(14px) saturate(1.3);box-shadow:none;border-bottom:1px solid var(--brd)}
+.topbar-time{font-size:15px;font-weight:600;letter-spacing:-.02em;color:var(--t0)}
+.topbar-title{font-size:10.5px;letter-spacing:.18em;color:var(--t2);font-weight:600}
+.icon-btn{background:transparent;border:1px solid var(--brd);border-radius:10px;color:var(--t1)}
+.icon-btn:hover{background:var(--s1);border-color:var(--t3)}
+.viewbar{top:60px;height:52px;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(14px)}
+.viewbar-back{border-radius:99px;padding:7px 14px;font-size:12px}
+.viewbar-title{font-size:15px;letter-spacing:-.02em}
+
+/* ── LAYOUT ── */
+.page{padding:26px 24px 60px;max-width:1240px}
+#detailHost.show{max-width:1000px}
+
+/* ── CARTES ── */
+.card{background:var(--s0);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:18px}
+.card-header{background:transparent;border-bottom:1px solid var(--brd);padding:17px 20px 14px}
+.card-title{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t2)}
+.section-label{font-size:10px;letter-spacing:.14em;color:var(--t2)}
+.badge{background:var(--s1);border:1px solid var(--brd);color:var(--t1);font-size:9.5px;font-weight:600;letter-spacing:.08em;padding:3px 9px}
+.badge-ok{background:var(--ok-lo);border-color:transparent;color:var(--ok)}
+
+/* ── ACCUEIL : EN-TÊTE ── */
+.greeting-card{background:transparent;border:none;box-shadow:none;padding:2px 2px 6px;gap:12px}
+.greeting-card:hover{opacity:1}
+.greeting-card>div:first-child{display:none}
+.greeting-text{font-size:26px;font-weight:600;letter-spacing:-.03em;color:var(--t0)}
+.greeting-sub{font-size:11px;color:var(--t2);letter-spacing:.06em;text-transform:uppercase}
+.name-input-wrap input{border-radius:12px;background:var(--s0)}
+.name-input-wrap button{border-radius:12px}
+
+/* ── HERO : LES 4 CHIFFRES CLÉS ── */
+.dash-card{padding:0;border:none;background:transparent;box-shadow:none;margin-bottom:6px}
+.dash-card .card-header{padding:0 2px 10px;border:none}
+#dashDateTitle{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);font-weight:600}
+.dash-grid{grid-template-columns:repeat(4,1fr);gap:12px;margin-top:0}
+.dash-tile{position:relative;background:var(--s0);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px 13px;gap:3px;overflow:hidden;transition:border-color .18s}
+.dash-tile::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--t3);opacity:.5}
+.dash-tile:nth-child(1)::after{background:var(--ok)}
+.dash-tile:nth-child(2)::after{background:var(--cool)}
+.dash-tile:nth-child(3)::after{background:var(--pop)}
+.dash-tile.streak::after{background:var(--amber)}
+.dash-tile:hover{border-color:var(--t3)}
+.dash-tile-label{font-size:9.5px;letter-spacing:.12em;color:var(--t2);font-weight:600}
+.dash-tile-val{font-size:31px;font-weight:600;letter-spacing:-.04em;line-height:1.05;margin-top:1px}
+.dash-tile:nth-child(3) .dash-tile-val{color:var(--pop)}
+.dash-tile.streak .dash-tile-val{color:var(--amber)}
+.dash-tile-sub{font-size:11px;color:var(--t1)}
+.dash-next-event{margin-top:12px;padding:14px 16px;border-radius:var(--r);background:var(--s0);border:1px solid var(--brd);gap:12px}
+.dash-next-event:hover{background:var(--s1);border-color:var(--t3)}
+.dash-next-event::before{content:"Prochain";font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);flex-shrink:0}
+.dash-next-event-text{font-size:13.5px;font-weight:500}
+.dash-next-event-time{font-size:12px;font-weight:600;color:var(--t0);background:var(--s1);border-radius:99px;padding:3px 10px;font-variant-numeric:tabular-nums}
+
+/* ── SECTIONS ── */
+.home-section-label{font-size:10px;letter-spacing:.14em;color:var(--t2);margin:28px 0 0}
+.nav-grid{grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.nav-tile{position:relative;background:var(--s0);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);padding:16px;gap:3px;transition:border-color .18s,transform .18s,box-shadow .18s}
+.nav-tile:hover{transform:translateY(-3px);border-color:var(--t3);box-shadow:0 12px 30px -14px rgba(20,16,10,.3)}
+body.dark .nav-tile:hover{box-shadow:0 12px 30px -14px rgba(0,0,0,.9)}
+.nav-tile-top{gap:8px;margin-bottom:6px}
+.nav-tile-icon{font-size:13px;opacity:.8;filter:grayscale(1);transition:filter .2s,opacity .2s}
+.nav-tile:hover .nav-tile-icon{filter:none;opacity:1}
+.nav-tile-name{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t2)}
+.nav-tile:hover .nav-tile-name{color:var(--t0)}
+.nav-tile-val{font-size:28px;font-weight:600;letter-spacing:-.04em}
+.nav-tile-sub{font-size:11px;color:var(--t1);min-height:16px}
+.nav-tile-arrow{color:var(--t3);transition:transform .18s,color .18s}
+.nav-tile:hover .nav-tile-arrow{transform:translateX(3px);color:var(--t0)}
+.nav-tile-bar{height:3px;border-radius:99px;background:var(--s2);margin-top:8px}
+.nav-tile-bar-fill{background:var(--t0);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.nav-tile[data-sec="routine"] .nav-tile-bar-fill{background:var(--ok)}
+.nav-tile[data-sec="seance"] .nav-tile-bar-fill{background:var(--cool)}
+
+/* ── LISTES : TÂCHES, ROUTINE, OBJECTIFS ── */
+.todo-item,.atodo-item{border-radius:10px;padding:10px 11px;transition:background .14s}
+.todo-item:hover,.atodo-item:hover{background:var(--s1)}
+.todo-label,.atodo-label{font-size:13.5px}
+.todo-tag{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);background:var(--s1);border-radius:99px;padding:2px 8px}
+.todo-check,.atodo-check,.subtask-check{accent-color:var(--t0)}
+.prio-tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:99px;padding:2px 8px;margin-right:7px}
+.prio-tag.prio-high{background:var(--pop-lo);color:var(--pop)}
+.prio-tag.prio-low{background:var(--s1);color:var(--t2)}
+.prio-tag.prio-med{background:var(--s1);color:var(--t1)}
+
+/* ── ANNEAUX DE PROGRESSION ── */
+.pct-row{padding:14px 18px 10px;gap:14px}
+.pct-num{font-size:30px;font-weight:600;letter-spacing:-.04em}
+.pct-sub{font-size:11.5px;color:var(--t1)}
+
+/* ── CHAMPS / BOUTONS ── */
+.add-input,.modal-input,.cal-search-input,.cal-desc-input,.cal-time-input{border-width:1px;border-radius:11px;background:var(--s1)}
+.add-input:focus,.modal-input:focus{border-color:var(--t0);background:var(--s0)}
+.add-btn{border-radius:11px}
+.btn-primary,.btn-ghost,.pomo-btn{border-radius:11px}
+.prio-select,.cat-select,.cal-cat-select{border-width:1px;border-radius:11px}
+.range-btn,.cal-view-btn,.goal-tab-btn{letter-spacing:.04em}
+
+/* ── GRAPHIQUE ── */
+.chart-canvas-wrap{padding:14px 16px 18px}
+.chart-tooltip{border-radius:12px;box-shadow:var(--sh-lg)}
+
+/* ── AGENDA ── */
+.cal-cell{border-radius:10px}
+.cal-month-label{letter-spacing:-.02em;font-weight:600}
+.cal-event-item{border-radius:10px}
+
+/* ── POMODORO ── */
+.pomo-time{letter-spacing:-.04em;font-weight:600}
+.pomo-mode{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--t2)}
+.pomo-ring-fg{stroke:var(--pop)}
+
+/* ── SÉANCE ── */
+.diff-mini-fill{background:var(--cool)}
+.wfs-slider{accent-color:var(--pop)}
+
+/* ── NOTES ── */
+.brain-textarea{border-radius:12px;background:var(--s1);border:1px solid var(--brd);padding:14px;line-height:1.7}
+
+/* ── MODALES ── */
+.modal{border-radius:var(--r-lg);padding:26px}
+.overlay{background:color-mix(in srgb,var(--t0) 38%,transparent);backdrop-filter:blur(10px)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1000px){.nav-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.dash-grid{grid-template-columns:repeat(2,1fr)}.nav-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){
+  .page{padding:16px 14px 48px}
+  .topbar{height:56px}.viewbar{top:56px}
+  .greeting-text{font-size:22px}
+  .dash-tile{padding:14px}
+  .dash-tile-val{font-size:28px}
+  .nav-tile-val{font-size:24px}
+  .dash-next-event::before{display:none}
+}
+@media(max-width:400px){.dash-tile-val{font-size:25px}.nav-grid{grid-template-columns:repeat(2,1fr)}}
+
+.dash-tile.zero .dash-tile-val{color:var(--t2)}
+.dash-tile.zero::after{background:var(--t3);opacity:.35}
+
+/* ════════════════════════════════════════════════════
+   VRAI DASHBOARD UNIQUE — plus de navigation par pages.
+   Grille stable : chaque carte a une hauteur bornée et
+   scrolle en interne, donc rien ne bouge quand le contenu
+   grandit (events, tâches, notes...).
+   ════════════════════════════════════════════════════ */
+.viewbar,.nav-grid,.home-section-label{display:none !important}
+#homeView,#detailHost,.detail-view{display:contents}
+
+.page{max-width:1620px;margin-inline:auto;padding-inline:32px;padding-top:16px}
+.dash-hero{margin-bottom:2px}
+.card-header{padding:13px 18px}
+.card{margin-bottom:0}
+
+/* L'ensemble du dashboard vit dans UN seul rectangle net, délimité
+   et bordé — plus de cartes flottant sur le fond nu. */
+.dash-frame{background:var(--warm);border:1px solid var(--brd);border-radius:24px;box-shadow:var(--sh-lg);padding:22px 22px 26px;margin-bottom:40px}
+
+/* Masonry auto-équilibré : le navigateur répartit les cartes selon
+   leur hauteur réelle dans la colonne la plus courte — fini les
+   colonnes qui traînent dans le vide pendant que l'autre déborde. */
+.grid{display:block;column-count:3;column-gap:18px}
+.grid .card{break-inside:avoid;-webkit-column-break-inside:avoid;width:100%;display:inline-block;vertical-align:top;margin-bottom:18px}
+.grid .card:not(.admin-only-card){display:inline-block}
+.grid .admin-only-card{display:none}
+.grid .admin-only-card.show{display:inline-block}
+.grid .admin-panel{break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:18px}
+.grid .admin-panel.show{display:inline-block;width:100%;vertical-align:top}
+.grid .admin-panel .card{margin-bottom:0}
+
+@media(min-width:1440px){.grid{column-count:4}}
+@media(max-width:1180px){.grid{column-count:2}}
+@media(max-width:760px){
+  .page{padding-inline:14px}
+  .dash-frame{padding:14px 14px 18px;border-radius:16px}
+  .grid{column-count:1}
+}
+
+/* Hauteurs bornées + scroll interne : le contenu grandit sans
+   jamais déplacer les autres cartes. */
+#routineList{max-height:186px;overflow-y:auto}
+#workoutList{max-height:170px;overflow-y:auto}
+#todayList{max-height:186px;overflow-y:auto}
+#calEventList{max-height:118px;overflow-y:auto}
+.goal-tab-panel{max-height:214px;overflow-y:auto}
+.brain-textarea{height:220px;resize:none}
+
+.expand-btn{margin-left:auto}
+.card-header{flex-wrap:nowrap}
+
+/* ── MODE EXPANSION (historique + calendrier uniquement) ── */
+#expandBackdrop{display:none;position:fixed;inset:0;background:color-mix(in srgb,var(--t0) 45%,transparent);backdrop-filter:blur(10px);z-index:490}
+body.has-expanded #expandBackdrop{display:block}
+body.has-expanded{overflow:hidden}
+.card.expanded{display:block !important;position:fixed;inset:5vh 6vw;z-index:500;margin:0;max-width:1040px;margin-inline:auto;overflow-y:auto;box-shadow:var(--sh-lg);animation:card-pop .18s ease-out}
+.card.expanded .expand-btn{background:var(--acc);color:var(--bg)}
+.card.expanded #calEventList,.card.expanded .goal-tab-panel{max-height:none}
+@keyframes card-pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+@media(max-width:1080px){
+  .card.expanded{inset:3vh 3vw}
+}
+@media(max-width:680px){
+  .card.expanded{inset:0;border-radius:0}
 }
 </style>
 </head>
@@ -847,6 +1167,11 @@ button,input,select,textarea{font-family:inherit}
   </div>
 </div>
 
+<div class="viewbar" id="viewBar">
+  <button class="viewbar-back" id="viewBack">‹ Accueil</button>
+  <div class="viewbar-title" id="viewTitle"></div>
+</div>
+
 <div class="page">
   <div class="grid">
 
@@ -867,7 +1192,7 @@ button,input,select,textarea{font-family:inherit}
       </div>
 
       <!-- ROUTINE -->
-      <div class="card admin-only-card">
+      <div class="card admin-only-card" id="routineCard">
         <div class="card-header">
           <div class="card-title">Routine du jour</div>
           <span class="badge" id="routineDayTypeBadge">Semaine</span>
@@ -892,11 +1217,11 @@ button,input,select,textarea{font-family:inherit}
       </div>
 
       <!-- HISTORIQUE -->
-      <div class="card admin-only-card">
+      <div class="card admin-only-card" id="historiqueCard">
         <div class="card-header"><div class="card-title">Historique routine</div></div>
         <div class="chart-toolbar" id="rangeToolbar">
-          <button class="range-btn" data-range="30">30j</button>
-          <button class="range-btn active" data-range="60">60j</button>
+          <button class="range-btn active" data-range="30">30j</button>
+          <button class="range-btn" data-range="60">60j</button>
           <button class="range-btn" data-range="90">90j</button>
           <button class="range-btn" data-range="365">1 an</button>
         </div>
@@ -986,12 +1311,12 @@ button,input,select,textarea{font-family:inherit}
       </div>
 
       <!-- SÉANCE DU JOUR -->
-      <div class="card admin-only-card">
+      <div class="card admin-only-card" id="workoutCard">
         <div class="card-header">
           <div class="card-title">Séance du jour</div>
           <div style="display:flex;align-items:center;gap:6px">
             <span class="badge" id="workoutDayBadge">—</span>
-            <button class="icon-btn" id="workoutFsOpen" title="Vue semaine">⛶</button>
+            <button class="icon-btn" id="workoutFsOpen" title="Vue semaine" style="display:none">⛶</button>
           </div>
         </div>
         <div class="workout-diff-row">
@@ -1012,7 +1337,7 @@ button,input,select,textarea{font-family:inherit}
       </div>
 
       <!-- POMODORO -->
-      <div class="card">
+      <div class="card" id="pomodoroCard">
         <div class="card-header"><div class="card-title">Pomodoro</div><button class="icon-btn" id="pomoFsOpen" title="Plein écran">⛶</button></div>
         <div class="pomo-card">
           <div class="pomo-ring-wrap">
@@ -1025,7 +1350,7 @@ button,input,select,textarea{font-family:inherit}
       </div>
 
       <!-- BRAINSTORMING -->
-      <div class="card admin-only-card">
+      <div class="card admin-only-card" id="brainstormCard">
         <div class="section-label">Idées & Brainstorming</div>
         <textarea class="brain-textarea" id="brainNotes" placeholder="Une idée ? Note-la…"></textarea>
       </div>
@@ -1150,6 +1475,7 @@ function tryLogin(){
     updateDashboard();
     refreshDashboardStreak();
     setInterval(updateDashboardNextEvent,60000);
+    initDashboard();
   } else {
     loginError.classList.add('show');
     pwdInput.value='';pwdInput.focus();
@@ -1432,7 +1758,7 @@ function updateDashboard(){
 }
 
 // ── CHART ────────────────────────────────────────────
-let routineChart=null,currentRange=60,chartFullData=[];
+let routineChart=null,currentRange=30,chartFullData=[];
 function chartColors(){const dark=document.body.classList.contains('dark');return{line:dark?'#e0e0e0':'#1a1a1a',fillTop:dark?'rgba(255,255,255,.14)':'rgba(0,0,0,.09)',fillBottom:'rgba(0,0,0,0)',grid:dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)',text:dark?'#888':'#999',line2:dark?'rgba(255,255,255,.25)':'rgba(0,0,0,.2)'};}
 
 async function loadChartData(r){
@@ -1476,13 +1802,12 @@ async function renderChart(r){
 
   const labels=data.map(d=>d.key.slice(5));
   const values=data.map(d=>d.pct);
-  // Points visibles seulement si peu de jours affichés (sinon illisible)
   // Densité des points adaptée au nombre réel de jours affichés (pas à la
   // plage demandée) : dense et gros quand peu de jours, disparaît au-delà
   // de 60 points pour rester lisible.
   const n=data.length;
-  const showPoints=n<=60;
-  const pointR=n<=10?5:n<=20?4:n<=31?3:n<=45?2.5:n<=60?1.8:0;
+  const showPoints=true;
+  const pointR=n<=10?5:n<=20?4:n<=31?3:n<=45?2.5:n<=60?1.8:n<=90?1.3:n<=180?0.9:0.6;
 
   if(routineChart)routineChart.destroy();
 
@@ -2326,6 +2651,124 @@ if ('serviceWorker' in navigator) {
 }
 
 
+// ════════════════════════════════════════════════════
+// ROUTEUR DASHBOARD
+// L'accueil ne montre que l'essentiel (stats + tuiles de
+// navigation). Chaque section vit dans sa propre vue et
+// ne s'affiche que quand on la demande. Les cartes déjà
+// construites sont DÉPLACÉES dans leur vue : déplacer un
+// noeud DOM conserve ses écouteurs, donc rien ne casse.
+// ════════════════════════════════════════════════════
+function initDashboard(){
+  if(window.__dashInit) return;
+  window.__dashInit = true;
+
+  const page = document.querySelector('.page');
+  const grid = document.querySelector('.grid');
+  const hero = document.createElement('div');
+  hero.className = 'dash-hero';
+  const greeting = document.getElementById('greetingWrap');
+  const dash = document.getElementById('dashCard');
+  if(greeting) hero.appendChild(greeting);
+  if(dash) hero.appendChild(dash);
+  page.insertBefore(hero, grid);
+
+  // Encadre tout le dashboard dans une seule entité visuelle nette
+  const frame = document.createElement('div');
+  frame.className = 'dash-frame';
+  page.insertBefore(frame, hero);
+  frame.appendChild(hero);
+  frame.appendChild(grid);
+
+  // Aplatit toutes les cartes dans un seul flux, puis les range
+  // dans des colonnes réelles — chaque carte va dans la colonne
+  // la plus courte (vrai masonry, pas le remplissage colonne-par-
+  // colonne de CSS columns qui laissait des trous).
+  const allCards = Array.from(grid.querySelectorAll(':scope > div > .card, :scope > div > .admin-panel'));
+  allCards.forEach(el => grid.appendChild(el));
+  grid.querySelectorAll(':scope > div').forEach(wrapper => { if(!wrapper.children.length) wrapper.remove(); });
+
+  const EXPANDABLE = ['historiqueCard','calendarCard'];
+  EXPANDABLE.forEach(id=>{
+    const card = document.getElementById(id);
+    if(!card) return;
+    const header = card.querySelector('.card-header');
+    if(!header) return;
+    const btn = document.createElement('button');
+    btn.className = 'icon-btn expand-btn';
+    btn.title = 'Vue complète';
+    btn.textContent = '⛶';
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggleExpand(id); });
+    header.appendChild(btn);
+  });
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'expandBackdrop';
+  backdrop.addEventListener('click', collapseAll);
+  document.body.appendChild(backdrop);
+
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') collapseAll(); });
+
+  // Le bouton "vue semaine" des entraînements existait déjà côté
+  // markup/JS mais restait masqué par un style inline — remis visible.
+  const wfsBtn = document.getElementById('workoutFsOpen');
+  if(wfsBtn) wfsBtn.style.display = '';
+
+  layoutMasonry();
+  window.addEventListener('resize', debounce(layoutMasonry, 200));
+  window.__layoutMasonry = layoutMasonry;
+  [400,1000,2200].forEach(t => setTimeout(layoutMasonry, t));
+}
+
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+
+function layoutMasonry(){
+  const grid = document.querySelector('.grid');
+  if(!grid) return;
+  const w = window.innerWidth;
+  const cols = w>=1440 ? 4 : w>=1180 ? 3 : w>=760 ? 2 : 1;
+
+  let items = Array.from(grid.querySelectorAll(':scope > .mcol > *'));
+  if(items.length===0) items = Array.from(grid.children).filter(el=>el.matches('.card,.admin-panel'));
+  items = items.filter(el=>{
+    if(el.classList.contains('admin-only-card')) return el.classList.contains('show');
+    if(el.classList.contains('admin-panel')) return el.classList.contains('show');
+    return true;
+  });
+  if(!items.length) return;
+
+  grid.innerHTML = '';
+  const colEls = [];
+  for(let i=0;i<cols;i++){ const c=document.createElement('div'); c.className='mcol'; grid.appendChild(c); colEls.push(c); }
+  const heights = new Array(cols).fill(0);
+  items.forEach(item=>{
+    let idx=0;
+    for(let i=1;i<cols;i++) if(heights[i]<heights[idx]) idx=i;
+    colEls[idx].appendChild(item);
+    heights[idx] += item.offsetHeight + 18;
+  });
+}
+
+function collapseAll(){
+  const open = document.querySelector('.card.expanded');
+  if(!open) return;
+  open.classList.remove('expanded');
+  document.body.classList.remove('has-expanded');
+}
+
+function toggleExpand(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const already = el.classList.contains('expanded');
+  collapseAll();
+  if(!already){
+    el.classList.add('expanded');
+    document.body.classList.add('has-expanded');
+    if(id==='historiqueCard' && routineChart) requestAnimationFrame(()=>routineChart.resize());
+    if(id==='calendarCard'){ renderCalendarGrid(); renderCalendarDayPanel(); }
+  }
+}
+
 // ── INIT ─────────────────────────────────────────────
 renderCatLegend();
 applyDiff(diff);
@@ -2345,6 +2788,16 @@ if(isAdmin){
   refreshDashboardStreak();
   setInterval(updateDashboardNextEvent,60000);
 }
+function syncAccentStates(){
+  ['dashUrgentCount','dashStreak'].forEach(id=>{
+    const e=document.getElementById(id); if(!e)return;
+    const v=e.textContent.trim();
+    const tile=e.closest('.dash-tile'); if(tile) tile.classList.toggle('zero', v==='0'||v==='—'||v==='');
+  });
+}
+setInterval(syncAccentStates,1500);
+initDashboard();
+syncAccentStates();
 // all data loads are triggered by tryLogin() on first access
 </script>
 </body>
