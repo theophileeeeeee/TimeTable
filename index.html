@@ -1032,7 +1032,7 @@ body.dark .nav-tile:hover{box-shadow:0 12px 30px -14px rgba(0,0,0,.9)}
 .viewbar,.nav-grid,.home-section-label{display:none !important}
 #homeView,#detailHost,.detail-view{display:contents}
 
-.page{max-width:1620px;margin-inline:auto;padding-inline:32px;padding-top:16px}
+.page{max-width:min(2200px,96vw);margin-inline:auto;padding-inline:32px;padding-top:16px}
 .dash-hero{margin-bottom:2px}
 .card-header{padding:13px 18px}
 .card{margin-bottom:0}
@@ -1041,24 +1041,19 @@ body.dark .nav-tile:hover{box-shadow:0 12px 30px -14px rgba(0,0,0,.9)}
    et bordé — plus de cartes flottant sur le fond nu. */
 .dash-frame{background:var(--warm);border:1px solid var(--brd);border-radius:24px;box-shadow:var(--sh-lg);padding:22px 22px 26px;margin-bottom:40px}
 
-/* Masonry auto-équilibré : le navigateur répartit les cartes selon
-   leur hauteur réelle dans la colonne la plus courte — fini les
-   colonnes qui traînent dans le vide pendant que l'autre déborde. */
-.grid{display:block;column-count:3;column-gap:18px}
-.grid .card{break-inside:avoid;-webkit-column-break-inside:avoid;width:100%;display:inline-block;vertical-align:top;margin-bottom:18px}
-.grid .card:not(.admin-only-card){display:inline-block}
+/* Masonry JS (layoutMasonry) : les cartes sont positionnées en
+   absolu avec largeur/hauteur calculées en JS selon leur contenu
+   réel — calendrier/graphique prennent 2 colonnes, le reste 1,
+   et tout s'aligne sans bande figée ni CSS columns rigide. */
+.grid{position:relative}
+.grid .card,.grid .admin-panel{margin-bottom:0}
 .grid .admin-only-card{display:none}
-.grid .admin-only-card.show{display:inline-block}
-.grid .admin-panel{break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:18px}
-.grid .admin-panel.show{display:inline-block;width:100%;vertical-align:top}
-.grid .admin-panel .card{margin-bottom:0}
+.grid .admin-only-card.show{display:block}
+.grid .admin-panel.show{display:block}
 
-@media(min-width:1440px){.grid{column-count:4}}
-@media(max-width:1180px){.grid{column-count:2}}
 @media(max-width:760px){
   .page{padding-inline:14px}
   .dash-frame{padding:14px 14px 18px;border-radius:16px}
-  .grid{column-count:1}
 }
 
 /* Hauteurs bornées + scroll interne : le contenu grandit sans
@@ -1068,7 +1063,16 @@ body.dark .nav-tile:hover{box-shadow:0 12px 30px -14px rgba(0,0,0,.9)}
 #todayList{max-height:186px;overflow-y:auto}
 #calEventList{max-height:118px;overflow-y:auto}
 .goal-tab-panel{max-height:214px;overflow-y:auto}
-.brain-textarea{height:220px;resize:none}
+.brain-textarea{height:110px;resize:none}
+#pomodoroCard{display:flex;flex-direction:column}
+#pomodoroCard .pomo-card{padding:14px 12px;gap:8px;flex:1;justify-content:center}
+#brainstormCard{display:flex;flex-direction:column}
+#brainstormCard .brain-textarea{flex:1;min-height:70px}
+#pomodoroCard .pomo-ring-wrap{width:104px;height:104px}
+#pomodoroCard .pomo-time{font-size:19px}
+#pomodoroCard .pomo-mode{font-size:9px;margin-top:0}
+#pomodoroCard .pomo-btn{padding:6px 12px;font-size:11.5px}
+#pomodoroCard .pomo-cycles{font-size:10px}
 
 .expand-btn{margin-left:auto}
 .card-header{flex-wrap:nowrap}
@@ -1077,7 +1081,7 @@ body.dark .nav-tile:hover{box-shadow:0 12px 30px -14px rgba(0,0,0,.9)}
 #expandBackdrop{display:none;position:fixed;inset:0;background:color-mix(in srgb,var(--t0) 45%,transparent);backdrop-filter:blur(10px);z-index:490}
 body.has-expanded #expandBackdrop{display:block}
 body.has-expanded{overflow:hidden}
-.card.expanded{display:block !important;position:fixed;inset:5vh 6vw;z-index:500;margin:0;max-width:1040px;margin-inline:auto;overflow-y:auto;box-shadow:var(--sh-lg);animation:card-pop .18s ease-out}
+.card.expanded{display:block !important;position:fixed !important;inset:5vh 6vw !important;left:auto !important;top:auto !important;width:auto !important;height:auto !important;z-index:500;margin:0;max-width:1040px;margin-inline:auto;overflow-y:auto;box-shadow:var(--sh-lg);animation:card-pop .18s ease-out}
 .card.expanded .expand-btn{background:var(--acc);color:var(--bg)}
 .card.expanded #calEventList,.card.expanded .goal-tab-panel{max-height:none}
 @keyframes card-pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
@@ -1495,6 +1499,7 @@ function applyAdminUI(){
   renderRoutine();renderWorkout();
   if(document.getElementById('workoutFs').classList.contains('show'))buildWfsGrid();
   if(routineChart){requestAnimationFrame(()=>routineChart.resize());setTimeout(()=>{if(routineChart)routineChart.resize();},150);}
+  if(window.__layoutMasonry) setTimeout(window.__layoutMasonry, 200);
 }
 
 // ── GREETING ─────────────────────────────────────────
@@ -2435,6 +2440,7 @@ function renderTodosWithSubtasks(itemsList, containerId, collectionName) {
   const container = document.getElementById(containerId);
   if (itemsList.length === 0) {
     container.innerHTML = '<div class="empty-state">Rien pour le moment.</div>';
+    if(window.__layoutMasonry) setTimeout(window.__layoutMasonry, 60);
     return;
   }
   
@@ -2560,6 +2566,7 @@ function renderTodosWithSubtasks(itemsList, containerId, collectionName) {
   });
 
   container._firstRenderDone = true;
+  if(window.__layoutMasonry) clearTimeout(window.__mLayoutT), window.__mLayoutT=setTimeout(window.__layoutMasonry, 60);
 }
 
 function renderCloudTodos(itemsList,containerId,collectionName){
@@ -2583,6 +2590,8 @@ document.querySelectorAll('.goal-tab-btn').forEach(btn=>{
     document.querySelectorAll('.goal-tab-panel').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(`goaltab-${btn.getAttribute('data-goaltab')}`).classList.add('active');
+    // Réajuste la taille de la carte (et sa liste) sur le nouvel onglet actif
+    if(window.__layoutMasonry) setTimeout(window.__layoutMasonry, 20);
   });
 });
 
@@ -2714,22 +2723,46 @@ function initDashboard(){
   const wfsBtn = document.getElementById('workoutFsOpen');
   if(wfsBtn) wfsBtn.style.display = '';
 
-  layoutMasonry();
-  window.addEventListener('resize', debounce(layoutMasonry, 200));
-  window.__layoutMasonry = layoutMasonry;
-  [400,1000,2200].forEach(t => setTimeout(layoutMasonry, t));
+  // Cartes larges (calendrier, graphique) : occupent 2 colonnes de
+  // base plutôt qu'une bande pleine largeur ou une simple colonne.
+  ['calendarCard','historiqueCard'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.dataset.span='2';
+  });
+  // Cartes-listes : peuvent s'étirer pour combler l'espace libre,
+  // mais dans une limite raisonnable (pas de grande liste vide).
+  ['routineCard','goalsCard','workoutCard','adminPanel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.dataset.fill='list';
+  });
+  // Cartes plus décoratives : si beaucoup d'espace reste après ça,
+  // elles peuvent aussi grandir un peu pour l'occuper (elles n'ont
+  // pas de liste, donc ça reste propre visuellement).
+  ['pomodoroCard','brainstormCard'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.dataset.fill='soft';
+  });
+
+  fitToViewport();
+  window.addEventListener('resize', debounce(fitToViewport, 200));
+  window.__layoutMasonry = fitToViewport;
+  [400,1000,2200].forEach(t => setTimeout(fitToViewport, t));
 }
 
 function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 
-function layoutMasonry(){
+// ════════════════════════════════════════════════════
+// MASONRY DYNAMIQUE — bin-packing à largeurs variables.
+// Chaque carte occupe 1 ou 2 colonnes de base selon son
+// contenu, se place dans la fente qui minimise le vide,
+// puis les cartes-listes s'étirent pour combler le reste
+// de leur colonne en bas. Aucune colonne figée en CSS.
+// ════════════════════════════════════════════════════
+function layoutMasonry(forceCols){
   const grid = document.querySelector('.grid');
   if(!grid) return;
+  const GAP = 20;
   const w = window.innerWidth;
-  const cols = w>=1440 ? 4 : w>=1180 ? 3 : w>=760 ? 2 : 1;
+  const cols = forceCols || (w>=1440 ? 4 : w>=1100 ? 3 : w>=760 ? 2 : 1);
 
-  let items = Array.from(grid.querySelectorAll(':scope > .mcol > *'));
-  if(items.length===0) items = Array.from(grid.children).filter(el=>el.matches('.card,.admin-panel'));
+  let items = Array.from(grid.querySelectorAll(':scope > *')).filter(el=>el.matches('.card,.admin-panel'));
   items = items.filter(el=>{
     if(el.classList.contains('admin-only-card')) return el.classList.contains('show');
     if(el.classList.contains('admin-panel')) return el.classList.contains('show');
@@ -2737,16 +2770,189 @@ function layoutMasonry(){
   });
   if(!items.length) return;
 
-  grid.innerHTML = '';
-  const colEls = [];
-  for(let i=0;i<cols;i++){ const c=document.createElement('div'); c.className='mcol'; grid.appendChild(c); colEls.push(c); }
-  const heights = new Array(cols).fill(0);
+  const containerW = grid.clientWidth;
+  const colW = (containerW - GAP*(cols-1)) / cols;
+  const colBottoms = new Array(cols).fill(0);
+  // Suit, pour chaque colonne, le dernier élément qui s'y termine
+  // (pour pouvoir l'étirer ensuite s'il reste du vide en dessous).
+  const lastInCol = new Array(cols).fill(null);
+
+  grid.style.position = 'relative';
+
   items.forEach(item=>{
-    let idx=0;
-    for(let i=1;i<cols;i++) if(heights[i]<heights[idx]) idx=i;
-    colEls[idx].appendChild(item);
-    heights[idx] += item.offsetHeight + 18;
+    item.style.position='absolute';
+    item.style.transition='left .18s ease,top .18s ease,width .18s ease,height .18s ease';
+    let span = parseInt(item.dataset.span||'1',10);
+    span = Math.max(1, Math.min(span, cols));
+    // Cherche la fenêtre de `span` colonnes consécutives la plus basse
+    let bestStart=0, bestTop=Infinity;
+    for(let c=0; c<=cols-span; c++){
+      const top = Math.max(...colBottoms.slice(c, c+span));
+      if(top < bestTop){ bestTop = top; bestStart = c; }
+    }
+    const width = span*colW + (span-1)*GAP;
+    const left = bestStart*(colW+GAP);
+    item.style.height = 'auto';
+    item.style.width = width+'px';
+    item.style.left = left+'px';
+    item.style.top = bestTop+'px';
+    const h = item.offsetHeight;
+    const bottom = bestTop + h + GAP;
+    for(let c=bestStart; c<bestStart+span; c++){ colBottoms[c]=bottom; lastInCol[c]=item; }
+    item.__mSpan = span; item.__mStart = bestStart;
   });
+
+  const overallH = Math.max(...colBottoms) - GAP;
+
+  // Comble le vide en bas de chaque colonne, sans jamais imposer
+  // de taille fixe : une carte-liste ne grandit que jusqu'à afficher
+  // tout son contenu sans scroll (au-delà, ce serait du blanc pour
+  // rien) ; une fois "dépliée au max", le reste de la place va aux
+  // cartes décoratives (pomodoro, idées) qui n'ont pas de plafond.
+  const LIST_SEL = '.goal-tab-panel.active, #calEventList, #routineList, #workoutList, #todayList';
+  const POMO_MAX_H = 330; // évite que l'anneau ne parte en cacahuète
+  function growthCap(item){
+    if(item.dataset.fill==='list'){
+      const list = item.querySelector(LIST_SEL);
+      return list ? Math.max(0, list.scrollHeight - list.clientHeight) : 0;
+    }
+    if(item.id==='pomodoroCard') return Math.max(0, POMO_MAX_H - item.offsetHeight);
+    if(item.dataset.fill==='soft') return Infinity; // idées : aucun plafond
+    return 0;
+  }
+  const colStacks = Array.from({length:cols}, ()=>[]);
+  items.forEach(it=>{ for(let c=it.__mStart; c<it.__mStart+it.__mSpan; c++) colStacks[c].push(it); });
+  colStacks.forEach(stack => stack.sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top)));
+
+  colStacks.forEach(stack=>{
+    // Ne travaille que sur la suite d'éléments span=1 en partant du
+    // bas de la colonne : une carte large (span>1) sert de plafond
+    // qu'on ne déplace jamais.
+    let from = stack.length;
+    while(from>0 && stack[from-1].__mSpan===1) from--;
+    const run = stack.slice(from);
+    if(!run.length) return;
+
+    const runTop = parseFloat(run[0].style.top);
+    const availableSpan = overallH - runTop;
+    const naturalHeights = run.map(it=>parseFloat(it.style.height)||it.offsetHeight);
+    const naturalTotal = naturalHeights.reduce((a,b)=>a+b,0) + GAP*(run.length-1);
+    let slack = availableSpan - naturalTotal;
+    if(slack <= 4) return;
+
+    const growth = naturalHeights.map(()=>0);
+    const candidates = run.map((it,i)=>({i, cap: growthCap(it)})).filter(c=>c.cap>0);
+    if(candidates.length){
+      let remaining = slack, active = candidates.slice();
+      while(remaining > 1 && active.length){
+        const share = remaining/active.length;
+        const next = [];
+        active.forEach(c=>{
+          const room = c.cap - growth[c.i];
+          const give = Math.min(share, room);
+          growth[c.i] += give; remaining -= give;
+          if(growth[c.i] < c.cap - 1) next.push(c);
+        });
+        if(next.length === active.length) break;
+        active = next;
+      }
+    }
+
+    // Repositionne toute la suite de haut en bas avec les hauteurs
+    // (éventuellement agrandies) : referme les vides intermédiaires
+    // causés par une carte non extensible entre deux autres.
+    let cur = runTop;
+    run.forEach((item,i)=>{
+      const newH = naturalHeights[i] + growth[i];
+      item.style.top = cur+'px';
+      if(growth[i] > 4){
+        item.style.height = newH+'px';
+        if(item.dataset.fill==='list'){
+          const list = item.querySelector(LIST_SEL);
+          if(list) list.style.maxHeight = (list.clientHeight + growth[i])+'px';
+        } else if(item.id==='pomodoroCard'){
+          growPomodoro(item, newH);
+        } else if(item.id==='brainstormCard'){
+          const ta = item.querySelector('.brain-textarea');
+          if(ta) ta.style.height = (ta.offsetHeight + growth[i])+'px';
+        }
+      }
+      cur += newH + GAP;
+    });
+  });
+
+  const finalH = Math.max(overallH, ...items.map(it=>parseFloat(it.style.top)+(parseFloat(it.style.height)||it.offsetHeight)));
+  grid.style.height = finalH + 'px';
+}
+
+// Fait grandir l'anneau + le texte du Pomodoro proportionnellement
+// à la hauteur allouée à sa carte, pour que l'espace gagné serve
+// vraiment à quelque chose au lieu de rester en marge blanche.
+function growPomodoro(card, cardH){
+  const ring = card.querySelector('.pomo-ring-wrap');
+  if(!ring) return;
+  const size = Math.max(104, Math.min(220, cardH - 96));
+  ring.style.width = size+'px';
+  ring.style.height = size+'px';
+  const t = card.querySelector('.pomo-time');
+  if(t) t.style.fontSize = Math.round(19 + (size-104)*0.14)+'px';
+}
+
+// ════════════════════════════════════════════════════
+// FIT ÉCRAN (desktop) — cherche le nombre de colonnes le
+// plus faible qui fait tenir tout le dashboard dans la
+// hauteur visible, sans scroll. Si même le nombre max de
+// colonnes ne suffit pas, réduit légèrement l'ensemble
+// (zoom), jamais en dessous d'une taille de police lisible.
+// ════════════════════════════════════════════════════
+function fitToViewport(){
+  const frame = document.querySelector('.dash-frame');
+  if(!frame) return;
+
+  frame.style.transform = '';
+  frame.style.marginBottom = '';
+
+  if(window.innerWidth < 900){
+    layoutMasonry();
+    return; // mobile/tablette : on garde le scroll naturel
+  }
+
+  const topbar = document.querySelector('.topbar');
+  const page = document.querySelector('.page');
+  const topbarH = topbar ? topbar.offsetHeight : 0;
+  const pagePadTop = parseFloat(getComputedStyle(page).paddingTop)||0;
+  const BOTTOM_MARGIN = 18;
+  const available = window.innerHeight - topbarH - pagePadTop - BOTTOM_MARGIN;
+
+  const w = window.innerWidth;
+  const baseCols = w>=1440 ? 4 : w>=1100 ? 3 : 2;
+
+  // On ne rétrécit jamais une carte simple en dessous de ~300px de
+  // large — au-delà de ça, mieux vaut zoomer l'ensemble que d'avoir
+  // des colonnes trop étroites pour lire confortablement les listes.
+  const GAP = 20;
+  const framePad = parseFloat(getComputedStyle(frame).paddingLeft)||0;
+  const containerW = frame.clientWidth - framePad*2;
+  const MIN_COL_W = 300;
+  const maxAllowedCols = Math.max(baseCols, Math.floor((containerW+GAP)/(MIN_COL_W+GAP)));
+  const MAX_COLS = Math.min(6, maxAllowedCols);
+
+  let fitCols = null;
+  for(let c=baseCols; c<=MAX_COLS; c++){
+    layoutMasonry(c);
+    if(frame.scrollHeight <= available){ fitCols = c; break; }
+  }
+  if(fitCols===null){
+    layoutMasonry(MAX_COLS); // configuration la plus compacte possible, largeur toujours lisible
+  }
+
+  const naturalH = frame.scrollHeight;
+  if(naturalH > available){
+    const scale = Math.max(0.82, available/naturalH); // jamais illisible
+    frame.style.transformOrigin = 'top center';
+    frame.style.transform = `scale(${scale})`;
+    frame.style.marginBottom = (-(naturalH*(1-scale)))+'px';
+  }
 }
 
 function collapseAll(){
@@ -2754,6 +2960,11 @@ function collapseAll(){
   if(!open) return;
   open.classList.remove('expanded');
   document.body.classList.remove('has-expanded');
+  // remet la carte à sa place d'origine dans le masonry
+  if(open.__homeAnchor && open.__homeAnchor.parentNode){
+    open.__homeAnchor.parentNode.insertBefore(open, open.__homeAnchor);
+    open.__homeAnchor.remove();
+  }
 }
 
 function toggleExpand(id){
@@ -2762,6 +2973,13 @@ function toggleExpand(id){
   const already = el.classList.contains('expanded');
   collapseAll();
   if(!already){
+    // le cadre du dashboard peut être en transform:scale() pour
+    // tenir dans l'écran — position:fixed serait alors piégé
+    // dedans, donc on sort la carte vers <body> le temps du plein écran
+    const anchor = document.createComment('expand-anchor');
+    el.parentNode.insertBefore(anchor, el);
+    el.__homeAnchor = anchor;
+    document.body.appendChild(el);
     el.classList.add('expanded');
     document.body.classList.add('has-expanded');
     if(id==='historiqueCard' && routineChart) requestAnimationFrame(()=>routineChart.resize());
