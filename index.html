@@ -204,8 +204,9 @@ button,input,select,textarea{font-family:inherit}
 .wfs-exo-name{font-size:12px;font-weight:600;color:var(--t0);line-height:1.35}
 .wfs-exo-sets{font-size:11px;color:var(--t1);font-weight:600;margin-top:3px}
 .wfs-exo-del{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-size:11px;cursor:pointer;opacity:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
-.wfs-exo:hover .wfs-exo-del{opacity:1}
-.wfs-exo-del:hover{background:var(--s3);color:var(--t0)}
+.wfs-exo-edit{position:absolute;top:5px;right:27px;width:20px;height:20px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-size:11px;cursor:pointer;opacity:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
+.wfs-exo:hover .wfs-exo-del,.wfs-exo:hover .wfs-exo-edit{opacity:1}
+.wfs-exo-del:hover,.wfs-exo-edit:hover{background:var(--s3);color:var(--t0)}
 .wfs-add{display:flex;gap:6px;padding:8px;border-top:1px solid var(--brd);margin-top:auto}
 .wfs-add input{flex:1;padding:6px 8px;border:1.5px solid var(--brd);border-radius:7px;background:var(--s0);color:var(--t0);font-size:12px;outline:none;min-width:0}
 .wfs-add input:focus{border-color:var(--acc)}
@@ -1141,6 +1142,7 @@ body.has-expanded{overflow:hidden}
     <button class="icon-btn" id="workoutFsClose">✕</button>
     <div class="wfs-title">Programme — Semaine complète</div>
     <div id="wfsTodayBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--s2);color:var(--t0)"></div>
+    <button class="icon-btn" id="wfsResetBtn" title="Réinitialiser au programme par défaut" style="display:none">⟳</button>
   </div>
   <div class="wfs-diff">
     <div class="wfs-diff-info">
@@ -1387,45 +1389,31 @@ const DAY_META=[
   {label:"Samedi",short:"Sam",type:"Run & Épaules",colType:"skill"}
 ];
 const DEFAULT_WORKOUT=[
-  {text:"Pompes classiques (x4)",day:1,baseReps:15},
-  {text:"Pompes one arm (assistées) (x3)",day:1,baseReps:4,unit:" / côté"},
-  {text:"Pompes diamants (x4)",day:1,baseReps:12},
-  {text:"Dips chaise (x4)",day:1,baseReps:12},
-  {text:"Tractions (x4)",day:1,baseReps:6},
-  {text:"Pince avant-bras (x3)",day:1,baseReps:30,unit:"s / main"},
-  {text:"Expandeur doigts (x3)",day:1,baseReps:20,unit:" / main"},
-  {text:"Squats bulgares (x3)",day:2,baseReps:12,unit:" / côté"},
-  {text:"Squats une jambe pistol (x3)",day:2,baseReps:6,unit:" / côté"},
-  {text:"Crunchs lents (x4)",day:2,baseReps:20},
-  {text:"Leg raises (x4)",day:2,baseReps:15},
-  {text:"Planche frontale (x4)",day:2,baseReps:35,unit:"s"},
-  {text:"Touché chevilles allongé (x3)",day:2,baseReps:20},
-  {text:"Mains côté gauche/droit (x3)",day:2,baseReps:15,unit:" / côté"},
-  {text:"Étirements (si douleurs)",day:3,baseReps:20,unit:" min"},
-  {text:"Repos actif / Marche / Escalade",day:3,baseReps:1,unit:" session"},
-  {text:"Squats bulgares (x3)",day:4,baseReps:12,unit:" / côté"},
-  {text:"Squats une jambe pistol (x3)",day:4,baseReps:6,unit:" / côté"},
-  {text:"Crunchs lents (x4)",day:4,baseReps:20},
-  {text:"Leg raises (x4)",day:4,baseReps:15},
-  {text:"Planche frontale (x4)",day:4,baseReps:35,unit:"s"},
-  {text:"Touché chevilles allongé (x3)",day:4,baseReps:20},
-  {text:"Mains côté gauche/droit (x3)",day:4,baseReps:15,unit:" / côté"},
-  {text:"Pompes classiques (x4)",day:5,baseReps:15},
-  {text:"Pompes one arm (assistées) (x3)",day:5,baseReps:4,unit:" / côté"},
-  {text:"Pompes diamants (x4)",day:5,baseReps:12},
-  {text:"Dips chaise (x4)",day:5,baseReps:12},
-  {text:"Tractions (x4)",day:5,baseReps:6},
-  {text:"Pince avant-bras (x3)",day:5,baseReps:30,unit:"s / main"},
-  {text:"Expandeur doigts (x3)",day:5,baseReps:20,unit:" / main"},
-  {text:"Course à pied",day:6,baseReps:25,unit:" min"},
-  {text:"Pike push-ups normaux (x4)",day:6,baseReps:10},
-  {text:"Pike push-ups élevés (x3)",day:6,baseReps:8},
-  {text:"Frog stand (x3)",day:6,baseReps:30,unit:"s"},
-  {text:"Stacked planche (x3)",day:6,baseReps:10,unit:"s"},
-  {text:"Skill du moment (handstand)",day:0,baseReps:10,unit:" min"},
-  {text:"Max pompes",day:0,baseReps:1,unit:" série max"},
-  {text:"Max crunchs",day:0,baseReps:1,unit:" série max"},
-  {text:"Pince avant-bras",day:0,baseReps:5,unit:" min"}
+  {text:"Tuck front lever (x5)",day:1,baseReps:6,unit:"s"},
+  {text:"Tractions (x4)",day:1,baseReps:5},
+  {text:"Chin-ups (x3)",day:1,baseReps:6},
+  {text:"Rowing inversé (x3)",day:1,baseReps:10},
+  {text:"Dead hang (x3)",day:1,baseReps:30,unit:"s"},
+  {text:"Planche 90° (x5)",day:2,baseReps:8,unit:"s"},
+  {text:"Planche leans (x4)",day:2,baseReps:15,unit:"s"},
+  {text:"Pike push-ups pieds surélevés (x4)",day:2,baseReps:9},
+  {text:"Dips (x3)",day:2,baseReps:8},
+  {text:"Squats bulgares (x3)",day:3,baseReps:10,unit:" / côté"},
+  {text:"Pistol assisté (x3)",day:3,baseReps:5,unit:" / côté"},
+  {text:"Gainage latéral (x3)",day:3,baseReps:30,unit:"s / côté"},
+  {text:"Hollow body hold (x3)",day:3,baseReps:20,unit:"s"},
+  {text:"Tuck front lever (x5)",day:4,baseReps:6,unit:"s"},
+  {text:"Tractions (x4)",day:4,baseReps:5},
+  {text:"Rowing inversé (x3)",day:4,baseReps:10},
+  {text:"Relevés de jambes suspendus (x3)",day:4,baseReps:8},
+  {text:"Dead hang (x3)",day:4,baseReps:30,unit:"s"},
+  {text:"Planche 90° (x5)",day:5,baseReps:8,unit:"s"},
+  {text:"Planche leans (x4)",day:5,baseReps:15,unit:"s"},
+  {text:"Pike push-ups (x4)",day:5,baseReps:9},
+  {text:"Dips lestés (x4)",day:5,baseReps:8},
+  {text:"Tuck front lever (x3)",day:6,baseReps:5,unit:"s"},
+  {text:"Planche 90° (x3)",day:6,baseReps:8,unit:"s"},
+  {text:"Course à pied",day:0,baseReps:5,unit:" km"}
 ];
 
 const firebaseConfig={apiKey:"AIzaSyDI5mG7GYtCEcZ6grNrrlv0DJULOBZ9gUI",authDomain:"timetableee.firebaseapp.com",projectId:"timetableee",storageBucket:"timetableee.firebasestorage.app",messagingSenderId:"706990156498",appId:"1:706990156498:web:5a69a65cad9ba564435b0b",measurementId:"G-QH0NEF6DZ8"};
@@ -1538,6 +1526,8 @@ document.getElementById('workoutFsOpen').addEventListener('click',()=>{
   buildWfsGrid();applyDiff(diff);
 });
 document.getElementById('workoutFsClose').addEventListener('click',()=>document.getElementById('workoutFs').classList.remove('show'));
+document.getElementById('wfsResetBtn').addEventListener('click',resetWorkoutToDefault);
+if(isAdmin)document.getElementById('wfsResetBtn').style.display='flex';
 function buildWfsGrid(){
   const grid=document.getElementById('wfsGrid');grid.innerHTML='';
   const todayDow=new Date().getDay();
@@ -1565,9 +1555,33 @@ function buildWfsGrid(){
 function makeWfsExoEl(it,idx,colType){
   const sets=getSets(it,diff);
   const div=document.createElement('div');div.className='wfs-exo';div.dataset.id=it.id;
-  div.innerHTML=`<div class="wfs-exo-name">${it.text}</div><div class="wfs-exo-sets">${sets}</div>${isAdmin?`<button class="wfs-exo-del" data-id="${it.id}">✕</button>`:''}`;
-  if(isAdmin)div.querySelector('.wfs-exo-del').addEventListener('click',e=>{e.stopPropagation();db.collection('workoutPlan').doc(it.id).delete();});
+  div.innerHTML=`<div class="wfs-exo-name">${it.text}</div><div class="wfs-exo-sets">${sets}</div>${isAdmin?`<button class="wfs-exo-edit" data-id="${it.id}">✎</button><button class="wfs-exo-del" data-id="${it.id}">✕</button>`:''}`;
+  if(isAdmin){
+    div.querySelector('.wfs-exo-del').addEventListener('click',e=>{e.stopPropagation();if(confirm('Supprimer "'+it.text+'" ?'))db.collection('workoutPlan').doc(it.id).delete();});
+    div.querySelector('.wfs-exo-edit').addEventListener('click',e=>{e.stopPropagation();editWfsExo(it);});
+  }
   return div;
+}
+function editWfsExo(it){
+  const newText=prompt('Nom de l\'exercice :',it.text);
+  if(newText===null||!newText.trim())return;
+  const newReps=prompt('Reps de base (nombre) :',it.baseReps);
+  if(newReps===null)return;
+  const newUnit=prompt('Unité (laisser vide si "reps", ex: "s", " / côté") :',it.unit||'');
+  if(newUnit===null)return;
+  const upd={text:newText.trim(),baseReps:parseInt(newReps)||it.baseReps,unit:newUnit};
+  Object.assign(it,upd); // maj optimiste locale : les deux vues se rafraîchissent tout de suite
+  renderWorkout();rerenderWfsExos();
+  db.collection('workoutPlan').doc(it.id).update(upd);
+}
+function resetWorkoutToDefault(){
+  if(!confirm('Remplacer TOUT le programme actuel par le nouveau programme par défaut ? Irréversible.'))return;
+  db.collection('workoutPlan').get().then(snap=>{
+    const batch=db.batch();
+    snap.forEach(doc=>batch.delete(doc.ref));
+    DEFAULT_WORKOUT.forEach((item,idx)=>batch.set(db.collection('workoutPlan').doc(`seed_${item.day}_${idx}_${Date.now()}`),{...item,createdAt:Date.now()}));
+    return batch.commit();
+  });
 }
 function rerenderWfsExos(){
   if(!document.getElementById('workoutFs').classList.contains('show'))return;
