@@ -1169,7 +1169,7 @@ body.has-expanded{overflow:hidden}
   <div class="topbar-actions">
     <button class="icon-btn hidden" id="installButton">↓</button>
     <button class="icon-btn" id="themeToggle" title="Thème">🌙</button>
-    <button class="icon-btn" id="logoutBtn" title="Déconnexion" style="font-size:13px">🔒</button>
+    <button class="icon-btn" id="logoutBtn" title="Changer de session" aria-label="Changer de session"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
   </div>
 </div>
 
@@ -1378,7 +1378,9 @@ body.has-expanded{overflow:hidden}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 const ADMIN_PASSWORD="admin";
-const DEFAULT_ROUTINE=[{text:"Douche froide",category:"fixed"},{text:"Lecture avant de dormir",category:"fixed"},{text:"Séance sport",category:"fixed"},{text:"Dev Unity",category:"weekday"},{text:"Content",category:"fixed"},{text:"Sortie / temps libre",category:"weekend"}];
+const USER2_PASSWORD="gigachadElouen";
+const PFX=sessionStorage.getItem('userPfx')||'';
+const DEFAULT_ROUTINE=PFX?[]:[{text:"Douche froide",category:"fixed"},{text:"Lecture avant de dormir",category:"fixed"},{text:"Séance sport",category:"fixed"},{text:"Dev Unity",category:"weekday"},{text:"Content",category:"fixed"},{text:"Sortie / temps libre",category:"weekend"}];
 const DAY_META=[
   {label:"Dimanche",short:"Dim",type:"Course 5 km",colType:"skill"},
   {label:"Lundi",short:"Lun",type:"Tirage & Front lever",colType:"arms"},
@@ -1388,7 +1390,8 @@ const DAY_META=[
   {label:"Vendredi",short:"Ven",type:"Épaules & Planche",colType:"arms"},
   {label:"Samedi",short:"Sam",type:"Skills légers",colType:"skill"}
 ];
-const DEFAULT_WORKOUT=[
+if(PFX)DAY_META.forEach(m=>{m.type='';});
+const DEFAULT_WORKOUT=PFX?[]:[
   {text:"Tuck front lever (x5)",day:1,baseReps:6,unit:"s"},
   {text:"Tractions (x4)",day:1,baseReps:5},
   {text:"Chin-ups (x3)",day:1,baseReps:6},
@@ -1418,14 +1421,15 @@ const DEFAULT_WORKOUT=[
 
 const firebaseConfig={apiKey:"AIzaSyDI5mG7GYtCEcZ6grNrrlv0DJULOBZ9gUI",authDomain:"timetableee.firebaseapp.com",projectId:"timetableee",storageBucket:"timetableee.firebasestorage.app",messagingSenderId:"706990156498",appId:"1:706990156498:web:5a69a65cad9ba564435b0b",measurementId:"G-QH0NEF6DZ8"};
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
+const _db=firebase.firestore();
+const db=new Proxy(_db,{get(t,p){if(p==='collection')return n=>t.collection(PFX+n);const v=t[p];return typeof v==='function'?v.bind(t):v;}});
 db.enablePersistence({synchronizeTabs:true}).catch(err=>{
   if(err.code==='failed-precondition')console.warn('Persistance hors-ligne: déjà active dans un autre onglet.');
   else if(err.code==='unimplemented')console.warn('Persistance hors-ligne non supportée par ce navigateur.');
 });
 
 let isAdmin=sessionStorage.getItem('adminMode')==='1';
-let diff=parseInt(localStorage.getItem('workoutDiff')||'0',10);
+let diff=parseInt(localStorage.getItem('workoutDiff'+PFX)||'0',10);
 let calViewDate=new Date();
 let calSelectedKey=todayKey();
 let calRangeStart=null, calRangeEnd=null, calDragging=false;
@@ -1451,23 +1455,12 @@ const overlay=document.getElementById('loginOverlay'),pwdInput=document.getEleme
 // Show gate on load if not already authenticated this session
 if(!isAdmin){overlay.classList.add('show');setTimeout(()=>pwdInput.focus(),60);}
 function tryLogin(){
-  if(pwdInput.value===ADMIN_PASSWORD){
-    isAdmin=true;sessionStorage.setItem('adminMode','1');
-    overlay.classList.remove('show');
-    applyAdminUI();
-    setupFirebaseListeners();
-    loadRoutineTemplate();
-    loadWorkoutTemplate();
-    subscribeWorkoutLog();
-    renderChart(currentRange);
-    renderCalendarGrid();
-    renderCalendarDayPanel();
-    loadCalendarEvents();
-    loadBrainNotes();
-    updateDashboard();
-    refreshDashboardStreak();
-    setInterval(updateDashboardNextEvent,60000);
-    initDashboard();
+  const v=pwdInput.value;
+  if(v===ADMIN_PASSWORD||v===USER2_PASSWORD){
+    sessionStorage.setItem('adminMode','1');
+    if(v===USER2_PASSWORD)sessionStorage.setItem('userPfx','u2_');else sessionStorage.removeItem('userPfx');
+    location.reload();
+    return;
   } else {
     loginError.classList.add('show');
     pwdInput.value='';pwdInput.focus();
@@ -1477,9 +1470,8 @@ function tryLogin(){
 document.getElementById('btnConfirm').addEventListener('click',tryLogin);
 pwdInput.addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
 document.getElementById('logoutBtn').addEventListener('click',()=>{
-  isAdmin=false;sessionStorage.removeItem('adminMode');
-  overlay.classList.add('show');pwdInput.value='';loginError.classList.remove('show');
-  setTimeout(()=>pwdInput.focus(),60);
+  isAdmin=false;sessionStorage.removeItem('adminMode');sessionStorage.removeItem('userPfx');
+  location.reload();
 });
 function applyAdminUI(){
   document.getElementById('adminPanel').classList.toggle('show',isAdmin);
@@ -1491,11 +1483,12 @@ function applyAdminUI(){
 }
 
 // ── GREETING ─────────────────────────────────────────
-function updateGreeting(){const n=localStorage.getItem('userName');if(n){document.getElementById('nameInputWrap').style.display='none';document.getElementById('greetingCard').style.display='flex';document.getElementById('greetingText').textContent=`Salut, ${n} !`;}else{document.getElementById('nameInputWrap').style.display='flex';document.getElementById('greetingCard').style.display='none';}}
-document.getElementById('nameSaveBtn').addEventListener('click',()=>{const n=document.getElementById('userNameInput').value.trim();if(n){localStorage.setItem('userName',n);updateGreeting();}});
+function updateGreeting(){const n=localStorage.getItem('userName'+PFX);if(n){document.getElementById('nameInputWrap').style.display='none';document.getElementById('greetingCard').style.display='flex';document.getElementById('greetingText').textContent=`Salut, ${n} !`;}else{document.getElementById('nameInputWrap').style.display='flex';document.getElementById('greetingCard').style.display='none';}}
+document.getElementById('nameSaveBtn').addEventListener('click',()=>{const n=document.getElementById('userNameInput').value.trim();if(n){localStorage.setItem('userName'+PFX,n);db.collection('notes').doc('profile').set({name:n},{merge:true});updateGreeting();}});
 document.getElementById('userNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('nameSaveBtn').click();});
-document.getElementById('greetingCard').addEventListener('click',()=>{localStorage.removeItem('userName');document.getElementById('userNameInput').value='';updateGreeting();setTimeout(()=>document.getElementById('userNameInput').focus(),60);});
+document.getElementById('greetingCard').addEventListener('click',()=>{localStorage.removeItem('userName'+PFX);db.collection('notes').doc('profile').set({name:''},{merge:true});document.getElementById('userNameInput').value='';updateGreeting();setTimeout(()=>document.getElementById('userNameInput').focus(),60);});
 updateGreeting();
+if(isAdmin&&!localStorage.getItem('userName'+PFX)){db.collection('notes').doc('profile').get().then(d=>{const n=d.exists&&d.data().name;if(n){localStorage.setItem('userName'+PFX,n);updateGreeting();}}).catch(()=>{});}
 
 // ── DIFFICULTY ───────────────────────────────────────
 function getSets(it,d){
@@ -1505,7 +1498,7 @@ function getSets(it,d){
 }
 function getDiffLabel(v){if(v<=10)return"Débutant";if(v<=33)return"Débutant+";if(v<=55)return"Intermédiaire";if(v<=75)return"Avancé";return"Expert";}
 function applyDiff(val){
-  diff=val;localStorage.setItem('workoutDiff',val);
+  diff=val;localStorage.setItem('workoutDiff'+PFX,val);
   const pctEl=document.getElementById('wfsDiffPct'),lblEl=document.getElementById('wfsDiffLabel');
   if(pctEl)pctEl.textContent=val+'%';
   if(lblEl)lblEl.textContent=getDiffLabel(val)+(val===0?' (×0.5)':val===100?' (×2.0)':` (×${(0.5+1.5*val/100).toFixed(1)})`);
@@ -1624,7 +1617,7 @@ function subscribeWorkoutLog(){
 }
 function loadWorkoutTemplate(){
   workoutTemplateUnsub=db.collection('workoutPlan').onSnapshot(async snapshot=>{
-    if(snapshot.empty&&!snapshot.metadata.fromCache){const batch=db.batch();DEFAULT_WORKOUT.forEach((item,idx)=>{batch.set(db.collection('workoutPlan').doc(`seed_${item.day}_${idx}`),{...item,createdAt:Date.now()});});await batch.commit();return;}
+    if(snapshot.empty&&!snapshot.metadata.fromCache&&DEFAULT_WORKOUT.length){const batch=db.batch();DEFAULT_WORKOUT.forEach((item,idx)=>{batch.set(db.collection('workoutPlan').doc(`seed_${item.day}_${idx}`),{...item,createdAt:Date.now()});});await batch.commit();return;}
     workoutTemplate=[];snapshot.forEach(doc=>workoutTemplate.push({id:doc.id,...doc.data()}));
     renderWorkout();if(document.getElementById('workoutFs').classList.contains('show'))buildWfsGrid();
   });
@@ -1706,7 +1699,7 @@ function toggleRoutineItem(id,val){
   renderRoutine();
 }
 function loadRoutineTemplate(){
-  routineUnsub=db.collection('routineTemplate').onSnapshot(async snapshot=>{if(snapshot.empty&&!snapshot.metadata.fromCache){for(const item of DEFAULT_ROUTINE)await db.collection('routineTemplate').add({...item,createdAt:Date.now()});return;}routineTemplate=[];snapshot.forEach(doc=>routineTemplate.push({id:doc.id,...doc.data()}));renderRoutine();});
+  routineUnsub=db.collection('routineTemplate').onSnapshot(async snapshot=>{if(snapshot.empty&&!snapshot.metadata.fromCache&&DEFAULT_ROUTINE.length){for(const item of DEFAULT_ROUTINE)await db.collection('routineTemplate').add({...item,createdAt:Date.now()});return;}routineTemplate=[];snapshot.forEach(doc=>routineTemplate.push({id:doc.id,...doc.data()}));renderRoutine();});
   routineLogUnsub=db.collection('routineLog').doc(todayKey()).onSnapshot(doc=>{todayRoutineLog=(doc.exists&&doc.data().completed)?doc.data().completed:{};renderRoutine();});
 }
 document.getElementById('addRoutineBtn').addEventListener('click',()=>{if(!isAdmin)return;const inp=document.getElementById('addRoutineInput'),cat=document.getElementById('routineCatSelect').value,text=inp.value.trim();if(text){db.collection('routineTemplate').add({text,category:cat,createdAt:Date.now()});inp.value='';}});
