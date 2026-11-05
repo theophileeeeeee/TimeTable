@@ -1,4 +1,4 @@
-const CACHE_NAME = 'timetable-v3';
+const CACHE_NAME = 'timetable-v4';
 
 // Base déduite automatiquement de l'endroit où ce fichier est servi :
 // racine en local ("http://127.0.0.1:5500/"), sous-dossier en prod
