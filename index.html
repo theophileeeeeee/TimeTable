@@ -824,10 +824,60 @@ function applyAdminUI() {
   if (window.__layoutMasonry) setTimeout(window.__layoutMasonry, 200);
 }
 
-function updateGreeting(){const n=localStorage.getItem('userName'+PFX);if(n){document.getElementById('nameInputWrap').style.display='none';document.getElementById('greetingCard').style.display='flex';document.getElementById('greetingText').textContent=`Salut, ${n} !`;}else{document.getElementById('nameInputWrap').style.display='flex';document.getElementById('greetingCard').style.display='none';}}
-document.getElementById('nameSaveBtn').addEventListener('click',()=>{const n=localStorage.getItem('userName'+PFX);if(n){localStorage.setItem('userName'+PFX,n);db.collection('notes').doc('profile').set({name:n},{merge:true});updateGreeting();}});
-document.getElementById('userNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('nameSaveBtn').click();});
-document.getElementById('greetingCard').addEventListener('click',()=>{localStorage.removeItem('userName'+PFX);db.collection('notes').doc('profile').set({name:''},{merge:true});document.getElementById('userNameInput').value='';updateGreeting();setTimeout(()=>document.getElementById('userNameInput').focus(),60);});
+// --- CORRECTION DU GESTIONNAIRE DE PRÉNOM ---
+function updateGreeting() {
+  const n = localStorage.getItem('userName' + PFX);
+  const inputWrap = document.getElementById('nameInputWrap');
+  const greetingCard = document.getElementById('greetingCard');
+  const greetingText = document.getElementById('greetingText');
+  
+  if (n && n.trim() !== '') {
+    if (inputWrap) inputWrap.style.display = 'none';
+    if (greetingCard) greetingCard.style.display = 'flex';
+    if (greetingText) greetingText.textContent = `Salut, ${n} !`;
+  } else {
+    if (inputWrap) inputWrap.style.display = 'flex';
+    if (greetingCard) greetingCard.style.display = 'none';
+  }
+}
+
+const nameSaveBtn = document.getElementById('nameSaveBtn');
+const userNameInput = document.getElementById('userNameInput');
+
+if (nameSaveBtn && userNameInput) {
+  nameSaveBtn.addEventListener('click', () => {
+    const val = userNameInput.value.trim();
+    if (val) {
+      localStorage.setItem('userName' + PFX, val);
+      db.collection('notes').doc('profile').set({ name: val }, { merge: true }).catch(() => {});
+      updateGreeting();
+    }
+  });
+
+  userNameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      nameSaveBtn.click();
+    }
+  });
+}
+
+// Pour pouvoir changer le prénom en cliquant sur la carte de salutation
+const greetingCardEl = document.getElementById('greetingCard');
+if (greetingCardEl) {
+  greetingCardEl.addEventListener('click', () => {
+    localStorage.removeItem('userName' + PFX);
+    db.collection('notes').doc('profile').set({ name: '' }, { merge: true }).catch(() => {});
+    updateGreeting();
+    setTimeout(() => {
+      const input = document.getElementById('userNameInput');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }, 60);
+  });
+}
+
 updateGreeting();
 
 function getSets(it,d){
