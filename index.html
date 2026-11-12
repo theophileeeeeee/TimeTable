@@ -446,7 +446,7 @@ body.has-expanded{overflow:hidden}
 #workoutList{max-height:175px;overflow-y:auto}
 #todayList{max-height:190px;overflow-y:auto}
 #calEventList{max-height:120px;overflow-y:auto}
-#goalsList{max-height:220px;overflow-y:auto}
+#goalsList{max-height:360px;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -584,12 +584,7 @@ body.has-expanded{overflow:hidden}
         <div style="padding:8px 10px 0" id="goalsList"></div>
         <div class="add-row">
           <div class="add-row-inputs">
-            <input type="text" class="add-input" id="addGoalInput" placeholder="Nouvel objectif…">
-            <select class="prio-select" id="prioGoal">
-              <option value="important">Important</option>
-              <option value="moyen" selected>Moyen</option>
-              <option value="peu">Peu important</option>
-            </select>
+            <input type="text" class="add-input" id="addGoalInput" placeholder="Nouvelle catégorie…">
             <button class="add-btn" id="addGoalBtn">+</button>
           </div>
         </div>
@@ -1758,14 +1753,207 @@ function loadCalendarEvents() {
   });
 }
 
+let unsubGoalTypes=null,goalTypesCache=[];
+const goalTypesCollapsed=new Set();
+const DEFAULT_GOAL_TYPES=['Sport','Info','Cours','Business'];
 let unsubscribeTodos=null,unsubGoalsWeek=null,unsubGoalsMonth=null,unsubGoalsYear=null,unsubGoals=null,todosCache=[];
 let goalsWeekCache=[], goalsMonthCache=[], goalsYearCache=[], goalsCache=[];
 
-function renderAllGoals() {
-  const combined = [...goalsCache, ...goalsWeekCache, ...goalsMonthCache, ...goalsYearCache];
-  const prioOrder = { important: 1, moyen: 2, peu: 3 };
-  combined.sort((a,b)=>(prioOrder[a.priority]||2)-(prioOrder[b.priority]||2));
-  renderTodosWithSubtasks(combined, 'goalsList', 'goalsYear'); 
+function gEl(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
+
+const goalObjExpanded=new Set();
+
+function normalizeGoalSubs(subs){
+  const list=(subs||[]).map(x=>({text:x.text,done:!!x.done,subtasks:Array.isArray(x.subtasks)?[...x.subtasks]:[]}));
+  let changed=(subs||[]).some(x=>!Array.isArray(x.subtasks));
+  let again=true;
+  while(again){
+    again=false;
+    for(let i=0;i<list.length;i++){
+      const it=list[i];
+      if(it.text.indexOf(' › ')===-1)continue;
+      let best=-1;
+      for(let j=0;j<list.length;j++){
+        if(j===i)continue;
+        if(it.text.startsWith(list[j].text+' › ')&&(best===-1||list[j].text.length>list[best].text.length))best=j;
+      }
+      if(best===-1)continue;
+      list[best].subtasks.push({text:it.text.slice(list[best].text.length+3),done:it.done});
+      list.splice(i,1);
+      changed=true;
+      again=true;
+      break;
+    }
+  }
+  return {list,changed};
+}
+
+const GOAL_MAX_DEPTH=4;
+
+function goalUpdateAt(list,path,fn){
+  const i=path[0],rest=path.slice(1),out=[];
+  list.forEach((n,idx)=>{
+    if(idx!==i){out.push(n);return;}
+    if(rest.length===0){const r=fn(n);if(r)out.push(r);return;}
+    const kids=goalUpdateAt(n.subtasks||[],rest,fn);
+    const nn={...n,subtasks:kids};
+    if(kids.length)nn.done=kids.every(k=>k.done);
+    out.push(nn);
+  });
+  return out;
+}
+
+function goalSetDeep(n,v){
+  return {...n,done:v,subtasks:(n.subtasks||[]).map(k=>goalSetDeep(k,v))};
+}
+
+function buildGoalNodes(type,list,depth,basePath){
+  const frag=gEl('div');
+  const save=arr=>db.collection('goalTypes').doc(type.id).update({subtasks:arr});
+  const root=()=>type.subtasks||[];
+  list.forEach((n,i)=>{
+    const path=[...basePath,i];
+    const key=type.id+':'+path.join('.');
+    const kids=n.subtasks||[];
+    const kDone=kids.filter(k=>k.done).length;
+    const open=goalObjExpanded.has(key);
+    const canAdd=depth<GOAL_MAX_DEPTH;
+    const top=depth===1;
+    const w=gEl('div');
+    w.style.cssText='margin-bottom:4px';
+    const r=gEl('div',(top?'atodo-item':'subtask-row')+(n.done?' done':''));
+    r.innerHTML='<input type="checkbox" class="'+(top?'atodo-check':'subtask-check')+'"'+(n.done?' checked':'')+'>'
+      +'<span class="'+(top?'atodo-label':'subtask-label')+'"></span>'
+      +(kids.length?'<span class="subtask-count '+(kDone===kids.length?'all-done':'')+'">'+kDone+'/'+kids.length+'</span>':'')
+      +((canAdd||kids.length)?'<button class="subtask-toggle">'+(open?'▼':'▶')+'</button>':'')
+      +'<button class="'+(top?'atodo-del':'subtask-del')+'">✕</button>';
+    r.querySelector(top?'.atodo-label':'.subtask-label').textContent=n.text;
+    r.querySelector('input').addEventListener('change',function(){
+      const v=this.checked;
+      save(goalUpdateAt(root(),path,x=>goalSetDeep(x,v)));
+    });
+    const tg=r.querySelector('.subtask-toggle');
+    if(tg)tg.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(goalObjExpanded.has(key))goalObjExpanded.delete(key);else goalObjExpanded.add(key);
+      renderAllGoals();
+    });
+    r.querySelector(top?'.atodo-del':'.subtask-del').addEventListener('click',e=>{
+      e.stopPropagation();
+      if(kids.length&&!confirm('Supprimer "'+n.text+'" et ses sous-tâches ?'))return;
+      save(goalUpdateAt(root(),path,()=>null));
+    });
+    w.appendChild(r);
+    if(canAdd||kids.length){
+      const sw=gEl('div','subtask-wrap'+(open?'':' collapsed'));
+      const sl=gEl('div','subtask-list');
+      sl.appendChild(buildGoalNodes(type,kids,depth+1,path));
+      if(canAdd){
+        const add=gEl('div','subtask-add-row');
+        add.innerHTML='<input type="text" class="subtask-add-inp" placeholder="Ajouter une sous-tâche…"><button class="subtask-add-btn">+</button>';
+        const inp=add.querySelector('input');
+        const doAdd=()=>{
+          const text=inp.value.trim();
+          if(!text)return;
+          goalObjExpanded.add(key);
+          save(goalUpdateAt(root(),path,x=>({...x,done:false,subtasks:[...(x.subtasks||[]),{text,done:false,subtasks:[]}]})));
+          inp.value='';
+        };
+        add.querySelector('button').addEventListener('click',doAdd);
+        inp.addEventListener('keydown',e=>{if(e.key==='Enter')doAdd();});
+        sl.appendChild(add);
+      }
+      sw.appendChild(sl);
+      w.appendChild(sw);
+    }
+    frag.appendChild(w);
+  });
+  return frag;
+}
+
+function buildGoalType(type){
+  const subs=type.subtasks||[];
+  const doneN=subs.filter(s=>s.done).length;
+  const key='T:'+type.id;
+  const open=goalObjExpanded.has(key);
+  const ref=()=>db.collection('goalTypes').doc(type.id);
+  const wrap=gEl('div');
+  wrap.style.cssText='margin-bottom:6px;padding:0 4px';
+  const row=gEl('div','atodo-item');
+  row.innerHTML='<span class="atodo-label" style="font-weight:600;cursor:pointer"></span>'
+    +(subs.length?'<span class="subtask-count '+(doneN===subs.length?'all-done':'')+'">'+doneN+'/'+subs.length+'</span>':'')
+    +'<button class="subtask-toggle">'+(open?'▼':'▶')+'</button><button class="atodo-del">✕</button>';
+  row.querySelector('.atodo-label').textContent=type.name;
+  const toggle=()=>{
+    if(goalObjExpanded.has(key))goalObjExpanded.delete(key);else goalObjExpanded.add(key);
+    renderAllGoals();
+  };
+  row.querySelector('.atodo-label').addEventListener('click',toggle);
+  row.querySelector('.subtask-toggle').addEventListener('click',e=>{e.stopPropagation();toggle();});
+  row.querySelector('.atodo-del').addEventListener('click',()=>{
+    if(subs.length&&!confirm('Supprimer "'+type.name+'" et ses '+subs.length+' objectif(s) ?'))return;
+    ref().delete();
+  });
+  wrap.appendChild(row);
+
+  const stWrap=gEl('div','subtask-wrap'+(open?'':' collapsed'));
+  const stList=gEl('div','subtask-list');
+  stList.appendChild(buildGoalNodes(type,subs,1,[]));
+  const add=gEl('div','subtask-add-row');
+  add.innerHTML='<input type="text" class="subtask-add-inp" placeholder="Ajouter un objectif…"><button class="subtask-add-btn">+</button>';
+  const inp=add.querySelector('input');
+  const doAdd=()=>{
+    const text=inp.value.trim();
+    if(!text)return;
+    goalObjExpanded.add(key);
+    ref().update({subtasks:[...subs,{text,done:false,subtasks:[]}]});
+    inp.value='';
+  };
+  add.querySelector('button').addEventListener('click',doAdd);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')doAdd();});
+  stList.appendChild(add);
+  stWrap.appendChild(stList);
+  wrap.appendChild(stWrap);
+  return wrap;
+}
+
+function moveLegacyGoal(g,typeId){
+  const type=goalTypesCache.find(t=>t.id===typeId);
+  if(!type)return;
+  const obj={text:g.text,done:!!g.done,subtasks:(g.subtasks||[]).map(x=>({text:x.text,done:!!x.done}))};
+  db.collection('goalTypes').doc(typeId).update({subtasks:[...(type.subtasks||[]),obj]})
+    .then(()=>db.collection(g._col).doc(g.id).delete());
+}
+
+function buildLegacyGoals(list){
+  const wrap=gEl('div');
+  wrap.style.cssText='margin:10px 4px 6px';
+  const head=gEl('div','card-title');
+  head.style.cssText='padding:6px 4px;font-size:10px';
+  head.textContent='Non classés';
+  wrap.appendChild(head);
+  list.forEach(g=>{
+    const row=gEl('div','atodo-item'+(g.done?' done':''));
+    row.innerHTML='<span class="atodo-label"></span><select class="prio-select" style="height:30px"></select><button class="atodo-del">✕</button>';
+    row.querySelector('.atodo-label').textContent=g.text;
+    const sel=row.querySelector('select');
+    sel.innerHTML='<option value="">Classer…</option>'+goalTypesCache.map(t=>'<option value="'+t.id+'">'+t.name.replace(/</g,'&lt;')+'</option>').join('');
+    sel.addEventListener('change',()=>{if(sel.value)moveLegacyGoal(g,sel.value);});
+    row.querySelector('.atodo-del').addEventListener('click',()=>db.collection(g._col).doc(g.id).delete());
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+function renderAllGoals(){
+  const box=document.getElementById('goalsList');
+  if(!box)return;
+  const legacy=[...goalsCache.map(g=>({_col:'goals',...g})),...goalsWeekCache,...goalsMonthCache,...goalsYearCache];
+  box.innerHTML='';
+  goalTypesCache.forEach(t=>box.appendChild(buildGoalType(t)));
+  if(legacy.length)box.appendChild(buildLegacyGoals(legacy));
+  if(!goalTypesCache.length&&!legacy.length)box.innerHTML='<div class="empty-state">Rien pour le moment.</div>';
+  if(window.__layoutMasonry)clearTimeout(window.__mLayoutT),window.__mLayoutT=setTimeout(window.__layoutMasonry,60);
 }
 
 function setupFirebaseListeners(){
@@ -1775,6 +1963,7 @@ function setupFirebaseListeners(){
   if(unsubGoalsMonth) unsubGoalsMonth();
   if(unsubGoalsYear) unsubGoalsYear();
   if(unsubGoals) unsubGoals();
+  if(unsubGoalTypes) unsubGoalTypes();
   
   const targetDate = getTargetTodoDate();
   unsubscribeTodos=db.collection('todos').where('date', '==', targetDate).onSnapshot(snapshot=>{
@@ -1785,6 +1974,28 @@ function setupFirebaseListeners(){
     todosCache=t;
     renderTodosWithSubtasks(t,'todayList','todos');
     updateDashboardUrgentCount();
+  });
+
+  unsubGoalTypes=db.collection('goalTypes').onSnapshot(snapshot=>{
+    goalTypesCache=[];
+    snapshot.forEach(doc=>goalTypesCache.push({id:doc.id,...doc.data()}));
+    goalTypesCache.sort((a,b)=>(a.order||0)-(b.order||0));
+    goalTypesCache.forEach(t=>{
+      const n=normalizeGoalSubs(t.subtasks);
+      if(n.changed){
+        t.subtasks=n.list;
+        db.collection('goalTypes').doc(t.id).update({subtasks:n.list});
+      }
+    });
+    let seeded=false;
+    try{seeded=!!localStorage.getItem('goalTypesSeeded');}catch(e){}
+    if(snapshot.empty&&!seeded){
+      try{localStorage.setItem('goalTypesSeeded','1');}catch(e){}
+      DEFAULT_GOAL_TYPES.forEach((name,i)=>{
+        db.collection('goalTypes').doc(name.toLowerCase()).set({name,order:i,subtasks:[],createdAt:Date.now()},{merge:true});
+      });
+    }
+    renderAllGoals();
   });
 
   unsubGoals=db.collection('goals').onSnapshot(snapshot=>{
@@ -1983,18 +2194,11 @@ document.getElementById('addTodayInput').addEventListener('keydown',e=>{if(e.key
 document.getElementById('addGoalBtn').addEventListener('click',()=>{
   if(!isAdmin)return;
   const inp=document.getElementById('addGoalInput');
-  const prio=document.getElementById('prioGoal').value;
-  const text=inp.value.trim();
-  if(text){
-    db.collection('goalsYear').add({
-      text,
-      done:false,
-      priority:prio,
-      subtasks:[],
-      createdAt:Date.now()
-    });
-    inp.value='';
-  }
+  const name=inp.value.trim();
+  if(!name)return;
+  const order=goalTypesCache.reduce((m,t)=>Math.max(m,t.order||0),-1)+1;
+  db.collection('goalTypes').add({name,order,subtasks:[],createdAt:Date.now()});
+  inp.value='';
 });
 document.getElementById('addGoalInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addGoalBtn').click();});
 
