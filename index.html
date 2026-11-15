@@ -447,6 +447,57 @@ body.has-expanded{overflow:hidden}
 #todayList{max-height:190px;overflow-y:auto}
 #calEventList{max-height:120px;overflow-y:auto}
 #goalsList{max-height:360px;overflow-y:auto}
+
+/* ── COMPRESSION PROGRESSIVE (pilotée par le JS via --cmp, 0 = normal, 1 = compact) ── */
+.dash-frame{--cmp:0}
+.cal-cell{transition:background .15s,border-color .15s,box-shadow .15s,opacity .15s}
+#routineList{max-height:calc(190px - 120px*var(--cmp,0))}
+#workoutList{max-height:calc(175px - 105px*var(--cmp,0))}
+#todayList{max-height:calc(190px - 120px*var(--cmp,0))}
+#calEventList{max-height:calc(120px - 70px*var(--cmp,0))}
+#goalsList{max-height:calc(360px - 260px*var(--cmp,0))}
+.chart-canvas-wrap{height:calc(210px - 100px*var(--cmp,0))}
+.cal-cell{min-height:calc(76px - 38px*var(--cmp,0) + var(--cal-grow,0px))}
+.pomo-card{padding:calc(22px - 12px*var(--cmp,0)) 16px;gap:calc(14px - 6px*var(--cmp,0))}
+.pomo-ring-wrap{width:calc(168px - 64px*var(--cmp,0));height:calc(168px - 64px*var(--cmp,0))}
+.pomo-time{font-size:calc(30px - 8px*var(--cmp,0))}
+.brain-textarea{min-height:calc(120px - 70px*var(--cmp,0))}
+.todo-item,.atodo-item{padding-top:calc(10px - 5px*var(--cmp,0));padding-bottom:calc(10px - 5px*var(--cmp,0))}
+.pct-row{padding-top:calc(14px - 7px*var(--cmp,0));padding-bottom:calc(10px - 5px*var(--cmp,0))}
+.cal-daypanel{padding-top:calc(16px - 7px*var(--cmp,0));padding-bottom:calc(18px - 9px*var(--cmp,0))}
+.dash-frame{padding-top:calc(16px - 6px*var(--cmp,0));padding-bottom:calc(18px - 8px*var(--cmp,0))}
+.dash-tile{padding-top:calc(14px - 6px*var(--cmp,0));padding-bottom:calc(13px - 6px*var(--cmp,0))}
+.dash-tile-val{font-size:calc(31px - 9px*var(--cmp,0))}
+.dash-next-event{margin-top:calc(12px - 6px*var(--cmp,0));padding-top:calc(14px - 6px*var(--cmp,0));padding-bottom:calc(14px - 6px*var(--cmp,0))}
+.greeting-text{font-size:calc(26px - 6px*var(--cmp,0))}
+.card-header{padding-top:calc(11px - 4px*var(--cmp,0));padding-bottom:calc(11px - 4px*var(--cmp,0))}
+.cal-cell{min-height:calc(76px - 44px*var(--cmp,0) + var(--cal-grow,0px))}
+.cal-search-wrap{padding-bottom:calc(10px - 5px*var(--cmp,0))}
+.cal-cat-legend{padding-top:calc(10px - 6px*var(--cmp,0));padding-bottom:calc(4px - 2px*var(--cmp,0))}
+.cal-toolbar{padding-top:calc(12px - 6px*var(--cmp,0));padding-bottom:calc(8px - 4px*var(--cmp,0))}
+.cal-grid{padding:calc(10px - 5px*var(--cmp,0));margin-bottom:calc(14px - 7px*var(--cmp,0))}
+.cal-daypanel-sub{margin-bottom:calc(12px - 8px*var(--cmp,0))}
+.cal-event-list{margin-bottom:calc(12px - 6px*var(--cmp,0))}
+.cal-details-toggle{padding-top:calc(10px - 6px*var(--cmp,0))}
+.cal-repeat-label{margin-top:calc(10px - 6px*var(--cmp,0))}
+@media (min-width:900px){
+  html{scrollbar-gutter:stable}
+  body{overflow:hidden}
+  body.no-fit{overflow-y:auto}
+  .page{padding-bottom:12px}
+  .dash-frame{margin-bottom:0}
+}
+
+.ms-hidden{display:none!important}
+.settings-modal{width:min(480px,94vw);max-height:88vh;overflow-y:auto;gap:18px;align-items:stretch}
+.set-head{display:flex;align-items:center;justify-content:space-between}
+.set-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);margin-bottom:7px}
+.settings-modal .cal-view-switcher{display:flex}
+.settings-modal .cal-view-btn{flex:1}
+.set-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.set-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t0);cursor:pointer;font-weight:500;padding:4px 0}
+.set-check input{width:16px;height:16px;accent-color:var(--t0);cursor:pointer;flex-shrink:0}
+.set-hint{font-size:11.5px;color:var(--t2);margin-top:4px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -517,6 +568,7 @@ body.has-expanded{overflow:hidden}
   <div class="topbar-title">Timetable</div>
   <div class="topbar-actions">
     <button class="icon-btn hidden" id="installButton">↓</button>
+    <button class="icon-btn" id="settingsBtn" title="Paramètres" aria-label="Paramètres">⚙</button>
     <button class="icon-btn" id="themeToggle" title="Thème">🌙</button>
     <button class="icon-btn" id="logoutBtn" title="Changer de session" aria-label="Changer de session"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
   </div>
@@ -527,6 +579,62 @@ body.has-expanded{overflow:hidden}
 <!-- Infobulle -->
 <div id="dayProgressTooltip"></div>
 
+
+<div class="overlay" id="settingsOverlay">
+  <div class="modal settings-modal">
+    <div class="set-head"><div class="modal-title">Paramètres</div><button class="icon-btn" id="settingsClose" title="Fermer">✕</button></div>
+
+    <div>
+      <div class="set-label">Position du calendrier</div>
+      <div class="cal-view-switcher" data-set="calSide">
+        <button class="cal-view-btn" data-v="left">Gauche</button>
+        <button class="cal-view-btn" data-v="right">Droite</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="set-label">Largeur du calendrier</div>
+      <div class="cal-view-switcher" data-set="calSpan" data-num>
+        <button class="cal-view-btn" data-v="1">Étroit</button>
+        <button class="cal-view-btn" data-v="2">Large</button>
+        <button class="cal-view-btn" data-v="3">Très large</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="set-label">Espacement entre les blocs</div>
+      <div class="cal-view-switcher" data-set="gap" data-num>
+        <button class="cal-view-btn" data-v="12">Serré</button>
+        <button class="cal-view-btn" data-v="20">Normal</button>
+        <button class="cal-view-btn" data-v="28">Aéré</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="set-label">Blocs affichés</div>
+      <div class="set-checks">
+        <label class="set-check"><input type="checkbox" data-hide="routineCard"> Routine du jour</label>
+        <label class="set-check"><input type="checkbox" data-hide="workoutCard"> Séance du jour</label>
+        <label class="set-check"><input type="checkbox" data-hide="goalsCard"> Objectifs</label>
+        <label class="set-check"><input type="checkbox" data-hide="adminPanel"> Tâches perso</label>
+        <label class="set-check"><input type="checkbox" data-hide="pomodoroCard"> Pomodoro</label>
+        <label class="set-check"><input type="checkbox" data-hide="historiqueCard"> Historique routine</label>
+        <label class="set-check"><input type="checkbox" data-hide="brainstormCard"> Idées &amp; brainstorming</label>
+      </div>
+      <div class="set-hint">Masquer un bloc libère de la place pour les autres.</div>
+    </div>
+
+    <div>
+      <label class="set-check"><input type="checkbox" id="setFit"> Tout faire tenir dans la fenêtre (sans scroll)</label>
+      <div class="set-hint">Si désactivé, les blocs gardent leur taille normale et la page défile.</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" id="settingsReset">Réinitialiser</button>
+      <button class="btn-primary" id="settingsClose2">Fermer</button>
+    </div>
+  </div>
+</div>
 <div class="page">
   <div class="grid">
 
@@ -2260,6 +2368,10 @@ function initDashboard(){
     const el=document.getElementById(id); if(el) el.dataset.fill='soft';
   });
 
+  const fills = {calendarCard:'cal', historiqueCard:'chart', pomodoroCard:'pomo', brainstormCard:'soft'};
+  Object.keys(fills).forEach(id=>{ const el=document.getElementById(id); if(el) el.dataset.fill=fills[id]; });
+  if(window.ResizeObserver) new ResizeObserver(debounce(()=>{ if(Math.abs(hero.offsetHeight-(window.__msHeroH||0))>1) fitToViewport(); }, 80)).observe(hero);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>fitToViewport());
   fitToViewport();
   window.addEventListener('resize', debounce(fitToViewport, 200));
   window.__layoutMasonry = fitToViewport;
@@ -2268,168 +2380,401 @@ function initDashboard(){
 
 function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 
-function layoutMasonry(forceCols){
-  const grid = document.querySelector('.grid');
-  if(!grid) return;
-  const GAP = 20;
-  const w = window.innerWidth;
-  const cols = forceCols || (w>=1440 ? 4 : w>=1100 ? 3 : w>=760 ? 2 : 1);
+let MS_GAP = 20;
+const MS_DEFAULTS = { calSide:'left', calSpan:2, gap:20, fit:true, hidden:[] };
+const MS_KEY = 'ttSettings' + (typeof PFX !== 'undefined' ? PFX : '');
+const MS_HIDEABLE = ['routineCard','workoutCard','pomodoroCard','historiqueCard','goalsCard','adminPanel','brainstormCard'];
+let MS_SET = Object.assign({}, MS_DEFAULTS);
+try {
+  const raw = JSON.parse(localStorage.getItem(MS_KEY) || 'null');
+  if(raw && typeof raw === 'object') MS_SET = Object.assign({}, MS_DEFAULTS, raw);
+  if(!Array.isArray(MS_SET.hidden)) MS_SET.hidden = [];
+} catch(e) {}
 
-  let items = Array.from(grid.querySelectorAll(':scope > *')).filter(el=>el.matches('.card,.admin-panel'));
-  items = items.filter(el=>{
-    if(el.classList.contains('admin-only-card')) return el.classList.contains('show');
-    if(el.classList.contains('admin-panel')) return el.classList.contains('show');
-    return true;
+function msSaveSettings(){
+  try { localStorage.setItem(MS_KEY, JSON.stringify(MS_SET)); } catch(e) {}
+}
+
+function msApplySettings(){
+  MS_GAP = Number(MS_SET.gap) || 20;
+  MS_HIDEABLE.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('ms-hidden', MS_SET.hidden.indexOf(id) !== -1);
   });
-  if(!items.length) return;
+}
 
-  const containerW = grid.clientWidth;
-  const colW = (containerW - GAP*(cols-1)) / cols;
-  const colBottoms = new Array(cols).fill(0);
-
-  grid.style.position = 'relative';
-
-  items.forEach(item=>{
-    item.style.position='absolute';
-    item.style.transition='left .18s ease,top .18s ease,width .18s ease,height .18s ease';
-    let span = parseInt(item.dataset.span||'1',10);
-    span = Math.max(1, Math.min(span, cols));
-    let bestStart=0, bestTop=Infinity;
-    for(let c=0; c<=cols-span; c++){
-      const top = Math.max(...colBottoms.slice(c, c+span));
-      if(top < bestTop){ bestTop = top; bestStart = c; }
-    }
-    const width = span*colW + (span-1)*GAP;
-    const left = bestStart*(colW+GAP);
-    item.style.height = 'auto';
-    item.style.width = width+'px';
-    item.style.left = left+'px';
-    item.style.top = bestTop+'px';
-    const h = item.offsetHeight;
-    const bottom = bestTop + h + GAP;
-    for(let c=bestStart; c<bestStart+span; c++){ colBottoms[c]=bottom; }
-    item.__mSpan = span; item.__mStart = bestStart;
-  });
-
-  const overallH = Math.max(...colBottoms) - GAP;
-  const LIST_SEL = '#calEventList, #routineList, #workoutList, #todayList, #goalsList';
-  const POMO_MAX_H = 330;
-  function growthCap(item){
-    if(item.dataset.fill==='list'){
-      const list = item.querySelector(LIST_SEL);
-      return list ? Math.max(0, list.scrollHeight - list.clientHeight) : 0;
-    }
-    if(item.id==='pomodoroCard') return Math.max(0, POMO_MAX_H - item.offsetHeight);
-    if(item.dataset.fill==='soft') return Infinity;
-    return 0;
-  }
-  const colStacks = Array.from({length:cols}, ()=>[]);
-  items.forEach(it=>{ for(let c=it.__mStart; c<it.__mStart+it.__mSpan; c++) colStacks[c].push(it); });
-  colStacks.forEach(stack => stack.sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top)));
-
-  colStacks.forEach(stack=>{
-    let from = stack.length;
-    while(from>0 && stack[from-1].__mSpan===1) from--;
-    const run = stack.slice(from);
-    if(!run.length) return;
-
-    const runTop = parseFloat(run[0].style.top);
-    const availableSpan = overallH - runTop;
-    const naturalHeights = run.map(it=>parseFloat(it.style.height)||it.offsetHeight);
-    const naturalTotal = naturalHeights.reduce((a,b)=>a+b,0) + GAP*(run.length-1);
-    let slack = availableSpan - naturalTotal;
-    if(slack <= 4) return;
-
-    const growth = naturalHeights.map(()=>0);
-    const candidates = run.map((it,i)=>({i, cap: growthCap(it)})).filter(c=>c.cap>0);
-    if(candidates.length){
-      let remaining = slack, active = candidates.slice();
-      while(remaining > 1 && active.length){
-        const share = remaining/active.length;
-        const next = [];
-        active.forEach(c=>{
-          const room = c.cap - growth[c.i];
-          const give = Math.min(share, room);
-          growth[c.i] += give; remaining -= give;
-          if(growth[c.i] < c.cap - 1) next.push(c);
-        });
-        if(next.length === active.length) break;
-        active = next;
-      }
-    }
-
-    let cur = runTop;
-    run.forEach((item,i)=>{
-      const newH = naturalHeights[i] + growth[i];
-      item.style.top = cur+'px';
-      if(growth[i] > 4){
-        item.style.height = newH+'px';
-        if(item.dataset.fill==='list'){
-          const list = item.querySelector(LIST_SEL);
-          if(list) list.style.maxHeight = (list.clientHeight + growth[i])+'px';
-        } else if(item.id==='pomodoroCard'){
-          growPomodoro(item, newH);
-        } else if(item.id==='brainstormCard'){
-          const ta = item.querySelector('.brain-textarea');
-          if(ta) ta.style.height = (ta.offsetHeight + growth[i])+'px';
-        }
-      }
-      cur += newH + GAP;
+function msRenderSettings(){
+  document.querySelectorAll('#settingsOverlay [data-set]').forEach(box=>{
+    const key = box.dataset.set;
+    box.querySelectorAll('.cal-view-btn').forEach(b=>{
+      b.classList.toggle('active', String(MS_SET[key]) === b.dataset.v);
     });
   });
+  document.querySelectorAll('#settingsOverlay [data-hide]').forEach(cb=>{
+    cb.checked = MS_SET.hidden.indexOf(cb.dataset.hide) === -1;
+  });
+  const fit = document.getElementById('setFit');
+  if(fit) fit.checked = !!MS_SET.fit;
+}
 
-  const finalH = Math.max(overallH, ...items.map(it=>parseFloat(it.style.top)+(parseFloat(it.style.height)||it.offsetHeight)));
+function msInitSettingsUI(){
+  const overlay = document.getElementById('settingsOverlay');
+  const btn = document.getElementById('settingsBtn');
+  if(!overlay || !btn) return;
+  const open = ()=>{ msRenderSettings(); overlay.classList.add('show'); };
+  const close = ()=>overlay.classList.remove('show');
+  btn.addEventListener('click', open);
+  document.getElementById('settingsClose').addEventListener('click', close);
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) close(); });
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && overlay.classList.contains('show')) close(); });
+
+  overlay.querySelectorAll('[data-set]').forEach(box=>{
+    box.addEventListener('click', e=>{
+      const b = e.target.closest('.cal-view-btn');
+      if(!b) return;
+      const key = box.dataset.set;
+      MS_SET[key] = box.hasAttribute('data-num') ? Number(b.dataset.v) : b.dataset.v;
+      msChanged();
+    });
+  });
+  overlay.querySelectorAll('[data-hide]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const id = cb.dataset.hide;
+      MS_SET.hidden = MS_SET.hidden.filter(x=>x !== id);
+      if(!cb.checked) MS_SET.hidden.push(id);
+      msChanged();
+    });
+  });
+  document.getElementById('setFit').addEventListener('change', e=>{
+    MS_SET.fit = e.target.checked;
+    if(MS_SET.fit) document.body.classList.remove('no-fit');
+    msChanged();
+  });
+  document.getElementById('settingsReset').addEventListener('click', ()=>{
+    MS_SET = Object.assign({}, MS_DEFAULTS, { hidden: [] });
+    document.body.classList.remove('no-fit');
+    msChanged();
+  });
+}
+
+function msChanged(){
+  msSaveSettings();
+  msApplySettings();
+  msRenderSettings();
+  fitToViewport();
+  setTimeout(fitToViewport, 120);
+  if(typeof routineChart !== 'undefined' && routineChart) setTimeout(()=>routineChart.resize(), 200);
+}
+
+msApplySettings();
+
+const MS_LIST = '#calEventList, #routineList, #workoutList, #todayList, #goalsList';
+const MS_MIN_COL_W = 270;
+const MS_POMO_MAX_H = 330;
+
+function msItems(grid){
+  return Array.from(grid.querySelectorAll(':scope > *')).filter(el=>{
+    if(!el.matches('.card,.admin-panel')) return false;
+    if(el.classList.contains('ms-hidden')) return false;
+    if(el.classList.contains('admin-only-card') || el.classList.contains('admin-panel')) return el.classList.contains('show');
+    return true;
+  });
+}
+
+function msReset(item){
+  item.style.height = '';
+  item.style.removeProperty('--cal-grow');
+  item.querySelectorAll(MS_LIST).forEach(l=>{ l.style.maxHeight = ''; });
+  const ring = item.querySelector('.pomo-ring-wrap');
+  if(ring){ ring.style.width = ''; ring.style.height = ''; }
+  const pt = item.querySelector('.pomo-time');
+  if(pt) pt.style.fontSize = '';
+  const ta = item.querySelector('.brain-textarea');
+  if(ta) ta.style.height = '';
+  const cw = item.querySelector('.chart-canvas-wrap');
+  if(cw) cw.style.height = '';
+}
+
+function msSpanFor(item, cfg){
+  let s = 1;
+  if(item.id === 'calendarCard') s = cfg.cal;
+  else if(item.id === 'historiqueCard') s = cfg.hist;
+  return Math.max(1, Math.min(s, cfg.cols));
+}
+
+function msAvail(frame, grid){
+  const page = document.querySelector('.page');
+  const cs = getComputedStyle(frame);
+  const gridTop = grid.getBoundingClientRect().top + window.scrollY;
+  return Math.floor(window.innerHeight - gridTop
+    - (parseFloat(cs.paddingBottom)||0) - (parseFloat(cs.borderBottomWidth)||0) - (parseFloat(cs.marginBottom)||0)
+    - (parseFloat(getComputedStyle(page).paddingBottom)||0));
+}
+
+function msMeasure(frame, grid, items, cfg, t){
+  const colW = (grid.clientWidth - MS_GAP*(cfg.cols-1)) / cfg.cols;
+  frame.style.setProperty('--cmp', t);
+  items.forEach(it=>{
+    msReset(it);
+    it.__mSpan = msSpanFor(it, cfg);
+    it.style.position = 'absolute';
+    it.style.transition = 'left .18s ease, top .18s ease';
+    it.style.width = (it.__mSpan*colW + (it.__mSpan-1)*MS_GAP) + 'px';
+    it.style.height = 'auto';
+  });
+  const heights = items.map(it=>it.offsetHeight);
+  return { colW, heights, avail: msAvail(frame, grid) };
+}
+
+function msPlace(items, heights, cols){
+  const bottoms = new Array(cols).fill(0);
+  const order = items.map((_,i)=>i).sort((a,b)=>{
+    const sa = items[a].__mSpan, sb = items[b].__mSpan;
+    if(sa !== sb) return sb - sa;
+    if(sa > 1){
+      const pa = items[a].id==='calendarCard' ? 0 : 1, pb = items[b].id==='calendarCard' ? 0 : 1;
+      return pa - pb || a - b;
+    }
+    return heights[b] - heights[a] || a - b;
+  });
+  const start = new Array(items.length).fill(0);
+  const top = new Array(items.length).fill(0);
+  order.forEach(i=>{
+    const span = items[i].__mSpan;
+    let bs = 0, bt = Infinity;
+    let lo = 0, hi = cols - span;
+    if(items[i].id === 'calendarCard' && span < cols){
+      lo = hi = (MS_SET.calSide === 'right') ? cols - span : 0;
+    }
+    for(let c=lo; c<=hi; c++){
+      const tp = Math.max(...bottoms.slice(c, c+span));
+      if(tp < bt){ bt = tp; bs = c; }
+    }
+    start[i] = bs; top[i] = bt;
+    for(let c=bs; c<bs+span; c++) bottoms[c] = bt + heights[i] + MS_GAP;
+  });
+  return { start, top, bottoms, H: Math.max(...bottoms) - MS_GAP };
+}
+
+function msCap(item){
+  const fill = item.dataset.fill;
+  if(fill === 'list'){
+    const l = item.querySelector(MS_LIST);
+    return l ? Math.max(0, l.scrollHeight - l.clientHeight) : 0;
+  }
+  if(fill === 'pomo'){
+    const r = item.querySelector('.pomo-ring-wrap');
+    return r ? Math.max(0, 220 - r.offsetHeight) : 0;
+  }
+  if(fill === 'soft') return Infinity;
+  if(fill === 'chart'){
+    const w = item.querySelector('.chart-canvas-wrap');
+    return w ? Math.max(0, 340 - w.offsetHeight) : 0;
+  }
+  if(fill === 'cal'){
+    const n = item.querySelectorAll('.cal-cell').length / 7;
+    return n ? n*44 : 0;
+  }
+  return 0;
+}
+
+function msGrow(item, g){
+  if(g <= 0.5) return;
+  const fill = item.dataset.fill;
+  if(fill === 'list'){
+    const l = item.querySelector(MS_LIST);
+    if(l) l.style.maxHeight = (l.clientHeight + g) + 'px';
+  } else if(fill === 'pomo'){
+    const r = item.querySelector('.pomo-ring-wrap');
+    if(r) growPomodoro(item, Math.min(220, r.offsetHeight + g));
+  } else if(fill === 'soft'){
+    const ta = item.querySelector('.brain-textarea');
+    if(ta) ta.style.height = (ta.offsetHeight + g) + 'px';
+  } else if(fill === 'chart'){
+    const w = item.querySelector('.chart-canvas-wrap');
+    if(w) w.style.height = (w.offsetHeight + g) + 'px';
+  } else if(fill === 'cal'){
+    const n = item.querySelectorAll('.cal-cell').length / 7;
+    if(n) item.style.setProperty('--cal-grow', (g/n) + 'px');
+  }
+}
+
+function msDistribute(run, naturals, slack){
+  const growth = run.map(()=>0);
+  const caps = run.map(msCap);
+  let remaining = slack;
+  let active = run.map((_,i)=>i).filter(i=>caps[i] > 0);
+  while(remaining > 1 && active.length){
+    const share = remaining / active.length;
+    const next = [];
+    active.forEach(i=>{
+      const give = Math.min(share, caps[i] - growth[i]);
+      growth[i] += give; remaining -= give;
+      if(growth[i] < caps[i] - 1) next.push(i);
+    });
+    if(next.length === active.length) break;
+    active = next;
+  }
+  const pad = remaining > 1 ? remaining / run.length : 0;
+  run.forEach((item,i)=>{
+    msGrow(item, growth[i]);
+    item.__mH = naturals[i] + growth[i] + pad;
+    item.style.height = item.__mH + 'px';
+  });
+}
+
+function msStretch(items, cols, target){
+  const stacks = Array.from({length:cols}, ()=>[]);
+  items.forEach(it=>{ for(let c=it.__mStart; c<it.__mStart+it.__mSpan; c++) stacks[c].push(it); });
+  stacks.forEach(s=>s.sort((a,b)=>a.__mTop - b.__mTop));
+
+  items.forEach(it=>{
+    if(it.__mSpan < 2) return;
+    let lastEverywhere = true;
+    for(let c=it.__mStart; c<it.__mStart+it.__mSpan; c++){
+      const s = stacks[c];
+      if(s[s.length-1] !== it) lastEverywhere = false;
+    }
+    if(!lastEverywhere) return;
+    const extra = target - (it.__mTop + it.__mH);
+    if(extra <= 4) return;
+    msDistribute([it], [it.__mH], extra);
+  });
+
+  stacks.forEach(stack=>{
+    let from = stack.length;
+    while(from > 0 && stack[from-1].__mSpan === 1) from--;
+    const run = stack.slice(from);
+    if(!run.length) return;
+    const runTop = run[0].__mTop;
+    const naturals = run.map(it=>it.__mH);
+    const total = naturals.reduce((a,b)=>a+b,0) + MS_GAP*(run.length-1);
+    const slack = target - runTop - total;
+    if(slack <= 4) return;
+    msDistribute(run, naturals, slack);
+    let cur = runTop;
+    run.forEach(it=>{
+      it.__mTop = cur;
+      it.style.top = cur + 'px';
+      cur += it.__mH + MS_GAP;
+    });
+  });
+}
+
+function msApply(frame, grid, items, cfg, t, doStretch){
+  const m = msMeasure(frame, grid, items, cfg, t);
+  const pl = msPlace(items, m.heights, cfg.cols);
+  items.forEach((it,i)=>{
+    it.__mStart = pl.start[i];
+    it.__mTop = pl.top[i];
+    it.__mH = m.heights[i];
+    it.style.left = (pl.start[i]*(m.colW+MS_GAP)) + 'px';
+    it.style.top = pl.top[i] + 'px';
+  });
+  let finalH = pl.H;
+  if(doStretch && m.avail > pl.H){
+    msStretch(items, cfg.cols, m.avail);
+    finalH = m.avail;
+  }
+  items.forEach(it=>{ finalH = Math.max(finalH, it.__mTop + it.__mH); });
+  grid.style.position = 'relative';
   grid.style.height = finalH + 'px';
 }
 
-function growPomodoro(card, cardH){
+function layoutMasonry(forceCols){
+  const frame = document.querySelector('.dash-frame');
+  const grid = document.querySelector('.grid');
+  if(!frame || !grid) return;
+  const items = msItems(grid);
+  if(!items.length) return;
+  const w = window.innerWidth;
+  const cols = forceCols || (w>=1440 ? 4 : w>=1100 ? 3 : w>=760 ? 2 : 1);
+  msApply(frame, grid, items, { cols, cal:Math.min(2,cols), hist:Math.min(2,cols) }, 0, false);
+}
+
+function growPomodoro(card, size){
   const ring = card.querySelector('.pomo-ring-wrap');
   if(!ring) return;
-  const size = Math.max(104, Math.min(220, cardH - 96));
   ring.style.width = size+'px';
   ring.style.height = size+'px';
   const t = card.querySelector('.pomo-time');
   if(t) t.style.fontSize = Math.round(19 + (size-104)*0.14)+'px';
 }
 
+let msBusy = false;
 function fitToViewport(){
-  const frame = document.querySelector('.dash-frame');
-  if(!frame) return;
+  if(msBusy) return;
+  msBusy = true;
+  try { msFit(); } finally { msBusy = false; }
+}
 
-  frame.style.transform = '';
-  frame.style.marginBottom = '';
+function msFit(){
+  const frame = document.querySelector('.dash-frame');
+  const grid = document.querySelector('.grid');
+  if(!frame || !grid) return;
 
   if(window.innerWidth < 900){
+    document.body.classList.remove('no-fit');
     layoutMasonry();
     return;
   }
 
-  const topbar = document.querySelector('.topbar');
-  const page = document.querySelector('.page');
-  const topbarH = topbar ? topbar.offsetHeight : 0;
-  const pagePadTop = parseFloat(getComputedStyle(page).paddingTop)||0;
-  const BOTTOM_MARGIN = 18;
-  const available = window.innerHeight - topbarH - pagePadTop - BOTTOM_MARGIN;
+  const items = msItems(grid);
+  if(!items.length) return;
 
-  const w = window.innerWidth;
-  const baseCols = w>=1440 ? 4 : w>=1100 ? 3 : 2;
-
-  const GAP = 20;
-  const framePad = parseFloat(getComputedStyle(frame).paddingLeft)||0;
-  const containerW = frame.clientWidth - framePad*2;
-  const MIN_COL_W = 270;
-  const maxAllowedCols = Math.max(baseCols, Math.floor((containerW+GAP)/(MIN_COL_W+GAP)));
-  const MAX_COLS = Math.min(6, maxAllowedCols);
-
-  let fitCols = null;
-  for(let c=baseCols; c<=MAX_COLS; c++){
-    layoutMasonry(c);
-    if(frame.scrollHeight <= available){ fitCols = c; break; }
-  }
-  if(fitCols===null){
-    layoutMasonry(MAX_COLS);
+  if(!MS_SET.fit){
+    const w = window.innerWidth;
+    const cols0 = w>=1440 ? 4 : w>=1100 ? 3 : 2;
+    document.body.classList.add('no-fit');
+    msApply(frame, grid, items, { cols:cols0, cal:Math.min(MS_SET.calSpan, cols0-1), hist:Math.min(2, cols0) }, 0, false);
+    return;
   }
 
+  const containerW = grid.clientWidth;
+  const maxCols = Math.max(2, Math.min(6, Math.floor((containerW + MS_GAP) / (MS_MIN_COL_W + MS_GAP))));
+  const minCols = Math.min(3, maxCols);
+
+  const cfgs = [];
+  for(let c=minCols; c<=maxCols; c++){
+    const calSpan = Math.min(MS_SET.calSpan, Math.max(1, c-1));
+    cfgs.push({ cols:c, cal:calSpan, hist:1 });
+    if(c >= 4) cfgs.push({ cols:c, cal:calSpan, hist:2 });
+  }
+
+  const overflow = (cfg, t)=>{
+    const m = msMeasure(frame, grid, items, cfg, t);
+    return msPlace(items, m.heights, cfg.cols).H - m.avail;
+  };
+
+  let best = null;
+  for(const cfg of cfgs){
+    if(overflow(cfg, 0) <= 0){ best = { cfg, t:0, fit:true }; break; }
+  }
+
+  if(!best){
+    const cands = [];
+    cfgs.forEach(cfg=>{
+      const o1 = overflow(cfg, 1);
+      if(o1 <= 0){
+        let lo = 0, hi = 1;
+        for(let k=0; k<4; k++){
+          const mid = (lo+hi)/2;
+          if(overflow(cfg, mid) <= 0) hi = mid; else lo = mid;
+        }
+        cands.push({ cfg, t:hi, fit:true });
+      } else {
+        cands.push({ cfg, t:1, fit:false, over:o1 });
+      }
+    });
+    const ok = cands.filter(c=>c.fit).sort((a,b)=>(a.t-b.t) || (a.cfg.cols-b.cfg.cols));
+    best = ok.length ? ok[0] : cands.sort((a,b)=>a.over-b.over)[0];
+  }
+
+  window.__msDbg = { cols:best.cfg.cols, cal:best.cfg.cal, hist:best.cfg.hist, t:best.t, fit:best.fit, avail:msAvail(frame,grid) };
+  document.body.classList.toggle('no-fit', !best.fit);
+  msApply(frame, grid, items, best.cfg, best.t, best.fit);
+  const hero = document.querySelector('.dash-hero');
+  window.__msHeroH = hero ? hero.offsetHeight : 0;
 }
 
 function collapseAll(){
@@ -2519,6 +2864,8 @@ function syncAccentStates(){
 setInterval(syncAccentStates,1500);
 initDashboard();
 syncAccentStates();
+msInitSettingsUI();
+document.getElementById('settingsClose2').addEventListener('click', ()=>document.getElementById('settingsOverlay').classList.remove('show'));
 </script>
 </body>
 </html>
